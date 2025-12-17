@@ -4,5 +4,5 @@ CREATE TABLE  IF NOT EXISTS  users (
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20) NOT NULL,
     password VARCHAR(100) NOT NULL,
-    role ENUM('admin','employee','customer') NOT NULL DEFAULT 'customer'
+    role ENUM('ADMIN','EMPLOYEE','CUSTOMER') NOT NULL DEFAULT 'CUSTOMER'
 );
