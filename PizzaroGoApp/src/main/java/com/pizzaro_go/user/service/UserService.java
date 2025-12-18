@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final IUserRepository userRepository;
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     /**
      * Creates a new UserService with the given repository.
@@ -44,21 +44,21 @@ public class UserService {
      * @throws PGException if a repository error occurs during registration
      */
     public MessageResponse register(UserRequest user) throws PGException {
-        log.info("Register the user: {}", user.getUsername());
+        this.log.info("Register the user: {}", user.getUsername());
         try {
-            if (userRepository.existsByUsername(user.getUsername())) {
+            if (this.userRepository.existsByUsername(user.getUsername())) {
                 return new MessageResponse("The user name already exists.");
             }
-            if (userRepository.existsByEmail(user.getEmail())) {
+            if (this.userRepository.existsByEmail(user.getEmail())) {
                 return new MessageResponse("The email already exists.");
             }
 
-            User userToSave = userRepository.save(user.toUser());
+            User userToSave = this.userRepository.save(user.toUser());
             return new MessageResponse(userToSave.getId().toString());
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to register the user: ";
-            log.error(errorMsg + "{}", e.getMessage());
+            this.log.error(errorMsg, e);
 
             errorMsg += e.getMessage();
             throw new PGException(errorMsg);
@@ -76,8 +76,8 @@ public class UserService {
      */
     public UserResponse getByEmail(String email) throws PGException {
         try {
-            log.info("Retrieving user with email: " + email);
-            Optional<User> user = userRepository.getByEmail(email);
+            this.log.info("Retrieving user with email: {}",email);
+            Optional<User> user = this.userRepository.getByEmail(email);
             if (user.isPresent()) {
                 return new UserResponse(user.get());
             } else {
@@ -88,7 +88,7 @@ public class UserService {
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to get the user by email " + email + ": ";
-            log.error(errorMsg + "{}", e.getMessage());
+            log.error(errorMsg, e);
 
             errorMsg += e.getMessage();
             throw new PGException(errorMsg);
@@ -112,7 +112,7 @@ public class UserService {
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to get all users: ";
-            log.error(errorMsg + "{}", e.getMessage());
+            log.error(errorMsg, e);
 
             errorMsg += e.getMessage();
             throw new PGException(errorMsg);

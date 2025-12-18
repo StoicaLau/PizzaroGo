@@ -2,67 +2,35 @@ package com.pizzaro_go.user.dtos;
 
 
 import com.pizzaro_go.common.enums.Role;
+import com.pizzaro_go.order.dtos.OrderRequest;
+import com.pizzaro_go.order.entity.Order;
 import com.pizzaro_go.user.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRequest {
-    private Integer id;
+    private String id;
     private String username;
     private String email;
     private String phone;
     private String password;
     private String role;
-
+    private List<OrderRequest> orders;
 
     public User toUser() {
-        Role userRole = this.role != null ? Role.valueOf(this.role.toUpperCase()) : Role.CUSTOMER;
-        return new User(this.id, this.username, this.email, this.phone, this.password, userRole);
+        Integer idToSet=Integer.parseInt(this.id);
+        Role userRole = this.role != null ? Role.valueOf(this.role) : Role.CUSTOMER;
+        List<Order> ordersToSet = this.orders != null ? this.orders.stream().map(OrderRequest::toOrder).collect(Collectors.toList()):null;
+        return new User(idToSet, this.username, this.email, this.phone, this.password, userRole,ordersToSet);
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 }

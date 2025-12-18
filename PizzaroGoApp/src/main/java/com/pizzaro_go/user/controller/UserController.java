@@ -32,7 +32,6 @@ public class UserController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
     public MessageResponse register(@RequestBody UserRequest userRequest) {
-        MessageResponse response = this.userService.register(userRequest);
         return this.userService.register(userRequest);
     }
 
@@ -42,8 +41,8 @@ public class UserController {
      * @param email the user's email address
      * @return UserResponse with user details
      */
-    @GetMapping("/email")
-    @Operation(summary = "Retrieve a user bt email")
+    @GetMapping("/{email}")
+    @Operation(summary = "Retrieve a user by email")
     public UserResponse getByEmail(@PathParam("email") String email) {
         return this.userService.getByEmail(email);
     }
