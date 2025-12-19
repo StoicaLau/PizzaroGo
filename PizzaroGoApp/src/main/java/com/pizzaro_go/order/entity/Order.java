@@ -20,7 +20,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false,
@@ -37,12 +37,12 @@ public class Order {
     @Column(nullable = false)
     private Status status = Status.PENDING;
 
-    @Column(name = "order_price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "order_price", nullable = false)
     private Double orderPrice = 0.0;
 
-    @Column(name = "delivery_price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "delivery_price", nullable = false)
     private Double deliveryPrice = 0.0;
 
-    @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_price", nullable = false)
     private Double totalPrice = 0.0;
 }

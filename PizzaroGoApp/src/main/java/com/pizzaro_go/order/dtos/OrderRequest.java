@@ -9,15 +9,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+//TODO MAPSTRUCT
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRequest {
-    private String id;
+
+    private Long id;
     private UserRequest user;
     private LocalDateTime createdAt;
     private LocalDateTime estimatedAt;
@@ -29,8 +29,7 @@ public class OrderRequest {
     public Order toOrder() {
         User userToSet = this.user.toUser();
         Status statusToSet = this.status != null ? Status.valueOf(status.toUpperCase()) : Status.PENDING;
-        Integer idToSet = Integer.parseInt(this.id);
-        return new Order(idToSet, userToSet, this.createdAt, this.estimatedAt, statusToSet, this.orderPrice, this.deliveryPrice, this.totalPrice);
+        return new Order(this.id, userToSet, this.createdAt, this.estimatedAt, statusToSet, this.orderPrice, this.deliveryPrice, this.totalPrice);
     }
 
 }

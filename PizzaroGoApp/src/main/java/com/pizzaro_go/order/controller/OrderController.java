@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.websocket.server.PathParam;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * REST controller for order operations.
  */
@@ -47,8 +49,20 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Create an order by id")
-    public OrderResponse getById(@PathParam("id") String id) {
+    public OrderResponse getById(@PathParam("id") Long id) {
         return this.orderService.getById(id);
+    }
+
+    /**
+     * Retrieves all orders belonging to a specific user.
+     *
+     * @param userId the ID of the user whose orders should be retrieved
+     * @return a list of OrderResponse objects representing the user's orders
+     */
+    @GetMapping("")
+    @Operation(summary = "Retrieves all orders belonging to a specific user")
+    public List<OrderResponse> getAllByUserId(@RequestParam("userId") Long userId) {
+        return this.orderService.getAllByUserId(userId);
     }
 
     /**
@@ -71,7 +85,7 @@ public class OrderController {
      */
     @DeleteMapping("/{id}")
     @Operation
-    public MessageResponse delete(@PathParam("id") String id) {
+    public MessageResponse delete(@PathParam("id") Long id) {
         return this.orderService.deleteById(id);
     }
 

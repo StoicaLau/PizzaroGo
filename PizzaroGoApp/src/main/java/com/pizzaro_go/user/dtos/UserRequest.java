@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRequest {
-    private String id;
+    private Long id;
     private String username;
     private String email;
     private String phone;
@@ -27,10 +27,10 @@ public class UserRequest {
     private List<OrderRequest> orders;
 
     public User toUser() {
-        Integer idToSet=Integer.parseInt(this.id);
+
         Role userRole = this.role != null ? Role.valueOf(this.role) : Role.CUSTOMER;
         List<Order> ordersToSet = this.orders != null ? this.orders.stream().map(OrderRequest::toOrder).collect(Collectors.toList()):null;
-        return new User(idToSet, this.username, this.email, this.phone, this.password, userRole,ordersToSet);
+        return new User(this.id, this.username, this.email, this.phone, this.password, userRole,ordersToSet);
     }
 
 }

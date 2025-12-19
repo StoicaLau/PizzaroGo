@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * User repository interface
  */
-public interface IUserRepository extends JpaRepository<User, Integer> {
+public interface IUserRepository extends JpaRepository<User, Long> {
     /**
      * Checks if a user exists by username.
      *

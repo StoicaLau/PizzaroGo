@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class OrderResponse {
-    private String id;
-    private String userid;
+    private Long id;
+    private Long userid;
     private LocalDateTime createdAt;
     private LocalDateTime estimatedAt;
     private String status;
@@ -21,8 +21,8 @@ public class OrderResponse {
     private Double totalPrice;
 
     public OrderResponse(Order order) {
-        this.id = String.valueOf(order.getId());
-        this.userid = String.valueOf(order.getUser().getId());
+        this.id = order.getId();
+        this.userid = order.getUser().getId();
         this.createdAt = order.getCreatedAt();
         this.estimatedAt = order.getEstimatedAt();
         this.status = String.valueOf(order.getStatus());

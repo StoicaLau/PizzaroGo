@@ -7,11 +7,14 @@ import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.entity.Order;
 import com.pizzaro_go.order.repository.IOrderRepository;
+import com.pizzaro_go.user.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service layer for order operations.
@@ -21,6 +24,7 @@ import java.util.Optional;
 public class OrderService {
 
     private final IOrderRepository orderRepository;
+    private final IUserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     /**
@@ -28,8 +32,9 @@ public class OrderService {
      *
      * @param orderRepository the repository used for order persistence
      */
-    public OrderService(IOrderRepository orderRepository) {
+    public OrderService(IOrderRepository orderRepository, IUserRepository userRepository) {
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -61,11 +66,10 @@ public class OrderService {
      * @return an OrderResponse with order details
      * @throws PGException if the order is not found or a repository error occurs
      */
-    public OrderResponse getById(String id) throws PGException {
+    public OrderResponse getById(Long id) throws PGException {
         try {
             this.log.info("Retrieving an order");
-            Integer idToFind = Integer.parseInt(id);
-            Optional<Order> order = this.orderRepository.findById(idToFind);
+            Optional<Order> order = this.orderRepository.findById(id);
             if (order.isPresent()) {
                 return new OrderResponse(order.get());
             } else {
@@ -91,7 +95,7 @@ public class OrderService {
      * @throws PGException if a repository error occurs during update
      */
     public MessageResponse update(OrderRequest order) throws PGException {
-        String orderId = order.getId();
+        Long orderId = order.getId();
         this.log.info("Updating the order with id: {}", orderId);
         try {
             Order orderToUpdate = this.orderRepository.save(order.toOrder());
@@ -115,16 +119,15 @@ public class OrderService {
      * @return a MessageResponse confirming deletion
      * @throws PGException if the order is not found or a repository error occurs
      */
-    public MessageResponse deleteById(String id) throws PGException {
+    public MessageResponse deleteById(Long id) throws PGException {
         this.log.info("Delete the order with id: {}", id);
         try {
-            Integer orderId = Integer.parseInt(id);
 
-            if (!orderRepository.existsById(orderId)) {
+            if (!this.orderRepository.existsById(id)) {
                 throw new PGException("Order with id " + id + " not found!");
             }
 
-            orderRepository.deleteById(orderId);
+            this.orderRepository.deleteById(id);
             return new MessageResponse("Order successfully deleted!");
 
         } catch (RepositoryException e) {
@@ -135,5 +138,32 @@ public class OrderService {
 
             throw new PGException(errorMsg);
         }
+    }
+
+    /**
+     * Retrieves all orders belonging to a specific user.
+     *
+     * @param userId the ID of the user whose orders should be retrieved
+     * @return a list of OrderResponse objects representing the user's orders
+     * @throws PGException if the user does not exist or if a repository error occurs
+     */
+    public List<OrderResponse> getAllByUserId(Long userId) throws PGException {
+        this.log.info("Retrieve all orders by user id: {} ", userId);
+        try {
+            if (!this.userRepository.existsById(userId)) {
+                throw new PGException("Cannot retrieve orders because the user with id " + userId + " does not exist.");
+            }
+
+            return this.orderRepository.getAllByUserId(userId).stream().map(OrderResponse::new).collect(Collectors.toList());
+
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when retrieve all orders by user id: " + userId + " ->";
+            this.log.error(errorMsg, e);
+
+            errorMsg += e.getMessage();
+
+            throw new PGException(errorMsg);
+        }
+
     }
 }

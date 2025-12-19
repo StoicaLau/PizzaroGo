@@ -10,7 +10,7 @@ import java.util.List;
  * Repository interface for Order entities.
  * Provides custom query methods for accessing orders.
  */
-public interface IOrderRepository extends JpaRepository<Order, Integer> {
+public interface IOrderRepository extends JpaRepository<Order, Long> {
 
     /**
      * Retrieves all orders belonging to a specific user.
@@ -19,5 +19,5 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
      * @return a list of orders for the given user
      * @throws RepositoryException if a data access error occurs
      */
-    List<Order> getAllByUserId(Integer userId) throws RepositoryException;
+    List<Order> getAllByUserId(Long userId) throws RepositoryException;
 }

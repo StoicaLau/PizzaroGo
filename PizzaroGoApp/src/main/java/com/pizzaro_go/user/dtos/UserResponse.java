@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class UserResponse {
-    private Integer id;
+    private Long id;
     private String username;
     private String email;
     private String phone;
-    private String password;
     private String Role;
     private List<OrderResponse> orders;
 
@@ -26,7 +26,6 @@ public class UserResponse {
         this.username = user.getEmail();
         this.email = user.getEmail();
         this.phone = user.getPhone();
-        this.password = user.getPhone();
         this.Role = user.getRole().name();
         this.orders = user.getOrders() != null ? user.getOrders().stream().map(OrderResponse::new).collect(Collectors.toList()) : null;
 
