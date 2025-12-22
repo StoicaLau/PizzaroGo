@@ -7,6 +7,7 @@ import com.pizzaro_go.user.dtos.UserRequest;
 import com.pizzaro_go.user.dtos.UserResponse;
 import com.pizzaro_go.user.entity.User;
 import com.pizzaro_go.user.exceptions.UserNotFoundException;
+import com.pizzaro_go.user.mapper.IUserMapper;
 import com.pizzaro_go.user.repository.IUserRepository;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final IUserRepository userRepository;
+    private final IUserMapper userMapper;
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     /**
@@ -31,8 +33,9 @@ public class UserService {
      *
      * @param userRepository the repository used for user persistence
      */
-    public UserService(IUserRepository userRepository) {
+    public UserService(IUserRepository userRepository,IUserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper=userMapper;
 
     }
 
@@ -53,8 +56,9 @@ public class UserService {
                 return new MessageResponse("The email already exists.");
             }
 
-            User userToSave = this.userRepository.save(user.toUser());
-            return new MessageResponse(userToSave.getId().toString());
+            User userToSave=this.userMapper.toEntity(user);
+            User savedUser = this.userRepository.save(userToSave);
+            return new MessageResponse(savedUser.getId().toString());
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to register the user: ";
@@ -79,7 +83,7 @@ public class UserService {
             this.log.info("Retrieving user with email: {}",email);
             Optional<User> user = this.userRepository.getByEmail(email);
             if (user.isPresent()) {
-                return new UserResponse(user.get());
+                return this.userMapper.toResponse(user.get());
             } else {
                 String errorMsg = "Could not find any user with email: " + email;
                 log.error(errorMsg);
@@ -107,7 +111,7 @@ public class UserService {
             log.info("Retrieving all users");
             List<User> users = userRepository.findAll();
             return users.stream()
-                    .map(UserResponse::new)
+                    .map(this.userMapper::toResponse)
                     .collect(Collectors.toList());
 
         } catch (RepositoryException e) {

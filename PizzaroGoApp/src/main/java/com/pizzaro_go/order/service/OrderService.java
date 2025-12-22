@@ -6,7 +6,9 @@ import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.order.mapper.IOrderMapper;
 import com.pizzaro_go.order.repository.IOrderRepository;
+import com.pizzaro_go.user.entity.User;
 import com.pizzaro_go.user.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class OrderService {
 
     private final IOrderRepository orderRepository;
     private final IUserRepository userRepository;
+    private final IOrderMapper orderMapper;
     private final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     /**
@@ -32,9 +35,10 @@ public class OrderService {
      *
      * @param orderRepository the repository used for order persistence
      */
-    public OrderService(IOrderRepository orderRepository, IUserRepository userRepository) {
+    public OrderService(IOrderRepository orderRepository, IUserRepository userRepository, IOrderMapper orderMapper) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
+        this.orderMapper = orderMapper;
     }
 
     /**
@@ -46,9 +50,8 @@ public class OrderService {
      */
     public MessageResponse create(OrderRequest order) throws PGException {
         try {
-            String username = order.getUser().getUsername();
-            this.log.info("Create an order for: {}", username);
-            Order orderToSave = this.orderRepository.save(order.toOrder());
+            this.log.info("Create an order for the user with id: {}", order.getUserId());
+            Order orderToSave = this.toOrder(order);
             return new MessageResponse(orderToSave.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to create an order";
@@ -71,7 +74,7 @@ public class OrderService {
             this.log.info("Retrieving an order");
             Optional<Order> order = this.orderRepository.findById(id);
             if (order.isPresent()) {
-                return new OrderResponse(order.get());
+                return this.orderMapper.toResponse(order.get());
             } else {
                 String errorMsg = "Could not find any order with the provided id:" + id + "-> ";
                 log.error(errorMsg);
@@ -98,8 +101,9 @@ public class OrderService {
         Long orderId = order.getId();
         this.log.info("Updating the order with id: {}", orderId);
         try {
-            Order orderToUpdate = this.orderRepository.save(order.toOrder());
-            return new MessageResponse(orderToUpdate.getId().toString());
+            Order orderToUpdate =this.toOrder(order);
+            Order updatedOrder = this.orderRepository.save(orderToUpdate);
+            return new MessageResponse(updatedOrder.getId().toString());
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when updating the order with id: " + orderId + " ->";
@@ -154,7 +158,7 @@ public class OrderService {
                 throw new PGException("Cannot retrieve orders because the user with id " + userId + " does not exist.");
             }
 
-            return this.orderRepository.getAllByUserId(userId).stream().map(OrderResponse::new).collect(Collectors.toList());
+            return this.orderRepository.getAllByUserId(userId).stream().map(this.orderMapper::toResponse).collect(Collectors.toList());
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when retrieve all orders by user id: " + userId + " ->";
@@ -165,5 +169,35 @@ public class OrderService {
             throw new PGException(errorMsg);
         }
 
+    }
+
+    /**
+     * Converts an OrderRequest into an Order entity .
+     *
+     * @param orderRequest the incoming order data
+     * @return the mapped Order entity with the associated user
+     * @throws PGException if the user does not exist or a repository error occurs
+     */
+    public Order toOrder(OrderRequest orderRequest) throws PGException {
+        try {
+            Order order = this.orderMapper.toEntity(orderRequest);
+            Long userId = orderRequest.getUserId();
+
+            Optional<User> user = this.userRepository.findById(userId);
+            if (user.isPresent()) {
+                order.setUser(user.get());
+                return order;
+            } else {
+                String errorMsg ="Cannot convert order DTO to entity because no user was found with id: "  + userId + "-> ";
+                log.error(errorMsg);
+                throw new PGException(errorMsg);
+            }
+        } catch (RepositoryException e) {
+            String errorMsg = "Order conversion from DTO to entity failed due to a repository error";
+            this.log.error(errorMsg, e);
+
+            errorMsg += "->" + e.getMessage();
+            throw new PGException(errorMsg);
+        }
     }
 }

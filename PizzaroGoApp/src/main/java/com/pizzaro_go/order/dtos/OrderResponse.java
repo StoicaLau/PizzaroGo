@@ -1,6 +1,5 @@
 package com.pizzaro_go.order.dtos;
 
-import com.pizzaro_go.order.entity.Order;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,15 +19,5 @@ public class OrderResponse {
     private Double deliveryPrice;
     private Double totalPrice;
 
-    public OrderResponse(Order order) {
-        this.id = order.getId();
-        this.userid = order.getUser().getId();
-        this.createdAt = order.getCreatedAt();
-        this.estimatedAt = order.getEstimatedAt();
-        this.status = String.valueOf(order.getStatus());
-        this.orderPrice = order.getOrderPrice();
-        this.deliveryPrice = order.getDeliveryPrice();
-        this.totalPrice = order.getTotalPrice();
-    }
 
 }
