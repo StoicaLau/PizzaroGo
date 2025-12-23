@@ -3,12 +3,13 @@ package com.pizzaro_go.order.mapper;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.common.enums.Status;
 import org.mapstruct.*;
 
 /**
  * Mapper for converting between Order entities and Order DTOs.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = {Status.class})
 public interface IOrderMapper {
 
     /**
@@ -24,7 +25,13 @@ public interface IOrderMapper {
     Order toEntity(OrderRequest request);
 
 
-    @Mapping(target = "userid", source = "user.id")
+    /**
+     * Converts an Order entity into an OrderResponse.
+     *
+     * @param order the Order entity to convert
+     * @return the mapped OrderResponse DTO
+     */
+    @Mapping(target = "userId", expression = "java(order.getUser().getId())")
     @Mapping(target = "status", expression = "java(order.getStatus().name())")
     OrderResponse toResponse(Order order);
 }

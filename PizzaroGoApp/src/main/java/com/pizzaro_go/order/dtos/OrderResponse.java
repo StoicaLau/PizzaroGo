@@ -11,13 +11,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class OrderResponse {
     private Long id;
-    private Long userid;
+    private Long userId;
     private LocalDateTime createdAt;
     private LocalDateTime estimatedAt;
     private String status;
     private Double orderPrice;
     private Double deliveryPrice;
     private Double totalPrice;
-
 
 }

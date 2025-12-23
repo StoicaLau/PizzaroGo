@@ -10,11 +10,12 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "orders")
 public class Order {
 
@@ -45,4 +46,6 @@ public class Order {
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice = 0.0;
+
+
 }
