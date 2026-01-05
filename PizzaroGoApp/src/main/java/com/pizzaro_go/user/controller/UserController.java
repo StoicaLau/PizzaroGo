@@ -27,12 +27,24 @@ public class UserController {
      * Registers a new user.
      *
      * @param userRequest the registration details
-     * @return MessageResponse  with a message
+     * @return MessageResponse with a message
      */
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
     public MessageResponse register(@RequestBody UserRequest userRequest) {
         return this.userService.register(userRequest);
+    }
+
+    /**
+     * Authenticates a user.
+     *
+     * @param loginRequest the login credentials
+     * @return UserResponse with user details
+     */
+    @PostMapping("/login")
+    @Operation(summary = "Login a user")
+    public UserResponse login(@RequestBody UserRequest loginRequest) {
+        return this.userService.login(loginRequest);
     }
 
     /**

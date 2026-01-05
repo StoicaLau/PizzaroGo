@@ -4,7 +4,7 @@ fetch("/frontend/shared/components/navigation-bar/navigation-bar.html")
     .then(res => res.text())
     .then(html => {
         navbarContainer.innerHTML = html;
-        import("/frontend/shared/components/navigation-bar/navigation-bar.js").catch(() => {});
+        import("/frontend/shared/components/navigation-bar/navigation-bar.js").catch(() => { });
     });
 
 // Simple auth helper (placeholder). Replace with real auth/token logic later.
@@ -12,6 +12,11 @@ function isAuthenticated() {
     return !!localStorage.getItem("token");
 }
 window.isAuthenticated = isAuthenticated;
+
+// Ensure auth-change event updates basic UI if needed
+window.addEventListener('auth-change', () => {
+    console.log("Auth state changed, user logged in:", isAuthenticated());
+});
 
 let currentPageCss = null;
 const protectedPaths = ["/menu", "/orders"];

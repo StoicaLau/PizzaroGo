@@ -9,6 +9,7 @@ import com.pizzaro_go.user.entity.User;
 import com.pizzaro_go.user.exceptions.UserNotFoundException;
 import com.pizzaro_go.user.mapper.IUserMapper;
 import com.pizzaro_go.user.repository.IUserRepository;
+import com.pizzaro_go.user.resources.PasswordUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 /**
  * Service layer for user operations.
@@ -33,9 +33,9 @@ public class UserService {
      *
      * @param userRepository the repository used for user persistence
      */
-    public UserService(IUserRepository userRepository,IUserMapper userMapper) {
+    public UserService(IUserRepository userRepository, IUserMapper userMapper) {
         this.userRepository = userRepository;
-        this.userMapper=userMapper;
+        this.userMapper = userMapper;
 
     }
 
@@ -56,7 +56,8 @@ public class UserService {
                 return new MessageResponse("The email already exists.");
             }
 
-            User userToSave=this.userMapper.toEntity(user);
+            User userToSave = this.userMapper.toEntity(user);
+            userToSave.setPassword(PasswordUtils.encryptPassword(user.getPassword()));
             User savedUser = this.userRepository.save(userToSave);
             return new MessageResponse(savedUser.getId().toString());
 
@@ -80,7 +81,7 @@ public class UserService {
      */
     public UserResponse getByEmail(String email) throws PGException {
         try {
-            this.log.info("Retrieving user with email: {}",email);
+            this.log.info("Retrieving user with email: {}", email);
             Optional<User> user = this.userRepository.getByEmail(email);
             if (user.isPresent()) {
                 return this.userMapper.toResponse(user.get());
@@ -98,6 +99,36 @@ public class UserService {
             throw new PGException(errorMsg);
         }
 
+    }
+
+    /**
+     * Authenticates a user.
+     *
+     * @param loginRequest the login credentials
+     * @return UserResponse if authentication is successful
+     * @throws PGException if a repository error occurs
+     */
+    public UserResponse login(UserRequest loginRequest) throws PGException {
+        try {
+            this.log.info("Login request for email: {}", loginRequest.getEmail());
+            Optional<User> userOptional = this.userRepository.getByEmail(loginRequest.getEmail());
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                if (PasswordUtils.verifyPassword(loginRequest.getPassword(), user.getPassword())) {
+                    return this.userMapper.toResponse(user);
+                } else {
+                    throw new PGException("Invalid credentials.");
+                }
+            } else {
+                throw new PGException("Invalid credentials.");
+            }
+
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred during login: ";
+            log.error(errorMsg, e);
+            throw new PGException(errorMsg + e.getMessage());
+        }
     }
 
     /**

@@ -1,0 +1,43 @@
+<div class="header-user-details">
+  <!-- Unauthenticated State -->
+  <div class="state-unauthenticated" id="hud-unauth">
+    <button class="btn-login" id="hud-login-btn">
+      <span>Login</span>
+    </button>
+  </div>
+
+  <!-- Authenticated State -->
+  <div class="state-authenticated hidden" id="hud-auth">
+
+    <div class="user-profile" id="hud-profile-trigger">
+      <div class="user-info">
+        <span class="username" id="hud-username">User</span>
+        <span class="email" id="hud-email">user@example.com</span>
+      </div>
+      <div class="dropdown-icon">
+        <i class="arrow down"></i>
+      </div>
+    </div>
+
+    <!-- Order List/Cart Icon (Moved to right) -->
+    <div class="cart-container" id="hud-cart-btn" title="View Orders">
+      <div class="css-order-list-icon">
+        <div class="list-board"></div>
+        <div class="list-line l1"></div>
+        <div class="list-line l2"></div>
+        <div class="list-line l3"></div>
+      </div>
+      <span class="cart-badge" id="hud-cart-count">0</span>
+    </div>
+
+    <!-- Dropdown Menu -->
+    <div class="user-dropdown hidden" id="hud-dropdown">
+      <button class="dropdown-item" onclick="navigate('/orders')">
+        My Orders
+      </button>
+      <button class="dropdown-item" id="hud-logout-btn">
+        Logout
+      </button>
+    </div>
+  </div>
+</div>

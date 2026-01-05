@@ -1,6 +1,18 @@
 <nav class="navbar">
     <div class="nav-left" onclick="navigate('/home')">
-        🍕 <span>Pizzaro Go</span>
+        <div class="rolling-pizza-logo">
+            <div class="pizza-body">
+                <div class="pepperoni p1"></div>
+                <div class="pepperoni p2"></div>
+                <div class="pepperoni p3"></div>
+                <div class="pepperoni p4"></div>
+            </div>
+            <div class="speed-lines">
+                <div class="line l1"></div>
+                <div class="line l2"></div>
+            </div>
+        </div>
+        <span>Pizzaro Go</span>
     </div>
 
     <ul class="nav-center">
@@ -11,7 +23,6 @@
     </ul>
 
     <div class="nav-right">
-        <button class="login-btn">Login</button>
-        <button class="order-btn" style="display:none">Order Now</button>
+        <div id="header-user-details-placeholder"></div>
     </div>
 </nav>

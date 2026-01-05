@@ -2,14 +2,137 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: linear-gradient(180deg, rgba(28,28,28,0.98), rgba(28,28,28,0.95));
+    background: linear-gradient(180deg, rgba(28, 28, 28, 0.98), rgba(28, 28, 28, 0.95));
     color: white;
     padding: 12px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 6px 20px rgba(12,12,12,0.25);
+    box-shadow: 0 6px 20px rgba(12, 12, 12, 0.25);
     backdrop-filter: blur(4px);
+}
+
+/* Rolling Speed Pizza Logo Animation */
+.rolling-pizza-logo {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pizza-body {
+    width: 100%;
+    height: 100%;
+    background: #FFD700;
+    /* Cheese */
+    border: 3px solid #E6A15C;
+    /* Crust */
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    z-index: 2;
+    animation: roll-rotate 1.2s linear infinite;
+    /* Rolling rotation */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.pepperoni {
+    position: absolute;
+    background: #D32F2F;
+    border-radius: 50%;
+    opacity: 0.85;
+}
+
+.p1 {
+    width: 8px;
+    height: 8px;
+    top: 15%;
+    left: 20%;
+}
+
+.p2 {
+    width: 6px;
+    height: 6px;
+    top: 60%;
+    left: 65%;
+}
+
+.p3 {
+    width: 7px;
+    height: 7px;
+    top: 55%;
+    left: 15%;
+}
+
+.p4 {
+    width: 7px;
+    height: 7px;
+    top: 20%;
+    left: 60%;
+}
+
+/* Speed Lines */
+.speed-lines {
+    position: absolute;
+    left: -18px;
+    /* Behind the pizza to the left */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 24px;
+    z-index: 1;
+}
+
+.speed-lines .line {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 2px;
+    opacity: 0;
+    animation: speed-trail 0.8s infinite linear;
+}
+
+.line.l1 {
+    width: 15px;
+    height: 2px;
+    top: 6px;
+    animation-delay: 0s;
+}
+
+.line.l2 {
+    width: 12px;
+    height: 2px;
+    bottom: 6px;
+    animation-delay: 0.3s;
+}
+
+@keyframes roll-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes speed-trail {
+    0% {
+        transform: translateX(10px);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(0px);
+        opacity: 0;
+    }
 }
 
 .nav-left {
@@ -50,7 +173,7 @@
 
 .login-btn {
     background: transparent;
-    border: 2px solid rgba(255,77,0,0.95);
+    border: 2px solid rgba(255, 77, 0, 0.95);
     color: #ff7a3f;
     padding: 8px 14px;
     border-radius: 8px;
@@ -59,31 +182,47 @@
 }
 
 .order-btn {
-    background: linear-gradient(90deg,#ff6a00,#ff9a33);
+    background: linear-gradient(90deg, #ff6a00, #ff9a33);
     border: none;
     color: white;
     padding: 10px 20px;
     border-radius: 10px;
     cursor: pointer;
-    box-shadow: 0 8px 22px rgba(255,110,30,0.18);
+    box-shadow: 0 8px 22px rgba(255, 110, 30, 0.18);
     transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
-.order-btn:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(255,110,30,0.22); }
-.login-btn:hover { background: rgba(255,255,255,0.02); transform: translateY(-2px); }
+.order-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(255, 110, 30, 0.22);
+}
+
+.login-btn:hover {
+    background: rgba(255, 255, 255, 0.02);
+    transform: translateY(-2px);
+}
 
 .logout-btn {
     background: transparent;
-    border: 2px solid rgba(255,255,255,0.06);
+    border: 2px solid rgba(255, 255, 255, 0.06);
     color: #fff;
     padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 120ms ease, opacity 120ms ease;
 }
-.logout-btn:hover { transform: translateY(-2px); opacity: 0.95; }
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+}
 
 @media (max-width: 760px) {
-    .nav-center { display: none; }
-    .navbar { padding: 10px 16px; }
+    .nav-center {
+        display: none;
+    }
+
+    .navbar {
+        padding: 10px 16px;
+    }
 }
