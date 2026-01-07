@@ -10,13 +10,12 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-
 @Getter
 @Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "orders")
+@Table(name = "`order`")
 public class Order {
 
     @Id
@@ -24,8 +23,7 @@ public class Order {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_orders_user"))
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_user"))
     private User user;
 
     @Column(name = "created_at", nullable = false)
@@ -46,6 +44,5 @@ public class Order {
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice = 0.0;
-
 
 }
