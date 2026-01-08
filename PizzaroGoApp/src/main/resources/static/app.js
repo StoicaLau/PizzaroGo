@@ -51,6 +51,9 @@ async function loadPage(path) {
         case "/orders":
             page = "/frontend/modules/pages/orders/orders.html";
             break;
+        case "/stocks":
+            page = "/frontend/modules/pages/stock_page/stock_page.html";
+            break;
         default:
             page = "/frontend/modules/pages/home/home.html";
             break;
@@ -72,7 +75,10 @@ async function loadPage(path) {
     // Try to import page-specific JS as module
     const jsPath = page.replace('.html', '.js');
     try {
-        await import(jsPath);
+        const module = await import(jsPath);
+        if (module && typeof module.init === 'function') {
+            module.init();
+        }
     } catch (e) {
         // ignore missing page script
     }

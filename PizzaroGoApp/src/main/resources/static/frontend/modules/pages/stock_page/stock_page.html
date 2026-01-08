@@ -1,0 +1,74 @@
+<div class="stock-page-container">
+    <div class="stock-header">
+        <h1>Stock Management</h1>
+        <div class="stock-actions-toolbar">
+            <button id="btn-import" class="btn btn-secondary">
+                <i class="fas fa-file-import"></i> Import (Excel)
+            </button>
+            <button id="btn-export" class="btn btn-secondary">
+                <i class="fas fa-file-export"></i> Export
+            </button>
+            <input type="file" id="file-input" accept=".xlsx, .xls" style="display: none;" />
+        </div>
+    </div>
+
+    <div class="stock-table-wrapper">
+        <table class="stock-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="stock-table-body">
+                <!-- Rows will be populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="stock-footer-actions">
+        <button id="btn-add-stock" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Item
+        </button>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="stock-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title">Add Item</h2>
+            <form id="stock-form">
+                <input type="hidden" id="stock-id">
+
+                <div class="form-group">
+                    <label for="stock-name">Name</label>
+                    <input type="text" id="stock-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock-quantity">Quantity</label>
+                    <input type="number" step="0.01" id="stock-quantity" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock-unit">Unit</label>
+                    <select id="stock-unit" required>
+                        <option value="KG">KG</option>
+                        <option value="G">G</option>
+                        <option value="PIECE">PIECE</option>
+                        <option value="L">L</option>
+                        <option value="ML">ML</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
