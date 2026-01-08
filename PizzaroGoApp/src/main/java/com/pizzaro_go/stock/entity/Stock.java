@@ -22,9 +22,6 @@ public class Stock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "image_URK", length = 200)
-    private String imageURL;
-
     @Column(length = 100, nullable = false)
     private String name;
 

@@ -4,6 +4,7 @@ import com.pizzaro_go.common.enums.Unit;
 import com.pizzaro_go.stock.dtos.StockRequest;
 import com.pizzaro_go.stock.dtos.StockResponse;
 import com.pizzaro_go.stock.entity.Stock;
+import com.pizzaro_go.fileimport.excel.entities.StockFileData;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Mapper interface for converting between Stock entity and DTOs.
  */
-@Mapper(componentModel = "spring", imports = {Unit.class})
+@Mapper(componentModel = "spring", imports = { Unit.class })
 public interface IStockMapper {
 
     /**
@@ -39,4 +40,14 @@ public interface IStockMapper {
      * @return the list of stock response DTOs
      */
     List<StockResponse> toResponseList(List<Stock> stocks);
+
+    /**
+     * Converts a StockFileData object from Excel to a Stock entity.
+     *
+     * @param stockFileData the stock file data
+     * @return the stock entity
+     */
+    @Mapping(target = "unit", expression = "java(stockFileData.getUnit() != null ? Unit.valueOf(stockFileData.getUnit().toUpperCase()) : null)")
+    @Mapping(target = "id", ignore = true)
+    Stock toEntity(StockFileData stockFileData);
 }

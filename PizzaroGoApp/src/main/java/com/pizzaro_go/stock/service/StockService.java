@@ -3,12 +3,19 @@ package com.pizzaro_go.stock.service;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.stock.dtos.StockResponse;
+import com.pizzaro_go.stock.entity.Stock;
 import com.pizzaro_go.stock.mapper.IStockMapper;
 import com.pizzaro_go.stock.repository.IStockRepository;
+import com.pizzaro_go.fileimport.excel.entities.StockFileData;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -49,6 +56,33 @@ public class StockService {
 
             errorMsg += e.getMessage();
 
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Imports stocks from an Excel file.
+     *
+     * @param file the Excel file containing stock data
+     * @throws PGException if an error occurs during processing
+     */
+    public void importStocks(MultipartFile file) throws PGException {
+        this.log.info("Importing stocks from Excel file.");
+        try (InputStream stream = file.getInputStream()) {
+            List<StockFileData> stockFileDataList = Poiji.fromExcel(stream, PoijiExcelType.XLSX, StockFileData.class);
+
+            List<Stock> stocks = stockFileDataList.stream()
+                    .map(this.stockMapper::toEntity)
+                    .toList();
+
+            this.stockRepository.saveAll(stocks);
+        } catch (IOException e) {
+            String errorMsg = "Error processing Excel file -> " + e.getMessage();
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg);
+        } catch (RepositoryException e) {
+            String errorMsg = "Error saving imported stocks -> " + e.getMessage();
+            this.log.error(errorMsg, e);
             throw new PGException(errorMsg);
         }
     }

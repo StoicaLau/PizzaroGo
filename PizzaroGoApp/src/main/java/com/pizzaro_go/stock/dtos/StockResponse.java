@@ -10,7 +10,6 @@ import lombok.Setter;
 public class StockResponse {
 
     private Long id;
-    private String imageURL;
     private String name;
     private Double quantity ;
     private String unit;

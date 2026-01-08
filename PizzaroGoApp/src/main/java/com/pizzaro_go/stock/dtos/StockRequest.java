@@ -12,7 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StockRequest {
     private Long id;
-    private String imageURL;
     private String name;
     private Double quantity;
     private String unit;
