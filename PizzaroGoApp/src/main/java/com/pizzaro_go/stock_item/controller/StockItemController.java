@@ -6,7 +6,6 @@ import com.pizzaro_go.stock_item.dtos.StockItemRequest;
 import com.pizzaro_go.stock_item.dtos.StockItemResponse;
 import com.pizzaro_go.stock_item.service.StockItemService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.websocket.server.PathParam;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +43,18 @@ public class StockItemController {
     }
 
     /**
+     * Adds a new stock item.
+     *
+     * @param stockItemRequest the request containing new stock item details
+     * @return a MessageResponse with the new stock item ID
+     */
+    @PostMapping("")
+    @Operation(summary = "Add a new stock item")
+    public MessageResponse create(@RequestBody StockItemRequest stockItemRequest) {
+        return this.stockItemService.create(stockItemRequest);
+    }
+
+    /**
      * Updates an existing stock item.
      *
      * @param stockItemRequest the request containing updated stock item details
@@ -63,7 +74,7 @@ public class StockItemController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an stockItem by id")
-    public MessageResponse deleteById(@PathParam("id") Long id) {
+    public MessageResponse deleteById(@PathVariable("id") Long id) {
         return this.stockItemService.deleteById(id);
     }
 
@@ -108,7 +119,7 @@ public class StockItemController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=stock_items.xlsx")
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_OCTET_STREAM))
                     .body(excelContent);
         } catch (PGException e) {
             return ResponseEntity.badRequest().build();

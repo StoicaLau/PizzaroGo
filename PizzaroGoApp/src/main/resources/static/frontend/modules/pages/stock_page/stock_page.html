@@ -1,12 +1,22 @@
 <div class="stock-page-container">
     <div class="stock-header">
         <h1>Stock Management</h1>
+    </div>
+
+    <div class="stock-toolbar">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="stock-search" placeholder="Search items..." autocomplete="off">
+        </div>
         <div class="stock-actions-toolbar">
             <button id="btn-import" class="btn btn-secondary">
                 <i class="fas fa-file-import"></i> Import (Excel)
             </button>
             <button id="btn-export" class="btn btn-secondary">
                 <i class="fas fa-file-export"></i> Export
+            </button>
+            <button id="btn-delete-all" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete All
             </button>
             <input type="file" id="file-input" accept=".xlsx, .xls" style="display: none;" />
         </div>
@@ -16,10 +26,11 @@
         <table class="stock-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
+                    <th class="sortable" data-field="id">ID <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="name">Name <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="category">Category <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="quantity">Quantity <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="unit">Unit <i class="fas fa-sort"></i></th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -49,6 +60,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="stock-category">Category</label>
+                    <select id="stock-category" required>
+                        <option value="INGREDIENT">Ingredient</option>
+                        <option value="PRODUCT">Product</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="stock-quantity">Quantity</label>
                     <input type="number" step="0.01" id="stock-quantity" required>
                 </div>
@@ -69,6 +88,17 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content confirm-modal-content">
+            <h2 id="confirm-title">Are you sure?</h2>
+            <p id="confirm-message">This action cannot be undone.</p>
+            <div class="form-actions">
+                <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-yes" class="btn btn-danger">Yes, Delete</button>
+            </div>
         </div>
     </div>
 </div>

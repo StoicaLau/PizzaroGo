@@ -1,16 +1,16 @@
-import { Stock } from './Stock.js';
+import { StockItem } from './StockItem.js';
 
 /**
- * Service for managing stock operations via API.
+ * Service for managing stock item operations via API.
  */
-class StockService {
+class StockItemService {
     constructor() {
-        this.baseUrl = '/stocks';
+        this.baseUrl = '/stockItems';
     }
 
     /**
      * Fetches all stock items.
-     * @returns {Promise<Array<Stock>>} List of stock items.
+     * @returns {Promise<Array<StockItem>>} List of stock items.
      */
     async getAll() {
         const response = await fetch(this.baseUrl);
@@ -18,24 +18,24 @@ class StockService {
             throw new Error('Failed to fetch stocks');
         }
         const data = await response.json();
-        return data.map(item => Stock.fromUrl(item));
+        return data.map(item => StockItem.fromUrl(item));
     }
 
     /**
-     * Adds a new stock item.
-     * @param {Object} stock The stock object to add.
-     * @returns {Promise<Object>} The added stock item.
+     * Creates a new stock item.
+     * @param {Object} stockItem The stock item object to create.
+     * @returns {Promise<Object>} The created stock item.
      */
-    async add(stock) {
+    async create(stockItem) {
         const response = await fetch(this.baseUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(stock)
+            body: JSON.stringify(stockItem)
         });
         if (!response.ok) {
-            throw new Error('Failed to add stock');
+            throw new Error('Failed to add stock item');
         }
         return await response.json();
     }
@@ -43,19 +43,21 @@ class StockService {
     /**
      * Updates an existing stock item.
      * @param {number} id The ID of the stock item.
-     * @param {Object} stock The updated stock data.
+     * @param {Object} stockItem The updated stock item data.
      * @returns {Promise<Object>} The updated stock item.
      */
-    async update(id, stock) {
-        const response = await fetch(`${this.baseUrl}/${id}`, {
-            method: 'PUT',
+    async update(id, stockItem) {
+        // The backend PatchMapping expects the ID inside the body for StockItemRequest
+        const payload = { ...stockItem, id: parseInt(id) };
+        const response = await fetch(this.baseUrl, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(stock)
+            body: JSON.stringify(payload)
         });
         if (!response.ok) {
-            throw new Error('Failed to update stock');
+            throw new Error('Failed to update stock item');
         }
         return await response.json();
     }
@@ -69,8 +71,21 @@ class StockService {
             method: 'DELETE'
         });
         if (!response.ok) {
-            throw new Error('Failed to delete stock');
+            throw new Error('Failed to delete stock item');
         }
+    }
+
+    /**
+     * Deletes all stock items.
+     */
+    async deleteAll() {
+        const response = await fetch(this.baseUrl, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            throw new Error('Failed to delete all stocks');
+        }
+        return await response.json();
     }
 
     /**
@@ -78,7 +93,7 @@ class StockService {
      * @param {File} file The Excel file to import.
      * @returns {Promise<Object>} The server response.
      */
-    async importStocks(file) {
+    async importStockItems(file) {
         const formData = new FormData();
         formData.append('file', file);
 
@@ -95,13 +110,12 @@ class StockService {
     }
 
     /**
-     * Triggers the export of stocks (not implemented in backend yet, but prepared here).
+     * Triggers the export of stocks (browser download).
      */
-    async exportStocks() {
-        // Assuming backend will support GET /stocks/export to download file
+    exportStockItems() {
         window.location.href = `${this.baseUrl}/export`;
     }
 }
 
 // Export a singleton instance
-export const stockService = new StockService();
+export const stockItemService = new StockItemService();

@@ -1,26 +1,28 @@
 /**
  * Represents a Stock item in the frontend domain.
  */
-export class Stock {
+export class StockItem {
     /**
      * @param {number|null} id
      * @param {string} name
+     * @param {string} category
      * @param {number} quantity
      * @param {string} unit
      */
-    constructor(id = null, name = '', quantity = 0, unit = 'KG') {
+    constructor(id = null, name = '', category = 'INGREDIENT', quantity = 0, unit = 'KG') {
         this.id = id;
         this.name = name;
+        this.category = category;
         this.quantity = quantity;
         this.unit = unit;
     }
 
     /**
-     * Creates a Stock instance from a JSON object.
+     * Creates a StockItem instance from a JSON object.
      * @param {Object} json
-     * @returns {Stock}
+     * @returns {StockItem}
      */
     static fromUrl(json) {
-        return new Stock(json.id, json.name, json.quantity, json.unit);
+        return new StockItem(json.id, json.name, json.category, json.quantity, json.unit);
     }
 }

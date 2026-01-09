@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -128,10 +129,10 @@ public class StockItemService {
      * @throws PGException if a repository error occurs
      */
     public MessageResponse deleteAll() throws PGException {
-        this.log.info("Delete entire stock item");
+        this.log.info("Truncating entire stock item table to reset IDs.");
         try {
-            this.stockItemRepository.deleteAll();
-            return new MessageResponse(" Entire Stock successfully deleted!");
+            this.stockItemRepository.truncateTable();
+            return new MessageResponse("Entire Stock successfully deleted and IDs reset!");
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when deleting entire stock  ->";
@@ -144,14 +145,37 @@ public class StockItemService {
     }
 
     /**
+     * Adds a new stock item.
+     *
+     * @param stockItemRequest the request containing new stock item details
+     * @return a MessageResponse with the new stock item ID
+     * @throws PGException if a repository error occurs during save
+     */
+    public MessageResponse create(StockItemRequest stockItemRequest) throws PGException {
+        this.log.info("Creating a new stock item: {}", stockItemRequest.getName());
+        try {
+            StockItem stockItem = this.stockItemMapper.toEntity(stockItemRequest);
+            StockItem savedStockItem = Objects.requireNonNull(this.stockItemRepository.save(stockItem));
+            return new MessageResponse(savedStockItem.getId().toString());
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when creating new stock item -> " + e.getMessage();
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
      * Imports stocks from an Excel file.
      *
      * @param file the Excel file containing stock data
      * @throws PGException if an error occurs during processing
      */
     public void importStockItems(MultipartFile file) throws PGException {
-        this.log.info("Importing stocks from Excel file.");
+        this.log.info("Clearing existing stocks and importing from Excel file.");
         try (InputStream stream = file.getInputStream()) {
+            // Clear existing stocks before import
+            this.stockItemRepository.truncateTable();
+
             List<StockItemFileData> stockFileDataList = Poiji.fromExcel(stream, PoijiExcelType.XLSX,
                     StockItemFileData.class);
 

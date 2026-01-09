@@ -23,21 +23,130 @@
 }
 
 .stock-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 2rem;
-    position: relative;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stock-header h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     background: linear-gradient(90deg, #ffaa00, #ff5e62);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 800;
-    text-shadow: 0px 4px 12px rgba(255, 170, 0, 0.2);
+    margin: 0;
+    text-shadow: 0px 4px 15px rgba(255, 170, 0, 0.15);
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    color: #ffaa00;
+}
+
+.stat-card.warning i {
+    color: #ff5e62;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.low-stock {
+    color: #ff5e62 !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 10px rgba(255, 94, 98, 0.3);
+}
+
+.stock-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 2rem;
+    flex-wrap: wrap;
+    /* Good for responsiveness */
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    /* White background as preferred */
+    border: 1px solid #eee;
+    /* Orange border for definition */
+    border-radius: 12px;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 300px;
+}
+
+.search-container:focus-within {
+    background: #ffffff;
+    /* pure white on focus */
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+    width: 350px;
+}
+
+.search-icon {
+    color: #ffaa00;
+    font-size: 1rem;
+    margin-right: 0.75rem;
+}
+
+.search-container input {
+    background: transparent;
+    border: none;
+    color: #111111 !important;
+    /* Dark text for white background */
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    outline: none;
+    caret-color: #ff7b00;
+}
+
+.search-container input::placeholder {
+    color: #888888;
+    /* Gray placeholder for white background */
 }
 
 .stock-actions-toolbar {
@@ -77,6 +186,26 @@
     letter-spacing: 0.05em;
     color: #aaa;
     border-bottom: 2px solid rgba(255, 170, 0, 0.5);
+}
+
+.stock-table th.sortable {
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.stock-table th.sortable:hover {
+    color: #ffaa00;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.stock-table th i {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.stock-table th.sortable:hover i {
+    opacity: 1;
 }
 
 .stock-table tr:last-child td {
@@ -278,4 +407,41 @@
     border-color: transparent;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+}
+
+.btn-danger {
+    background-color: transparent;
+    color: #ff4444;
+    border: 2px solid #ff4444;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: #fff;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+}
+
+/* Confirmation Modal Specifics */
+.confirm-modal-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.confirm-modal-content h2 {
+    color: #ff4444;
+    margin-bottom: 1rem;
+}
+
+.confirm-modal-content p {
+    color: #ccc;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.confirm-modal-content .form-actions {
+    justify-content: center;
+    gap: 1.5rem;
 }
