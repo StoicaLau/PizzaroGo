@@ -22,10 +22,11 @@ CREATE TABLE IF NOT EXISTS `order` (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS stock (
+CREATE TABLE IF NOT EXISTS stock_item (
         id BIGINT AUTO_INCREMENT PRIMARY KEY,
         image_URL VARCHAR(200) ,
         name VARCHAR(100) NOT NULL,
+        category ENUM('INGREDIENT',"PRODUCT") DEFAULT'INGREDIENT',
         quantity DOUBLE NOT NULL DEFAULT 0,
         unit ENUM('KG','G','PIECE','L','ML')
 

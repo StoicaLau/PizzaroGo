@@ -1,4 +1,4 @@
-package com.pizzaro_go.stock.dtos;
+package com.pizzaro_go.stock_item.dtos;
 
 
 import lombok.AllArgsConstructor;
@@ -10,9 +10,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockRequest {
+public class StockItemRequest {
     private Long id;
     private String name;
+    private String category;
     private Double quantity;
     private String unit;
 

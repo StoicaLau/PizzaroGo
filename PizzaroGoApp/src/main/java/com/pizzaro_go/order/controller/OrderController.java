@@ -84,8 +84,8 @@ public class OrderController {
      * @return a MessageResponse confirming deletion
      */
     @DeleteMapping("/{id}")
-    @Operation
-    public MessageResponse delete(@PathParam("id") Long id) {
+    @Operation(summary = "Delete an order by id")
+    public MessageResponse deleteById(@PathParam("id") Long id) {
         return this.orderService.deleteById(id);
     }
 

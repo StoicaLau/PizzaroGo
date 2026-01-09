@@ -8,9 +8,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StockFileData {
+public class StockItemFileData {
     @ExcelCellName("Name")
     private String name;
+
+    @ExcelCellName("Category")
+    private String category;
 
     @ExcelCellName("Quantity")
     private Double quantity;
