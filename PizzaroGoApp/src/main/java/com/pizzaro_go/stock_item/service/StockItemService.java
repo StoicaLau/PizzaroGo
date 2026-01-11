@@ -20,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -155,11 +154,14 @@ public class StockItemService {
         this.log.info("Creating a new stock item: {}", stockItemRequest.getName());
         try {
             StockItem stockItem = this.stockItemMapper.toEntity(stockItemRequest);
-            StockItem savedStockItem = Objects.requireNonNull(this.stockItemRepository.save(stockItem));
+
+            StockItem savedStockItem =this.stockItemRepository.save(stockItem);
             return new MessageResponse(savedStockItem.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when creating new stock item -> " + e.getMessage();
             this.log.error(errorMsg, e);
+
+            errorMsg += e.getMessage();
             throw new PGException(errorMsg);
         }
     }
