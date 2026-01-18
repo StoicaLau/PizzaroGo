@@ -12,6 +12,7 @@ import lombok.Setter;
 public class MenuProductRequest {
     private Long id;
     private String name;
+    private String imageURL;
     private String productCategory;
     private Double price;
 }

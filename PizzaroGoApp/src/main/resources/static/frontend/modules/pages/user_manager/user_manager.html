@@ -1,0 +1,71 @@
+<div class="user-manager-container">
+    <div class="user-header">
+        <h1>User Manager</h1>
+    </div>
+
+    <div class="user-toolbar">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="user-search" placeholder="Search users..." autocomplete="off">
+        </div>
+    </div>
+
+    <div class="user-table-wrapper">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th class="sortable" data-field="id">ID <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="username">Username <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="email">Email <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="phone">Phone <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="role">Role <i class="fas fa-sort"></i></th>
+                </tr>
+            </thead>
+            <tbody id="user-table-body">
+                <!-- Rows will be populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="user-footer-actions">
+        <button id="btn-add-user" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add User
+        </button>
+    </div>
+
+    <!-- Add Modal -->
+    <div id="user-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title">Add User</h2>
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+
+                <div class="form-group">
+                    <label for="user-username">Username</label>
+                    <input type="text" id="user-username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-email">Email</label>
+                    <input type="email" id="user-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-password">Password</label>
+                    <input type="password" id="user-password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-phone">Phone</label>
+                    <input type="text" id="user-phone">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

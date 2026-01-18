@@ -55,6 +55,7 @@ public class MenuProductController {
      * @param menuProductRequest the request containing updated menu product details
      * @return a MessageResponse with the updated menu product ID
      */
+
     @PatchMapping("")
     @Operation(summary = "Update an menu product")
     public MessageResponse update(@RequestBody MenuProductRequest menuProductRequest) {

@@ -32,9 +32,12 @@ CREATE TABLE IF NOT EXISTS stock_item (
 
 );
 
-CREATE TABLE  IF NOT EXISTS menu_product (
+CREATE TABLE IF NOT EXISTS menu_product (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    image_URL VARCHAR(200),
     name VARCHAR(100) NOT NULL,
     product_category ENUM('PIZZA','SAUCE','DRINK'),
     price DOUBLE NOT NULL DEFAULT 0
 );
+
+

@@ -32,6 +32,19 @@ export class UserService {
     }
 
     /**
+     * Retrieves all users.
+     * @returns {Promise<User[]>}
+     */
+    async getAll() {
+        const response = await fetch(this.baseUrl);
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+        const data = await response.json();
+        return data.map(item => User.fromJson(item));
+    }
+
+    /**
      * Logs in a user.
      * @param {string} emailOrUsername
      * @param {string} password

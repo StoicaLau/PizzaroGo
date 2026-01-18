@@ -21,8 +21,11 @@ public class MenuProduct {
     @Column(length = 100, nullable = false)
     private String name;
 
+    @Column(name = "image_URL", length = 200)
+    private String imageURL;
+
     @Enumerated(EnumType.STRING)
-    @Column(name="product_category",nullable = false)
+    @Column(name = "product_category", nullable = false)
     private ProductCategory productCategory;
 
     @Column(nullable = false)
