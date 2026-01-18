@@ -2,11 +2,15 @@ package com.pizzaro_go.stock_item.entity;
 
 import com.pizzaro_go.common.enums.Category;
 import com.pizzaro_go.common.enums.Unit;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The stock entity
@@ -37,5 +41,7 @@ public class StockItem {
     @Column()
     private Unit unit;
 
+    @OneToMany(mappedBy = "stockItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductStockUsage> usages = new ArrayList<>();
 
 }

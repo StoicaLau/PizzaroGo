@@ -12,7 +12,7 @@ public class StockItemResponse {
     private Long id;
     private String name;
     private String category;
-    private Double quantity ;
+    private Double quantity;
     private String unit;
 
 }

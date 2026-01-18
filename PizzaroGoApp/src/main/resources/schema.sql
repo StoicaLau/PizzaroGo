@@ -41,3 +41,17 @@ CREATE TABLE IF NOT EXISTS menu_product (
 );
 
 
+CREATE TABLE  IF NOT EXISTS product_stock_usage (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      product_id BIGINT NOT NULL,
+      stock_item_id BIGINT NOT NULL,
+      quantity_per_unit DOUBLE NOT NULL DEFAULT 1,
+
+      FOREIGN KEY (product_id) REFERENCES menu_product(id)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE,
+
+      FOREIGN KEY (stock_item_id) REFERENCES stock_item(id)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+  );

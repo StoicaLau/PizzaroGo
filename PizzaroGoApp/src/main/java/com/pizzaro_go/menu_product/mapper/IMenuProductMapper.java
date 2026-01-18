@@ -23,6 +23,7 @@ public interface IMenuProductMapper {
      * @return the menu product entity
      */
     @Mapping(target = "productCategory", expression = "java(request.getProductCategory() != null ? ProductCategory.valueOf(request.getProductCategory().toUpperCase()) : null)")
+    @Mapping(target = "stockUsages", ignore = true)
     MenuProduct toEntity(MenuProductRequest request);
 
     /**

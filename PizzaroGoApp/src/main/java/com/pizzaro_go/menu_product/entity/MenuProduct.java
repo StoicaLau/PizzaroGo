@@ -1,11 +1,15 @@
 package com.pizzaro_go.menu_product.entity;
 
 import com.pizzaro_go.common.enums.ProductCategory;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,5 +34,8 @@ public class MenuProduct {
 
     @Column(nullable = false)
     private Double price = 0.0;
+
+    @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductStockUsage> stockUsages = new ArrayList<>();
 
 }

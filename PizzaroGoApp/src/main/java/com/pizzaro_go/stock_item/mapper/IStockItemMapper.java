@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Mapper interface for converting between StockItem entity and DTOs.
  */
-@Mapper(componentModel = "spring", imports = { Unit.class, Category.class, StringUtils.class})
+@Mapper(componentModel = "spring", imports = { Unit.class, Category.class, StringUtils.class })
 public interface IStockItemMapper {
 
     /**
@@ -24,7 +24,8 @@ public interface IStockItemMapper {
      * @return the stock item entity
      */
     @Mapping(target = "unit", expression = "java(request.getUnit() != null ? Unit.valueOf(request.getUnit().toUpperCase()) : null)")
-    @Mapping(target = "category", expression = "java(request.getCategory() != null ? Category.valueOf(request.getCategory().toUpperCase()) : Category.INGREDIENT)" )
+    @Mapping(target = "category", expression = "java(request.getCategory() != null ? Category.valueOf(request.getCategory().toUpperCase()) : Category.INGREDIENT)")
+    @Mapping(target = "usages", ignore = true)
     StockItem toEntity(StockItemRequest request);
 
     /**
@@ -34,7 +35,7 @@ public interface IStockItemMapper {
      * @return the stock response DTO
      */
     @Mapping(target = "unit", expression = "java(stockItem.getUnit() != null ?StringUtils.capitalize(stockItem.getUnit().name()) : null)")
-    @Mapping(target="category", expression = "java(StringUtils.capitalize(stockItem.getCategory().name()))")
+    @Mapping(target = "category", expression = "java(StringUtils.capitalize(stockItem.getCategory().name()))")
     StockItemResponse toResponse(StockItem stockItem);
 
     /**
@@ -52,7 +53,8 @@ public interface IStockItemMapper {
      * @return the stockItem entity
      */
     @Mapping(target = "unit", expression = "java(stockFileData.getUnit() != null ? Unit.valueOf(stockFileData.getUnit().toUpperCase()) : null)")
-    @Mapping(target = "category", expression = "java(stockFileData.getCategory() != null ? Category.valueOf(stockFileData.getCategory().toUpperCase()) : Category.INGREDIENT)" )
+    @Mapping(target = "category", expression = "java(stockFileData.getCategory() != null ? Category.valueOf(stockFileData.getCategory().toUpperCase()) : Category.INGREDIENT)")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "usages", ignore = true)
     StockItem toEntity(StockItemFileData stockFileData);
 }

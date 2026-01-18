@@ -155,7 +155,7 @@ public class StockItemService {
         try {
             StockItem stockItem = this.stockItemMapper.toEntity(stockItemRequest);
 
-            StockItem savedStockItem =this.stockItemRepository.save(stockItem);
+            StockItem savedStockItem = this.stockItemRepository.save(stockItem);
             return new MessageResponse(savedStockItem.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when creating new stock item -> " + e.getMessage();
