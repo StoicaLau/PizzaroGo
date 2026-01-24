@@ -13,6 +13,7 @@ import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,22 +33,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @Service
 public class StockItemService {
 
-    private final IStockItemRepository stockItemRepository;
-    private final IStockItemMapper stockItemMapper;
-    private final Logger log = LoggerFactory.getLogger(StockItemService.class);
+    @Autowired
+    private IStockItemRepository stockItemRepository;
 
-    /**
-     * Creates a new StockService with the given dependencies.
-     *
-     * @param stockItemRepository the repository used for stockItem persistence
-     * @param stockItemMapper     the mapper used for converting between stockItem
-     *                            entities
-     *                            and DTOs
-     */
-    public StockItemService(IStockItemRepository stockItemRepository, IStockItemMapper stockItemMapper) {
-        this.stockItemRepository = stockItemRepository;
-        this.stockItemMapper = stockItemMapper;
-    }
+    @Autowired
+    private IStockItemMapper stockItemMapper;
+
+    private final Logger log = LoggerFactory.getLogger(StockItemService.class);
 
     /**
      * Retrieves the entire stock.

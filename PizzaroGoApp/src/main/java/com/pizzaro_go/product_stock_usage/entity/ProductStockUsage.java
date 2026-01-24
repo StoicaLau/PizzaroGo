@@ -1,6 +1,5 @@
 package com.pizzaro_go.product_stock_usage.entity;
 
-
 import com.pizzaro_go.menu_product.entity.MenuProduct;
 import com.pizzaro_go.stock_item.entity.StockItem;
 import jakarta.persistence.*;
@@ -14,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "stock_item")
+@Table(name = "product_stock_usages")
 public class ProductStockUsage {
 
     @Id

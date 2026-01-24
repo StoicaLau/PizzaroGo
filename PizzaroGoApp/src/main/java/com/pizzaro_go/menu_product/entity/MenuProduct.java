@@ -1,6 +1,7 @@
 package com.pizzaro_go.menu_product.entity;
 
 import com.pizzaro_go.common.enums.ProductCategory;
+import com.pizzaro_go.oreder_item.entity.OrderItem;
 import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "menu_product")
+@Table(name = "menu_products")
 public class MenuProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,5 +38,8 @@ public class MenuProduct {
 
     @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductStockUsage> stockUsages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
 }

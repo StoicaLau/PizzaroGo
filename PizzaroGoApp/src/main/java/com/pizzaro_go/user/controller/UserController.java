@@ -6,6 +6,7 @@ import com.pizzaro_go.user.dtos.UserResponse;
 import com.pizzaro_go.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.websocket.server.PathParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +15,11 @@ import java.util.List;
  * REST controller for user operations.
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
-
-    public UserController(UserService userservice) {
-        this.userService = userservice;
-    }
+    @Autowired
+    private UserService userService;
 
     /**
      * Registers a new user.

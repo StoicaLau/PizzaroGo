@@ -1,12 +1,12 @@
 package com.pizzaro_go.order.controller;
 
-
 import com.pizzaro_go.common.dtos.MessageResponse;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.websocket.server.PathParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,19 +15,11 @@ import java.util.List;
  * REST controller for order operations.
  */
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderService orderService;
-
-    /**
-     * Creates a new OrderController with the given service.
-     *
-     * @param orderService the service handling order logic
-     */
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
+    @Autowired
+    private OrderService orderService;
 
     /**
      * Creates a new order.

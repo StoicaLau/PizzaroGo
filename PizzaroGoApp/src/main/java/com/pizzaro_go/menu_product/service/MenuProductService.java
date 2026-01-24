@@ -10,6 +10,7 @@ import com.pizzaro_go.menu_product.mapper.IMenuProductMapper;
 import com.pizzaro_go.menu_product.repository.IMenuProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,21 +20,13 @@ import java.util.List;
  */
 @Service
 public class MenuProductService {
-    private final IMenuProductRepository menuProductRepository;
-    private final IMenuProductMapper menuProductMapper;
-    private final Logger log = LoggerFactory.getLogger(MenuProductService.class);
+    @Autowired
+    private IMenuProductRepository menuProductRepository;
 
-    /**
-     * Creates a new MenuProductService with the given dependencies.
-     *
-     * @param menuProductRepository the repository used for menuProduct persistence
-     * @param menuProductMapper     the mapper used for converting between
-     *                              menuProduct entities and DTOs
-     */
-    public MenuProductService(IMenuProductRepository menuProductRepository, IMenuProductMapper menuProductMapper) {
-        this.menuProductRepository = menuProductRepository;
-        this.menuProductMapper = menuProductMapper;
-    }
+    @Autowired
+    private IMenuProductMapper menuProductMapper;
+
+    private final Logger log = LoggerFactory.getLogger(MenuProductService.class);
 
     /**
      * Retrieves all menu products.

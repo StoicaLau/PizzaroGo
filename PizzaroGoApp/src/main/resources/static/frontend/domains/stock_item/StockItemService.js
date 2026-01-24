@@ -5,7 +5,7 @@ import { StockItem } from './StockItem.js';
  */
 class StockItemService {
     constructor() {
-        this.baseUrl = '/stockItems';
+        this.baseUrl = '/api/stock_items';
     }
 
     /**

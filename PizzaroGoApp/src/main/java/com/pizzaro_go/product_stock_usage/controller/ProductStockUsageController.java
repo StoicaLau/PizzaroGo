@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller for product stock usage operations.
  */
 @RestController
-@RequestMapping("/productStockUsages")
+@RequestMapping("/api/product_stock_usages")
 public class ProductStockUsageController {
     @Autowired
-    private  ProductStockUsageService productStockUsageService;
+    private ProductStockUsageService productStockUsageService;
 
     /**
      * Creates a new product stock usage.

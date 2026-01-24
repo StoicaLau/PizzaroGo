@@ -9,7 +9,7 @@ import org.mapstruct.*;
 /**
  * Mapper for converting between Order entities and Order DTOs.
  */
-@Mapper(componentModel = "spring", imports = {Status.class})
+@Mapper(componentModel = "spring", imports = { Status.class })
 public interface IOrderMapper {
 
     /**
@@ -20,10 +20,9 @@ public interface IOrderMapper {
      * @return the mapped Order entity
      */
     @Mapping(target = "user", ignore = true) // set it in service
-    @Mapping(target = "status",
-            expression = "java(request.getStatus() != null ? Status.valueOf(request.getStatus().toUpperCase()) : Status.PENDING)")
+    @Mapping(target = "orderItems", ignore = true)
+    @Mapping(target = "status", expression = "java(request.getStatus() != null ? Status.valueOf(request.getStatus().toUpperCase()) : Status.PENDING)")
     Order toEntity(OrderRequest request);
-
 
     /**
      * Converts an Order entity into an OrderResponse.

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -18,18 +19,10 @@ import java.util.List;
  * REST controller for stock operations.
  */
 @RestController
-@RequestMapping("/stockItems")
+@RequestMapping("/api/stock_items")
 public class StockItemController {
-    private final StockItemService stockItemService;
-
-    /**
-     * Creates a new StockController with the given service.
-     *
-     * @param stockItemService the service handling stock logic
-     */
-    public StockItemController(StockItemService stockItemService) {
-        this.stockItemService = stockItemService;
-    }
+    @Autowired
+    private StockItemService stockItemService;
 
     /**
      * Retrieves the entire stock.

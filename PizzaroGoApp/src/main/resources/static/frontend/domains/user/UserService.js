@@ -6,7 +6,7 @@ import { User } from './User.js';
 export class UserService {
 
     constructor() {
-        this.baseUrl = '/users';
+        this.baseUrl = '/api/users';
     }
 
     /**

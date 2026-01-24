@@ -12,6 +12,7 @@ import com.pizzaro_go.user.entity.User;
 import com.pizzaro_go.user.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,21 +26,16 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
 
-    private final IOrderRepository orderRepository;
-    private final IUserRepository userRepository;
-    private final IOrderMapper orderMapper;
-    private final Logger log = LoggerFactory.getLogger(OrderService.class);
+    @Autowired
+    private IOrderRepository orderRepository;
 
-    /**
-     * Creates a new OrderService with the given repository.
-     *
-     * @param orderRepository the repository used for order persistence
-     */
-    public OrderService(IOrderRepository orderRepository, IUserRepository userRepository, IOrderMapper orderMapper) {
-        this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
-        this.orderMapper = orderMapper;
-    }
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private IOrderMapper orderMapper;
+
+    private final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     /**
      * Creates a new order.
@@ -101,7 +97,7 @@ public class OrderService {
         Long orderId = order.getId();
         this.log.info("Updating the order with id: {}", orderId);
         try {
-            Order orderToUpdate =this.toOrder(order);
+            Order orderToUpdate = this.toOrder(order);
             Order updatedOrder = this.orderRepository.save(orderToUpdate);
             return new MessageResponse(updatedOrder.getId().toString());
 
@@ -149,7 +145,8 @@ public class OrderService {
      *
      * @param userId the ID of the user whose orders should be retrieved
      * @return a list of OrderResponse objects representing the user's orders
-     * @throws PGException if the user does not exist or if a repository error occurs
+     * @throws PGException if the user does not exist or if a repository error
+     *                     occurs
      */
     public List<OrderResponse> getAllByUserId(Long userId) throws PGException {
         this.log.info("Retrieve all orders by user id: {} ", userId);
@@ -158,7 +155,8 @@ public class OrderService {
                 throw new PGException("Cannot retrieve orders because the user with id " + userId + " does not exist.");
             }
 
-            return this.orderRepository.getAllByUserId(userId).stream().map(this.orderMapper::toResponse).collect(Collectors.toList());
+            return this.orderRepository.getAllByUserId(userId).stream().map(this.orderMapper::toResponse)
+                    .collect(Collectors.toList());
 
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when retrieve all orders by user id: " + userId + " ->";
@@ -188,7 +186,8 @@ public class OrderService {
                 order.setUser(user.get());
                 return order;
             } else {
-                String errorMsg ="Cannot convert order DTO to entity because no user was found with id: "  + userId + "-> ";
+                String errorMsg = "Cannot convert order DTO to entity because no user was found with id: " + userId
+                        + "-> ";
                 log.error(errorMsg);
                 throw new PGException(errorMsg);
             }

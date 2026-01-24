@@ -12,6 +12,7 @@ import com.pizzaro_go.user.repository.IUserRepository;
 import com.pizzaro_go.user.resources.PasswordUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,20 +25,13 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final IUserRepository userRepository;
-    private final IUserMapper userMapper;
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private IUserMapper userMapper;
+
     private final Logger log = LoggerFactory.getLogger(UserService.class);
-
-    /**
-     * Creates a new UserService with the given repository.
-     *
-     * @param userRepository the repository used for user persistence
-     */
-    public UserService(IUserRepository userRepository, IUserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-
-    }
 
     /**
      * Registers a new user.

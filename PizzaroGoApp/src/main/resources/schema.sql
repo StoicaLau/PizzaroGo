@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS  user (
+CREATE TABLE IF NOT EXISTS  users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS  user (
     role ENUM('ADMIN','EMPLOYEE','CUSTOMER') DEFAULT 'CUSTOMER'
 );
 
-CREATE TABLE IF NOT EXISTS `order` (
+CREATE TABLE IF NOT EXISTS orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT NOW(),
@@ -17,12 +17,12 @@ CREATE TABLE IF NOT EXISTS `order` (
     delivery_price DOUBLE NOT NULL DEFAULT 0,
     total_price DOUBLE NOT NULL DEFAULT 0,
 
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS stock_item (
+CREATE TABLE IF NOT EXISTS stock_items (
         id BIGINT AUTO_INCREMENT PRIMARY KEY,
         image_URL VARCHAR(200) ,
         name VARCHAR(100) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS stock_item (
 
 );
 
-CREATE TABLE IF NOT EXISTS menu_product (
+CREATE TABLE IF NOT EXISTS menu_products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     image_URL VARCHAR(200),
     name VARCHAR(100) NOT NULL,
@@ -41,17 +41,34 @@ CREATE TABLE IF NOT EXISTS menu_product (
 );
 
 
-CREATE TABLE  IF NOT EXISTS product_stock_usage (
+CREATE TABLE  IF NOT EXISTS product_stock_usages (
       id BIGINT AUTO_INCREMENT PRIMARY KEY,
       product_id BIGINT NOT NULL,
       stock_item_id BIGINT NOT NULL,
       quantity_per_unit DOUBLE NOT NULL DEFAULT 1,
 
-      FOREIGN KEY (product_id) REFERENCES menu_product(id)
+      FOREIGN KEY (product_id) REFERENCES menu_products(id)
           ON DELETE CASCADE
           ON UPDATE CASCADE,
 
-      FOREIGN KEY (stock_item_id) REFERENCES stock_item(id)
+      FOREIGN KEY (stock_item_id) REFERENCES stock_items(id)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS order_items (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      order_id BIGINT NOT NULL,
+      product_id BIGINT NOT NULL,
+      quantity INT NOT NULL DEFAULT 1,
+      total_price DOUBLE NOT NULL DEFAULT 0.0,
+      status ENUM('PENDING','PROCESSING','READY','DELIVERED','CANCELED') DEFAULT 'PENDING',
+
+      FOREIGN KEY (order_id) REFERENCES orders(id)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE,
+
+      FOREIGN KEY (product_id) REFERENCES menu_products(id)
           ON DELETE CASCADE
           ON UPDATE CASCADE
   );

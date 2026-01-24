@@ -5,6 +5,7 @@ import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
 import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
 import com.pizzaro_go.menu_product.service.MenuProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,18 +14,10 @@ import java.util.List;
  * REST controller for menu product operations.
  */
 @RestController
-@RequestMapping("/menuProducts")
+@RequestMapping("/api/menu_products")
 public class MenuProductController {
-    private final MenuProductService menuProductService;
-
-    /**
-     * Creates a new MenuProductController with the given service.
-     *
-     * @param menuProductService the service handling menu product logic
-     */
-    public MenuProductController(MenuProductService menuProductService) {
-        this.menuProductService = menuProductService;
-    }
+    @Autowired
+    private MenuProductService menuProductService;
 
     /**
      * Retrieves all menu products.
