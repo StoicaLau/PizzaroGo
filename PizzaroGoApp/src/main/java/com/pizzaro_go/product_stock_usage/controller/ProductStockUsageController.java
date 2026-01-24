@@ -4,6 +4,7 @@ import com.pizzaro_go.common.dtos.MessageResponse;
 import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageRequest;
 import com.pizzaro_go.product_stock_usage.service.ProductStockUsageService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,18 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/productStockUsages")
 public class ProductStockUsageController {
-
-    private final ProductStockUsageService productStockUsageService;
-
-    /**
-     * Creates a new ProductStockUsageController with the given service.
-     *
-     * @param productStockUsageService the service handling product stock usage
-     *                                 logic
-     */
-    public ProductStockUsageController(ProductStockUsageService productStockUsageService) {
-        this.productStockUsageService = productStockUsageService;
-    }
+    @Autowired
+    private  ProductStockUsageService productStockUsageService;
 
     /**
      * Creates a new product stock usage.

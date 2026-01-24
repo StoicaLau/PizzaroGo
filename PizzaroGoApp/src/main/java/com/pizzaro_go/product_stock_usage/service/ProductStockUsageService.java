@@ -13,6 +13,7 @@ import com.pizzaro_go.stock_item.entity.StockItem;
 import com.pizzaro_go.stock_item.repository.IStockItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,34 +24,16 @@ import java.util.Optional;
 @Service
 public class ProductStockUsageService {
 
-    private final IProductStockUsageRepository productStockUsageRepository;
-    private final IMenuProductRepository menuProductRepository;
-    private final IStockItemRepository stockItemRepository;
-    private final IProductStockUsageMapper productStockUsageMapper;
+    @Autowired
+    private IProductStockUsageRepository productStockUsageRepository;
+    @Autowired
+    private IMenuProductRepository menuProductRepository;
+    @Autowired
+    private IStockItemRepository stockItemRepository;
+    @Autowired
+    private IProductStockUsageMapper productStockUsageMapper;
 
     private final Logger log = LoggerFactory.getLogger(ProductStockUsageService.class);
-
-    /**
-     * Creates a new ProductStockUsageService with the given repositories and
-     * mapper.
-     *
-     * @param productStockUsageRepository the repository used for product stock
-     *                                    usage persistence
-     * @param menuProductRepository       the repository used for menu product
-     *                                    persistence
-     * @param stockItemRepository         the repository used for stock item
-     *                                    persistence
-     * @param productStockUsageMapper     the mapper used for entity-DTO conversion
-     */
-    public ProductStockUsageService(IProductStockUsageRepository productStockUsageRepository,
-                                    IMenuProductRepository menuProductRepository,
-                                    IStockItemRepository stockItemRepository,
-                                    IProductStockUsageMapper productStockUsageMapper) {
-        this.productStockUsageRepository = productStockUsageRepository;
-        this.menuProductRepository = menuProductRepository;
-        this.stockItemRepository = stockItemRepository;
-        this.productStockUsageMapper = productStockUsageMapper;
-    }
 
     /**
      * Creates a new product stock usage.
