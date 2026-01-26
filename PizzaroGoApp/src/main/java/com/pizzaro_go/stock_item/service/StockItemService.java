@@ -120,9 +120,10 @@ public class StockItemService {
      * @throws PGException if a repository error occurs
      */
     public MessageResponse deleteAll() throws PGException {
-        this.log.info("Truncating entire stock item table to reset IDs.");
+        this.log.info("Deleting entire stock and resetting IDs.");
         try {
-            this.stockItemRepository.truncateTable();
+            this.stockItemRepository.deleteAll();
+            this.stockItemRepository.resetIdSequence();
             return new MessageResponse("Entire Stock successfully deleted and IDs reset!");
 
         } catch (RepositoryException e) {
@@ -168,7 +169,8 @@ public class StockItemService {
         this.log.info("Clearing existing stocks and importing from Excel file.");
         try (InputStream stream = file.getInputStream()) {
             // Clear existing stocks before import
-            this.stockItemRepository.truncateTable();
+            this.stockItemRepository.deleteAll();
+            this.stockItemRepository.resetIdSequence();
 
             List<StockItemFileData> stockFileDataList = Poiji.fromExcel(stream, PoijiExcelType.XLSX,
                     StockItemFileData.class);

@@ -164,9 +164,10 @@ public class MenuProductService {
      * @throws PGException if a repository error occurs
      */
     public MessageResponse deleteAll() throws PGException {
-        this.log.info("Truncating entire menu product table to reset IDs.");
+        this.log.info("Deleting entire menu and resetting IDs.");
         try {
-            this.menuProductRepository.truncateTable();
+            this.menuProductRepository.deleteAll();
+            this.menuProductRepository.resetIdSequence();
             return new MessageResponse("Entire menu successfully deleted and IDs reset!");
 
         } catch (RepositoryException e) {

@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface IMenuProductRepository extends JpaRepository<MenuProduct,Long> {
+public interface IMenuProductRepository extends JpaRepository<MenuProduct, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "TRUNCATE TABLE menu_product RESTART IDENTITY", nativeQuery = true)
-    void truncateTable();
+    @Query(value = "ALTER TABLE menu_products AUTO_INCREMENT = 1", nativeQuery = true)
+    void resetIdSequence();
 }

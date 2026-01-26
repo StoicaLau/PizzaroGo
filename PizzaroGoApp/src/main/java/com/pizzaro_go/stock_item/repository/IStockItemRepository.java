@@ -14,6 +14,6 @@ public interface IStockItemRepository extends JpaRepository<StockItem, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "TRUNCATE TABLE stock_item RESTART IDENTITY", nativeQuery = true)
-    void truncateTable();
+    @Query(value = "ALTER TABLE stock_items AUTO_INCREMENT = 1", nativeQuery = true)
+    void resetIdSequence();
 }
