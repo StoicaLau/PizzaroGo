@@ -47,6 +47,7 @@ public class ProductStockUsageService {
         try {
             this.log.info("Create a product stock usage");
             ProductStockUsage productStockUsageToSave = this.toProductStockUsage((productStockUsageRequest));
+            productStockUsageToSave = this.productStockUsageRepository.save(productStockUsageToSave);
             return new MessageResponse(productStockUsageToSave.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to create an product stock usage";
@@ -62,7 +63,7 @@ public class ProductStockUsageService {
      *
      * @param productStockUsageRequest the incoming product stock usage data
      * @return the mapped ProductStockUsage entity with the associated menu product
-     * and stock item
+     *         and stock item
      * @throws PGException if the menu product/stock item does not exist or a
      *                     repository error occurs
      */
@@ -106,4 +107,5 @@ public class ProductStockUsageService {
             throw new PGException(errorMsg);
         }
     }
+
 }

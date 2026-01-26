@@ -1,6 +1,7 @@
 package com.pizzaro_go.menu_product.service;
 
 import com.pizzaro_go.common.dtos.MessageResponse;
+import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
@@ -8,12 +9,18 @@ import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
 import com.pizzaro_go.menu_product.entity.MenuProduct;
 import com.pizzaro_go.menu_product.mapper.IMenuProductMapper;
 import com.pizzaro_go.menu_product.repository.IMenuProductRepository;
+import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageRequest;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
+import com.pizzaro_go.product_stock_usage.repository.IProductStockUsageRepository;
+import com.pizzaro_go.product_stock_usage.service.ProductStockUsageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Service layer for menu product operations.
@@ -24,7 +31,13 @@ public class MenuProductService {
     private IMenuProductRepository menuProductRepository;
 
     @Autowired
+    private IProductStockUsageRepository productStockUsageRepository;
+
+    @Autowired
     private IMenuProductMapper menuProductMapper;
+
+    @Autowired
+    private ProductStockUsageService productStockUsageService;
 
     private final Logger log = LoggerFactory.getLogger(MenuProductService.class);
 
@@ -60,6 +73,21 @@ public class MenuProductService {
         this.log.info("Updating the menu_product with id: {}", menuProductId);
         try {
             MenuProduct menuProductToUpdate = this.menuProductMapper.toEntity(menuProductRequest);
+
+            // Save basic product info first to ensure it exists
+            menuProductToUpdate = this.menuProductRepository.save(menuProductToUpdate);
+
+            // Procedurally handle stock usages (ingredients)
+            setProductStockUsageOnProduct(menuProductToUpdate, menuProductRequest.getStockUsages());
+
+            // Refresh the product to get the newly created stock usages for the description
+            // calculation
+            menuProductToUpdate = this.menuProductRepository.findById(menuProductId)
+                    .orElseThrow(() -> new PGException("MenuProduct not found with id: " + menuProductId));
+
+            String menuProductDescription = getMenuProductDescription(menuProductToUpdate);
+            menuProductToUpdate.setDescription(menuProductDescription);
+
             MenuProduct updatedMenuProduct = this.menuProductRepository.save(menuProductToUpdate);
             return new MessageResponse(updatedMenuProduct.getId().toString());
         } catch (RepositoryException e) {
@@ -83,6 +111,15 @@ public class MenuProductService {
         this.log.info("Creating a new menu product item: {}", menuProductRequest.getName());
         try {
             MenuProduct menuProduct = this.menuProductMapper.toEntity(menuProductRequest);
+            menuProduct = this.menuProductRepository.save(menuProduct);
+            setProductStockUsageOnProduct(menuProduct, menuProductRequest.getStockUsages());
+
+            menuProduct = this.menuProductRepository.findById(menuProduct.getId())
+                    .orElseThrow(() -> new PGException("MenuProduct not found after initial save"));
+
+            String menuProductDescription = getMenuProductDescription(menuProduct);
+            menuProduct.setDescription(menuProductDescription);
+
             MenuProduct savedMenuProduct = this.menuProductRepository.save(menuProduct);
             return new MessageResponse(savedMenuProduct.getId().toString());
         } catch (RepositoryException e) {
@@ -142,4 +179,64 @@ public class MenuProductService {
         }
     }
 
+    /**
+     * Procedurally saves stock usage ingredients for a menu product.
+     * This method first deletes any existing stock usages for the product
+     * and then creates new ones using the ProductStockUsageService.
+     *
+     * @param menuProduct        the menu product to save ingredients for
+     * @param stockUsageRequests the list of stock usage requests containing stock
+     *                           item IDs and quantities
+     * @throws PGException if a referenced stock item is not found or a repository
+     *                     error occurs
+     */
+    @Transactional
+    protected void setProductStockUsageOnProduct(MenuProduct menuProduct,
+            List<ProductStockUsageRequest> stockUsageRequests)
+            throws PGException {
+        try {
+
+            this.productStockUsageRepository.deleteByMenuProductId(menuProduct.getId());
+
+            if (stockUsageRequests != null && !stockUsageRequests.isEmpty()) {
+                for (ProductStockUsageRequest usageRequest : stockUsageRequests) {
+
+                    usageRequest.setMenuProductId(menuProduct.getId());
+
+                    usageRequest.setId(null);
+                    this.productStockUsageService.create(usageRequest);
+                }
+            }
+        } catch (Exception e) {
+            String errorMsg = "Error occurred when setting stock usages for product with id: " + menuProduct.getId();
+            this.log.error(errorMsg, e);
+
+            errorMsg += " -> " + e.getMessage();
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Generates a descriptive string for the menu product based on its stock
+     * usages.
+     * For products in the PIZZA category, this description lists the names of all
+     * used stock items (ingredients).
+     *
+     * @param menuProduct the menu product for which to generate the description
+     * @return a comma-separated string of stock item names, or an empty string if
+     *         not applicable
+     */
+    private String getMenuProductDescription(MenuProduct menuProduct) {
+        String menuProductDescription = "";
+        if (menuProduct.getProductCategory().equals(ProductCategory.PIZZA) && menuProduct.getStockUsages() != null) {
+            StringJoiner joiner = new StringJoiner(", ");
+            for (ProductStockUsage usage : menuProduct.getStockUsages()) {
+                if (usage.getStockItem() != null) {
+                    joiner.add(usage.getStockItem().getName());
+                }
+            }
+            menuProductDescription = joiner.toString();
+        }
+        return menuProductDescription;
+    }
 }

@@ -29,6 +29,9 @@ public class MenuProduct {
     @Column(name = "image_URL", length = 200)
     private String imageURL;
 
+    @Column(length = 500)
+    private String description;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "product_category", nullable = false)
     private ProductCategory productCategory;
