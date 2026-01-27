@@ -17,5 +17,5 @@ public class MenuProductRequest {
     private String imageURL;
     private String productCategory;
     private Double price;
-    private List<ProductStockUsageRequest> stockUsages;
+    private List<ProductStockUsageRequest> productStockUsageRequests;
 }

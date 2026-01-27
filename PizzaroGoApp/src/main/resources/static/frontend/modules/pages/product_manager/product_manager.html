@@ -1,0 +1,154 @@
+<div class="product-manager-container">
+    <div class="product-header">
+        <h1>Product Management</h1>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <i class="fas fa-pizza-slice"></i>
+            <div class="stat-info">
+                <span class="stat-label">Total Products</span>
+                <span id="stat-total-products" class="stat-value">0</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-wine-bottle"></i>
+            <div class="stat-info">
+                <span class="stat-label">Drinks</span>
+                <span id="stat-total-drinks" class="stat-value">0</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-mortar-pestle"></i>
+            <div class="stat-info">
+                <span class="stat-label">Sauces</span>
+                <span id="stat-total-sauces" class="stat-value">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="product-toolbar">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="product-search" placeholder="Search products..." autocomplete="off">
+        </div>
+        <div class="product-actions-toolbar">
+            <button id="btn-delete-all-products" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete All
+            </button>
+        </div>
+    </div>
+
+    <div class="product-table-wrapper">
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th class="sortable" data-field="id">ID <i class="fas fa-sort"></i></th>
+                    <th>Image</th>
+                    <th class="sortable" data-field="name">Name <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="productCategory">Category <i class="fas fa-sort"></i></th>
+                    <th class="sortable" data-field="price">Price <i class="fas fa-sort"></i></th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="product-table-body">
+                <!-- Rows populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="product-footer-actions">
+        <button id="btn-add-product" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Product
+        </button>
+    </div>
+
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content product-modal-content">
+            <span class="close-modal">&times;</span>
+
+            <div class="modal-header-steps">
+                <div class="step-indicator active" data-step="1">
+                    <span class="step-num">1</span>
+                    <span class="step-text">Details</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-indicator" data-step="2">
+                    <span class="step-num">2</span>
+                    <span class="step-text">Ingredients</span>
+                </div>
+            </div>
+
+            <h2 id="modal-title">Add Product</h2>
+            <div class="modal-body">
+                <!-- Step 1: Basic Info -->
+                <div id="step-1" class="modal-step">
+                    <form id="product-form-step-1">
+                        <div class="form-group">
+                            <label for="product-name">Name</label>
+                            <input type="text" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-image">Image URL</label>
+                            <input type="text" id="product-image">
+                        </div>
+                        <div class="form-group">
+                            <label for="product-category">Category</label>
+                            <select id="product-category" required>
+                                <option value="PIZZA">Pizza</option>
+                                <option value="DRINK">Drink</option>
+                                <option value="SAUCE">Sauce</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-price">Price</label>
+                            <input type="number" step="0.01" id="product-price" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                            <button type="button" id="btn-next-step" class="btn btn-primary">Continue</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Ingredients -->
+                <div id="step-2" class="modal-step hidden">
+                    <div class="ingredient-manager">
+                        <div class="ingredient-list selected-ingredients">
+                            <h3>Product Ingredients</h3>
+                            <div id="selected-ingredients-list" class="drop-zone">
+                                <!-- Selected items -->
+                            </div>
+                        </div>
+                        <div class="ingredient-list available-stock">
+                            <h3>Available Stock</h3>
+                            <div class="stock-search-sub">
+                                <input type="text" id="stock-item-search" placeholder="Search ingredients...">
+                            </div>
+                            <div id="available-stock-list">
+                                <!-- Stock items -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="btn-prev-step" class="btn btn-secondary">Back</button>
+                        <button type="button" id="btn-save-product" class="btn btn-primary">Save Product</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal-prod" class="modal hidden">
+        <div class="modal-content confirm-modal-content">
+            <h2 id="confirm-title-prod">Are you sure?</h2>
+            <p id="confirm-message-prod">This action cannot be undone.</p>
+            <div class="form-actions">
+                <button id="confirm-cancel-prod" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-yes-prod" class="btn btn-danger">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -372,20 +372,27 @@
 .btn {
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
-    border: none;
+    border: 2px solid transparent;
+    /* Identical border base */
     cursor: pointer;
     font-weight: 600;
     font-size: 0.95rem;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    /* Center content */
     gap: 0.6rem;
     transition: all 0.2s ease;
-    text-transform: capitalize;
+    box-sizing: border-box;
+    /* Ensure border doesn't add to size */
+    min-width: 120px;
+    /* Symmetrical width */
 }
 
 .btn-primary {
     background: linear-gradient(135deg, #ffaa00, #ff7b00);
     color: #111;
+    border-color: transparent;
     box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
 }
 

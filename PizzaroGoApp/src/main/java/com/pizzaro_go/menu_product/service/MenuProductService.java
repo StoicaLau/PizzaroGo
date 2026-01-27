@@ -73,15 +73,8 @@ public class MenuProductService {
         this.log.info("Updating the menu_product with id: {}", menuProductId);
         try {
             MenuProduct menuProductToUpdate = this.menuProductMapper.toEntity(menuProductRequest);
-
-            // Save basic product info first to ensure it exists
             menuProductToUpdate = this.menuProductRepository.save(menuProductToUpdate);
-
-            // Procedurally handle stock usages (ingredients)
-            setProductStockUsageOnProduct(menuProductToUpdate, menuProductRequest.getStockUsages());
-
-            // Refresh the product to get the newly created stock usages for the description
-            // calculation
+            setProductStockUsageOnProduct(menuProductToUpdate, menuProductRequest.getProductStockUsageRequests());
             menuProductToUpdate = this.menuProductRepository.findById(menuProductId)
                     .orElseThrow(() -> new PGException("MenuProduct not found with id: " + menuProductId));
 
@@ -112,7 +105,8 @@ public class MenuProductService {
         try {
             MenuProduct menuProduct = this.menuProductMapper.toEntity(menuProductRequest);
             menuProduct = this.menuProductRepository.save(menuProduct);
-            setProductStockUsageOnProduct(menuProduct, menuProductRequest.getStockUsages());
+
+            setProductStockUsageOnProduct(menuProduct, menuProductRequest.getProductStockUsageRequests());
 
             menuProduct = this.menuProductRepository.findById(menuProduct.getId())
                     .orElseThrow(() -> new PGException("MenuProduct not found after initial save"));
@@ -229,9 +223,10 @@ public class MenuProductService {
      */
     private String getMenuProductDescription(MenuProduct menuProduct) {
         String menuProductDescription = "";
-        if (menuProduct.getProductCategory().equals(ProductCategory.PIZZA) && menuProduct.getStockUsages() != null) {
+        if (menuProduct.getProductCategory().equals(ProductCategory.PIZZA)
+                && menuProduct.getProductStockUsages() != null) {
             StringJoiner joiner = new StringJoiner(", ");
-            for (ProductStockUsage usage : menuProduct.getStockUsages()) {
+            for (ProductStockUsage usage : menuProduct.getProductStockUsages()) {
                 if (usage.getStockItem() != null) {
                     joiner.add(usage.getStockItem().getName());
                 }

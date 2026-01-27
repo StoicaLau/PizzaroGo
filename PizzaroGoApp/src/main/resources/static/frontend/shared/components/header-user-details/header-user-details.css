@@ -7,8 +7,8 @@
 
 /* Unauthenticated State */
 .btn-login {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
-  color: white;
+  background: linear-gradient(135deg, #ffaa00 0%, #ff5e62 100%);
+  color: #111;
   border: none;
   padding: 8px 20px;
   border-radius: 50px;

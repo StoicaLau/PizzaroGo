@@ -40,7 +40,7 @@ public class MenuProduct {
     private Double price = 0.0;
 
     @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductStockUsage> stockUsages = new ArrayList<>();
+    private List<ProductStockUsage> productStockUsages = new ArrayList<>();
 
     @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();

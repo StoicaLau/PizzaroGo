@@ -57,6 +57,9 @@ async function loadPage(path) {
         case "/users":
             page = "/frontend/modules/pages/user_manager/user_manager.html";
             break;
+        case "/products":
+            page = "/frontend/modules/pages/product_manager/product_manager.html";
+            break;
         default:
             page = "/frontend/modules/pages/home/home.html";
             break;

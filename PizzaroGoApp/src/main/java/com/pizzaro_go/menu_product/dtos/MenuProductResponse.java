@@ -1,9 +1,12 @@
 package com.pizzaro_go.menu_product.dtos;
 
+import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,4 +19,5 @@ public class MenuProductResponse {
     private String description;
     private String productCategory;
     private Double price;
+    private List<ProductStockUsageResponse> productStockUsageResponses;
 }

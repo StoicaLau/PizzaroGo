@@ -5,6 +5,7 @@ import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
 import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
 import com.pizzaro_go.menu_product.entity.MenuProduct;
+import com.pizzaro_go.product_stock_usage.mapper.IProductStockUsageMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -13,7 +14,8 @@ import java.util.List;
 /**
  * Mapper interface for converting between MenuProduct entity and DTOs.
  */
-@Mapper(componentModel = "spring", imports = { ProductCategory.class, StringUtils.class })
+@Mapper(componentModel = "spring", uses = IProductStockUsageMapper.class, imports = { ProductCategory.class,
+        StringUtils.class })
 public interface IMenuProductMapper {
 
     /**
@@ -25,7 +27,7 @@ public interface IMenuProductMapper {
     @Mapping(target = "productCategory", expression = "java(request.getProductCategory() != null ? ProductCategory.valueOf(request.getProductCategory().toUpperCase()) : null)")
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "description", ignore = true)
-    @Mapping(target = "stockUsages", ignore = true)
+    @Mapping(target = "productStockUsages", ignore = true)
     MenuProduct toEntity(MenuProductRequest request);
 
     /**
@@ -35,6 +37,7 @@ public interface IMenuProductMapper {
      * @return the menu product response DTO
      */
     @Mapping(target = "productCategory", expression = "java(menuProduct.getProductCategory() != null ? StringUtils.capitalize(menuProduct.getProductCategory().name()) : null)")
+    @Mapping(target = "productStockUsageResponses", source = "productStockUsages")
     MenuProductResponse toResponse(MenuProduct menuProduct);
 
     /**
