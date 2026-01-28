@@ -1,0 +1,32 @@
+<div class="orders-container">
+    <header class="orders-header">
+        <h1>My Orders</h1>
+        <p>Track your past and current delicious moments.</p>
+    </header>
+
+    <div class="orders-content">
+        <div id="orders-list" class="orders-list">
+            <div class="loading-spinner">Loading orders...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Order Modal -->
+<div id="edit-order-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Order #<span id="edit-order-id-display"></span></h2>
+            <button class="close-modal" id="close-edit-modal">&times;</button>
+        </div>
+        <div id="edit-order-items-list" class="edit-items-list">
+            <!-- Items for editing will be loaded here -->
+        </div>
+        <div class="modal-footer">
+            <div class="edit-total">
+                <span>Total: </span>
+                <span id="edit-order-total-display">0.00 RON</span>
+            </div>
+            <button class="btn-primary" id="save-order-btn">Save Changes</button>
+        </div>
+    </div>
+</div>

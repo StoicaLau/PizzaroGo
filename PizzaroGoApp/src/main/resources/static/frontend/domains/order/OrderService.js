@@ -29,7 +29,7 @@ class OrderService {
      * @returns {Promise<Order[]>}
      */
     async getByUserId(userId) {
-        const response = await fetch(`${this.baseUrl}/user/${userId}`);
+        const response = await fetch(`${this.baseUrl}/byUserId/${userId}`);
         if (!response.ok) throw new Error('Failed to fetch orders');
         const data = await response.json();
         return data.map(item => Order.fromJson(item));

@@ -5,7 +5,6 @@ import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +40,7 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Create an order by id")
-    public OrderResponse getById(@PathParam("id") Long id) {
+    public OrderResponse getById(@PathVariable("id") Long id) {
         return this.orderService.getById(id);
     }
 
@@ -51,9 +50,9 @@ public class OrderController {
      * @param userId the ID of the user whose orders should be retrieved
      * @return a list of OrderResponse objects representing the user's orders
      */
-    @GetMapping("")
+    @GetMapping("/byUserId/{userId}")
     @Operation(summary = "Retrieves all orders belonging to a specific user")
-    public List<OrderResponse> getAllByUserId(@RequestParam("userId") Long userId) {
+    public List<OrderResponse> getAllByUserId(@PathVariable("userId") Long userId) {
         return this.orderService.getAllByUserId(userId);
     }
 
@@ -77,7 +76,7 @@ public class OrderController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an order by id")
-    public MessageResponse deleteById(@PathParam("id") Long id) {
+    public MessageResponse deleteById(@PathVariable("id") Long id) {
         return this.orderService.deleteById(id);
     }
 
