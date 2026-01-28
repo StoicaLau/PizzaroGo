@@ -21,6 +21,9 @@
             // Listen for global auth changes
             window.addEventListener('auth-change', () => this.checkAuthState());
 
+            // Listen for cart changes
+            window.addEventListener('cart-change', (e) => this.updateCartBadge(e.detail));
+
             // Close dropdown when clicking outside
             document.addEventListener('click', (e) => {
                 if (this.profileTrigger && !this.profileTrigger.contains(e.target) &&
@@ -69,13 +72,8 @@
 
             if (this.cartBtn) {
                 this.cartBtn.onclick = () => {
-                    // Start navigation to orders or cart
-                    // checking if navigate function exists globaly or dispatch event
                     if (window.navigate) {
-                        window.navigate('/orders');
-                    } else {
-                        console.log("Navigating to orders...");
-                        window.location.href = '/orders'; // Fallback
+                        window.navigate('/menu'); // Take them back to menu to finish order
                     }
                 };
             }
@@ -105,13 +103,18 @@
             }
         }
 
+        updateCartBadge(items) {
+            if (!this.cartCount) return;
+            const count = items.reduce((sum, item) => sum + item.quantity, 0);
+            this.cartCount.textContent = count;
+            this.cartCount.classList.toggle('hidden', count === 0);
+        }
+
         checkAuthState() {
-            // Assume window.isAuthenticated() and window.getUser() are available
-            // If checking from localStorage directly:
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             const isLoggedIn = !!user;
 
-            this.updateReferences(); // Ensure we have latest DOM
+            this.updateReferences();
 
             if (isLoggedIn) {
                 if (this.unauthSection) this.unauthSection.classList.add('hidden');
@@ -119,13 +122,10 @@
                 if (this.usernameLabel) this.usernameLabel.textContent = user.username || 'User';
                 if (this.emailLabel) this.emailLabel.textContent = user.email || '';
 
-                // Update cart count if user has orders data (mocked for now)
-                if (this.cartCount) {
-                    // In a real app, fetch cart size from API or local storage
-                    // For now, let's show a mock number like 2 if logged in, or 0
-                    const mockCount = user.orders ? user.orders.length : 2;
-                    this.cartCount.textContent = mockCount;
-                }
+                // Initialize cart badge from storage
+                const cartData = localStorage.getItem('pizzarogo_cart');
+                const items = cartData ? JSON.parse(cartData) : [];
+                this.updateCartBadge(items);
 
             } else {
                 if (this.unauthSection) this.unauthSection.classList.remove('hidden');
@@ -136,8 +136,9 @@
         logout() {
             localStorage.removeItem('user');
             localStorage.removeItem('token');
+            // Also clear cart on logout? User might prefer it or not. 
+            // localStorage.removeItem('pizzarogo_cart'); 
             window.dispatchEvent(new CustomEvent('auth-change'));
-            // Optional: Redirect to home
             if (window.navigate) window.navigate('/');
         }
     }

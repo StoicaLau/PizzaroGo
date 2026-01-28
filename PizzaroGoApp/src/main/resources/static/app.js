@@ -19,7 +19,7 @@ window.addEventListener('auth-change', () => {
 });
 
 let currentPageCss = null;
-const protectedPaths = ["/menu", "/orders"];
+const protectedPaths = ["/orders"];
 
 function navigate(path) {
     if (protectedPaths.includes(path) && !isAuthenticated()) {
