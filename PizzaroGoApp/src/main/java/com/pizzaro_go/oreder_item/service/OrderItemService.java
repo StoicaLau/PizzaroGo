@@ -82,6 +82,7 @@ public class OrderItemService {
                 Optional<MenuProduct> menuProduct = this.menuProductRepository.findById(request.getMenuProductId());
                 if (menuProduct.isPresent()) {
                     orderItem.setMenuProduct(menuProduct.get());
+                    orderItem.setTotalPrice(menuProduct.get().getPrice() * orderItem.getQuantity());
                 } else {
                     throw new PGException("MenuProduct not found with id: " + request.getMenuProductId());
                 }

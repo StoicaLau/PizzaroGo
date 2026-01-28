@@ -26,7 +26,7 @@ public class MenuProduct {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(name = "image_URL", length = 200)
+    @Column(name = "image_URL", length = 1000)
     private String imageURL;
 
     @Column(length = 500)

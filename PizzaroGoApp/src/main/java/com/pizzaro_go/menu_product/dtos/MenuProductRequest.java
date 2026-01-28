@@ -15,7 +15,8 @@ public class MenuProductRequest {
     private Long id;
     private String name;
     private String imageURL;
+    private String description;
     private String productCategory;
     private Double price;
-    private List<ProductStockUsageRequest> productStockUsageRequests;
+    private List<ProductStockUsageRequest> stockUsages;
 }

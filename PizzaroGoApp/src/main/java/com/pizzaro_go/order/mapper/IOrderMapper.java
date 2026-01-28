@@ -1,15 +1,19 @@
 package com.pizzaro_go.order.mapper;
 
+import com.pizzaro_go.common.enums.Status;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.entity.Order;
-import com.pizzaro_go.common.enums.Status;
-import org.mapstruct.*;
+import com.pizzaro_go.oreder_item.mapper.IOrderItemMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 
 /**
  * Mapper for converting between Order entities and Order DTOs.
  */
-@Mapper(componentModel = "spring", imports = { Status.class })
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, imports = {
+        Status.class }, uses = IOrderItemMapper.class)
 public interface IOrderMapper {
 
     /**

@@ -19,5 +19,5 @@ public class MenuProductResponse {
     private String description;
     private String productCategory;
     private Double price;
-    private List<ProductStockUsageResponse> productStockUsageResponses;
+    private List<ProductStockUsageResponse> stockUsages;
 }

@@ -4,6 +4,7 @@ import com.pizzaro_go.common.dtos.MessageResponse;
 import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
+import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
 import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
 import com.pizzaro_go.menu_product.entity.MenuProduct;
@@ -13,6 +14,8 @@ import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageRequest;
 import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
 import com.pizzaro_go.product_stock_usage.repository.IProductStockUsageRepository;
 import com.pizzaro_go.product_stock_usage.service.ProductStockUsageService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ import java.util.StringJoiner;
  * Service layer for menu product operations.
  */
 @Service
+@Transactional
 public class MenuProductService {
     @Autowired
     private IMenuProductRepository menuProductRepository;
@@ -38,6 +42,9 @@ public class MenuProductService {
 
     @Autowired
     private ProductStockUsageService productStockUsageService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final Logger log = LoggerFactory.getLogger(MenuProductService.class);
 
@@ -74,11 +81,17 @@ public class MenuProductService {
         try {
             MenuProduct menuProductToUpdate = this.menuProductMapper.toEntity(menuProductRequest);
             menuProductToUpdate = this.menuProductRepository.save(menuProductToUpdate);
-            setProductStockUsageOnProduct(menuProductToUpdate, menuProductRequest.getProductStockUsageRequests());
-            menuProductToUpdate = this.menuProductRepository.findById(menuProductId)
+            setProductStockUsageOnProduct(menuProductToUpdate, menuProductRequest.getStockUsages());
+
+            // Flush to ensure ProductStockUsage records are persisted
+            this.entityManager.flush();
+            this.entityManager.clear();
+
+            menuProductToUpdate = this.menuProductRepository.findByIdWithStockUsage(menuProductId)
                     .orElseThrow(() -> new PGException("MenuProduct not found with id: " + menuProductId));
 
             String menuProductDescription = getMenuProductDescription(menuProductToUpdate);
+
             menuProductToUpdate.setDescription(menuProductDescription);
 
             MenuProduct updatedMenuProduct = this.menuProductRepository.save(menuProductToUpdate);
@@ -106,12 +119,19 @@ public class MenuProductService {
             MenuProduct menuProduct = this.menuProductMapper.toEntity(menuProductRequest);
             menuProduct = this.menuProductRepository.save(menuProduct);
 
-            setProductStockUsageOnProduct(menuProduct, menuProductRequest.getProductStockUsageRequests());
+            setProductStockUsageOnProduct(menuProduct, menuProductRequest.getStockUsages());
 
-            menuProduct = this.menuProductRepository.findById(menuProduct.getId())
+            // Flush to ensure ProductStockUsage records are persisted
+            this.entityManager.flush();
+            this.entityManager.clear();
+
+            menuProduct = this.menuProductRepository.findByIdWithStockUsage(menuProduct.getId())
                     .orElseThrow(() -> new PGException("MenuProduct not found after initial save"));
 
+
+
             String menuProductDescription = getMenuProductDescription(menuProduct);
+
             menuProduct.setDescription(menuProductDescription);
 
             MenuProduct savedMenuProduct = this.menuProductRepository.save(menuProduct);
@@ -185,10 +205,10 @@ public class MenuProductService {
      * @throws PGException if a referenced stock item is not found or a repository
      *                     error occurs
      */
-    @Transactional
-    protected void setProductStockUsageOnProduct(MenuProduct menuProduct,
+    private void setProductStockUsageOnProduct(MenuProduct menuProduct,
             List<ProductStockUsageRequest> stockUsageRequests)
             throws PGException {
+        this.log.info("Set stock usages for product with id: " + menuProduct.getId());
         try {
 
             this.productStockUsageRepository.deleteByMenuProductId(menuProduct.getId());
@@ -202,7 +222,7 @@ public class MenuProductService {
                     this.productStockUsageService.create(usageRequest);
                 }
             }
-        } catch (Exception e) {
+        } catch (RepositoryException e) {
             String errorMsg = "Error occurred when setting stock usages for product with id: " + menuProduct.getId();
             this.log.error(errorMsg, e);
 
@@ -223,15 +243,28 @@ public class MenuProductService {
      */
     private String getMenuProductDescription(MenuProduct menuProduct) {
         String menuProductDescription = "";
+
         if (menuProduct.getProductCategory().equals(ProductCategory.PIZZA)
                 && menuProduct.getProductStockUsages() != null) {
+            this.log.info("Product is PIZZA with {} stock usages", menuProduct.getProductStockUsages().size());
             StringJoiner joiner = new StringJoiner(", ");
             for (ProductStockUsage usage : menuProduct.getProductStockUsages()) {
                 if (usage.getStockItem() != null) {
-                    joiner.add(usage.getStockItem().getName());
+                    String stockItemName = usage.getStockItem().getName();
+                    String unit = StringUtils.capitalize(usage.getStockItem().getUnit().toString());
+                    double quantity = usage.getQuantityPerUnit();
+                    String ingredient = stockItemName + " " + quantity + unit;
+                    joiner.add(ingredient);
+                } else {
+                    this.log.warn("ProductStockUsage {} has null stockItem", usage.getId());
                 }
             }
             menuProductDescription = joiner.toString();
+            this.log.info("Final description: '{}'", menuProductDescription);
+        } else {
+            this.log.info("Not generating description - Category: {}, StockUsages null: {}",
+                    menuProduct.getProductCategory(),
+                    menuProduct.getProductStockUsages() == null);
         }
         return menuProductDescription;
     }

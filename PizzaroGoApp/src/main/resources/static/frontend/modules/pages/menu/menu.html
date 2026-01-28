@@ -1,0 +1,51 @@
+<div class="menu-container">
+    <header class="menu-header">
+        <h1>Delicious Menu</h1>
+        <p>Choose your favorites and build your perfect meal.</p>
+    </header>
+
+    <div class="menu-content">
+        <aside class="menu-sidebar">
+            <div class="category-filters" id="category-filters">
+                <h3>Categories</h3>
+                <button class="filter-btn active" data-category="ALL">All Items</button>
+                <!-- Dynamic categories will be loaded here -->
+            </div>
+        </aside>
+
+        <section class="products-section">
+            <div id="products-grid" class="products-grid">
+                <!-- Products will be loaded here -->
+                <div class="loading-spinner">Loading...</div>
+            </div>
+        </section>
+
+        <!-- Cart Summary / Checkout Panel -->
+        <aside class="cart-panel" id="cart-panel">
+            <div class="cart-header">
+                <h3>Your Order</h3>
+                <button class="close-cart" id="close-cart-btn">&times;</button>
+            </div>
+            <div id="cart-items-list" class="cart-items-list">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total-amount">$0.00</span>
+                </div>
+                <button class="btn-primary full-width" id="finish-order-btn">Finish Order</button>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="order-success-modal" class="modal hidden">
+    <div class="modal-content text-center">
+        <div class="success-icon">✓</div>
+        <h2>Order Placed!</h2>
+        <p>Your delicious food is being prepared.</p>
+        <button class="btn-primary" onclick="navigate('/home')">Back to Home</button>
+    </div>
+</div>

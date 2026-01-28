@@ -1,6 +1,7 @@
 package com.pizzaro_go.order.service;
 
 import com.pizzaro_go.common.dtos.MessageResponse;
+import com.pizzaro_go.common.enums.Status;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.order.dtos.OrderRequest;
@@ -8,13 +9,21 @@ import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.entity.Order;
 import com.pizzaro_go.order.mapper.IOrderMapper;
 import com.pizzaro_go.order.repository.IOrderRepository;
+import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
+import com.pizzaro_go.oreder_item.entity.OrderItem;
+import com.pizzaro_go.oreder_item.repository.IOrderItemRepository;
+import com.pizzaro_go.oreder_item.service.OrderItemService;
 import com.pizzaro_go.user.entity.User;
 import com.pizzaro_go.user.repository.IUserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,16 +33,26 @@ import java.util.stream.Collectors;
  *
  */
 @Service
+@Transactional
 public class OrderService {
 
     @Autowired
     private IOrderRepository orderRepository;
 
     @Autowired
+    private IOrderItemRepository orderItemRepository;
+
+    @Autowired
     private IUserRepository userRepository;
 
     @Autowired
+    private OrderItemService orderItemService;
+
+    @Autowired
     private IOrderMapper orderMapper;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final Logger log = LoggerFactory.getLogger(OrderService.class);
 
@@ -48,7 +67,28 @@ public class OrderService {
         try {
             this.log.info("Create an order for the user with id: {}", order.getUserId());
             Order orderToSave = this.toOrder(order);
-            return new MessageResponse(orderToSave.getId().toString());
+            orderToSave.setStatus(Status.PENDING);
+            orderToSave.setCreatedAt(LocalDateTime.now());
+            if (orderToSave.getOrderPrice() == null)
+                orderToSave.setOrderPrice(0.0);
+            if (orderToSave.getDeliveryPrice() == null)
+                orderToSave.setDeliveryPrice(0.0);
+            if (orderToSave.getTotalPrice() == null)
+                orderToSave.setTotalPrice(0.0);
+            orderToSave = this.orderRepository.save(orderToSave);
+            setOrderItemToOrder(orderToSave, order.getOrderItems());
+
+            this.entityManager.flush();
+            this.entityManager.clear();
+
+            orderToSave = this.orderRepository.findByIdWithOrderItems(orderToSave.getId())
+                    .orElseThrow(() -> new PGException("Order not found after initial save"));
+
+            calculateOrderPrices(orderToSave);
+
+            Order savedOrder = this.orderRepository.save(orderToSave);
+
+            return new MessageResponse(savedOrder.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when trying to create an order";
             this.log.error(errorMsg, e);
@@ -98,7 +138,20 @@ public class OrderService {
         this.log.info("Updating the order with id: {}", orderId);
         try {
             Order orderToUpdate = this.toOrder(order);
+            orderToUpdate = this.orderRepository.save(orderToUpdate);
+
+            setOrderItemToOrder(orderToUpdate, order.getOrderItems());
+
+            this.entityManager.flush();
+            this.entityManager.clear();
+
+            orderToUpdate = this.orderRepository.findByIdWithOrderItems(orderId)
+                    .orElseThrow(() -> new PGException("Order not found with id: " + orderId));
+
+            calculateOrderPrices(orderToUpdate);
+
             Order updatedOrder = this.orderRepository.save(orderToUpdate);
+
             return new MessageResponse(updatedOrder.getId().toString());
 
         } catch (RepositoryException e) {
@@ -176,7 +229,7 @@ public class OrderService {
      * @return the mapped Order entity with the associated user
      * @throws PGException if the user does not exist or a repository error occurs
      */
-    public Order toOrder(OrderRequest orderRequest) throws PGException {
+    private Order toOrder(OrderRequest orderRequest) throws PGException {
         try {
             Order order = this.orderMapper.toEntity(orderRequest);
             Long userId = orderRequest.getUserId();
@@ -199,4 +252,44 @@ public class OrderService {
             throw new PGException(errorMsg);
         }
     }
+
+    private void setOrderItemToOrder(Order order, List<OrderItemRequest> orderItemRequestList) throws PGException {
+        try {
+            this.orderItemRepository.deleteByOrderId(order.getId());
+            if (orderItemRequestList != null && !orderItemRequestList.isEmpty()) {
+                for (OrderItemRequest orderItemRequest : orderItemRequestList) {
+                    orderItemRequest.setOrderId(order.getId());
+
+                    orderItemRequest.setId(null);
+                    this.orderItemService.create(orderItemRequest);
+                }
+            }
+
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when setting order items for order with id: " + order.getId();
+            this.log.error(errorMsg, e);
+
+            errorMsg += " -> " + e.getMessage();
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Calculates the order prices based on the associated order items.
+     *
+     * @param order the order for which to calculate prices
+     */
+    private void calculateOrderPrices(Order order) {
+        double orderPrice = 0.0;
+        if (order.getOrderItems() != null) {
+            for (OrderItem item : order.getOrderItems()) {
+                if (item.getTotalPrice() != null) {
+                    orderPrice += item.getTotalPrice();
+                }
+            }
+        }
+        order.setOrderPrice(orderPrice);
+        order.setTotalPrice(orderPrice + (order.getDeliveryPrice() != null ? order.getDeliveryPrice() : 0.0));
+    }
+
 }

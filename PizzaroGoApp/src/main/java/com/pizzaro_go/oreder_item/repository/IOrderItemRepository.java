@@ -9,4 +9,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface IOrderItemRepository extends JpaRepository<OrderItem, Long> {
+
+    /**
+     * Deletes all order items associated with a specific order.
+     *
+     * @param orderId the ID of the order
+     */
+    void deleteByOrderId(Long orderId);
 }

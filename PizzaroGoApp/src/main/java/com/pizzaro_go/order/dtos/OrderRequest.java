@@ -1,11 +1,13 @@
 package com.pizzaro_go.order.dtos;
 
+import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,5 +24,6 @@ public class OrderRequest {
     private Double deliveryPrice;
     private Double totalPrice;
 
+    private List<OrderItemRequest> orderItems;
 
 }

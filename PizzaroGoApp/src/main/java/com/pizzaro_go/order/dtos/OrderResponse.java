@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.pizzaro_go.oreder_item.dtos.OrderItemResponse;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,5 +20,6 @@ public class OrderResponse {
     private Double orderPrice;
     private Double deliveryPrice;
     private Double totalPrice;
+    private List<OrderItemResponse> orderItems;
 
 }

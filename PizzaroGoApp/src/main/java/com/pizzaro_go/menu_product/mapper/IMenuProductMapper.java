@@ -26,7 +26,6 @@ public interface IMenuProductMapper {
      */
     @Mapping(target = "productCategory", expression = "java(request.getProductCategory() != null ? ProductCategory.valueOf(request.getProductCategory().toUpperCase()) : null)")
     @Mapping(target = "orderItems", ignore = true)
-    @Mapping(target = "description", ignore = true)
     @Mapping(target = "productStockUsages", ignore = true)
     MenuProduct toEntity(MenuProductRequest request);
 
@@ -37,7 +36,7 @@ public interface IMenuProductMapper {
      * @return the menu product response DTO
      */
     @Mapping(target = "productCategory", expression = "java(menuProduct.getProductCategory() != null ? StringUtils.capitalize(menuProduct.getProductCategory().name()) : null)")
-    @Mapping(target = "productStockUsageResponses", source = "productStockUsages")
+    @Mapping(target = "stockUsages", source = "productStockUsages")
     MenuProductResponse toResponse(MenuProduct menuProduct);
 
     /**

@@ -31,6 +31,7 @@ export class MenuProduct {
             id: this.id || null,
             name: this.name,
             imageURL: this.imageURL,
+            description: this.description,
             productCategory: this.productCategory,
             price: this.price,
             stockUsages: this.stockUsages.map(usage => usage.toRequest())
