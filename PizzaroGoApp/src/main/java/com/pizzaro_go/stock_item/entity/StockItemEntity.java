@@ -2,7 +2,7 @@ package com.pizzaro_go.stock_item.entity;
 
 import com.pizzaro_go.common.enums.Category;
 import com.pizzaro_go.common.enums.Unit;
-import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsageEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "stock_items")
-public class StockItem {
+public class StockItemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +42,6 @@ public class StockItem {
     private Unit unit;
 
     @OneToMany(mappedBy = "stockItem", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductStockUsage> usages = new ArrayList<>();
+    private List<ProductStockUsageEntity> usages = new ArrayList<>();
 
 }

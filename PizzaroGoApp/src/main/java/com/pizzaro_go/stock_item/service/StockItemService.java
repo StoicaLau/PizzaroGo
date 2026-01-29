@@ -6,9 +6,10 @@ import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.fileimport.excel.entities.StockItemFileData;
 import com.pizzaro_go.stock_item.dtos.StockItemRequest;
 import com.pizzaro_go.stock_item.dtos.StockItemResponse;
-import com.pizzaro_go.stock_item.entity.StockItem;
+import com.pizzaro_go.stock_item.entity.StockItemEntity;
 import com.pizzaro_go.stock_item.mapper.IStockItemMapper;
 import com.pizzaro_go.stock_item.repository.IStockItemRepository;
+import org.springframework.transaction.annotation.Transactional;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * Service layer for stockItem operations.
  */
 @Service
+@Transactional
 public class StockItemService {
 
     @Autowired
@@ -72,8 +74,8 @@ public class StockItemService {
         Long stockItemId = stockItem.getId();
         this.log.info("Updating the stock_item with id: {}", stockItemId);
         try {
-            StockItem stockItemToUpdate = this.stockItemMapper.toEntity(stockItem);
-            StockItem updatedStockItem = this.stockItemRepository.save(stockItemToUpdate);
+            StockItemEntity stockItemToUpdate = this.stockItemMapper.toEntity(stockItem);
+            StockItemEntity updatedStockItem = this.stockItemRepository.save(stockItemToUpdate);
             return new MessageResponse(updatedStockItem.getId().toString());
 
         } catch (RepositoryException e) {
@@ -146,9 +148,9 @@ public class StockItemService {
     public MessageResponse create(StockItemRequest stockItemRequest) throws PGException {
         this.log.info("Creating a new stock item: {}", stockItemRequest.getName());
         try {
-            StockItem stockItem = this.stockItemMapper.toEntity(stockItemRequest);
+            StockItemEntity stockItem = this.stockItemMapper.toEntity(stockItemRequest);
 
-            StockItem savedStockItem = this.stockItemRepository.save(stockItem);
+            StockItemEntity savedStockItem = this.stockItemRepository.save(stockItem);
             return new MessageResponse(savedStockItem.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when creating new stock item -> " + e.getMessage();
@@ -175,7 +177,7 @@ public class StockItemService {
             List<StockItemFileData> stockFileDataList = Poiji.fromExcel(stream, PoijiExcelType.XLSX,
                     StockItemFileData.class);
 
-            List<StockItem> stocks = stockFileDataList.stream()
+            List<StockItemEntity> stocks = stockFileDataList.stream()
                     .map(this.stockItemMapper::toEntity)
                     .toList();
 
@@ -213,9 +215,9 @@ public class StockItemService {
             }
 
             // Data
-            List<StockItem> stocks = this.stockItemRepository.findAll();
+            List<StockItemEntity> stocks = this.stockItemRepository.findAll();
             int rowIdx = 1;
-            for (StockItem stock : stocks) {
+            for (StockItemEntity stock : stocks) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(stock.getName());
                 row.createCell(1).setCellValue(stock.getCategory() != null ? stock.getCategory().name() : "");

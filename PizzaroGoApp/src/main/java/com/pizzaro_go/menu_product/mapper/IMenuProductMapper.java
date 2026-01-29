@@ -4,7 +4,7 @@ import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
 import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
-import com.pizzaro_go.menu_product.entity.MenuProduct;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
 import com.pizzaro_go.product_stock_usage.mapper.IProductStockUsageMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,7 +27,7 @@ public interface IMenuProductMapper {
     @Mapping(target = "productCategory", expression = "java(request.getProductCategory() != null ? ProductCategory.valueOf(request.getProductCategory().toUpperCase()) : null)")
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "productStockUsages", ignore = true)
-    MenuProduct toEntity(MenuProductRequest request);
+    MenuProductEntity toEntity(MenuProductRequest request);
 
     /**
      * Converts a MenuProduct entity to a MenuProductResponse DTO.
@@ -37,7 +37,7 @@ public interface IMenuProductMapper {
      */
     @Mapping(target = "productCategory", expression = "java(menuProduct.getProductCategory() != null ? StringUtils.capitalize(menuProduct.getProductCategory().name()) : null)")
     @Mapping(target = "stockUsages", source = "productStockUsages")
-    MenuProductResponse toResponse(MenuProduct menuProduct);
+    MenuProductResponse toResponse(MenuProductEntity menuProduct);
 
     /**
      * Converts a list of MenuProduct entities to a list of MenuProductResponse
@@ -46,5 +46,5 @@ public interface IMenuProductMapper {
      * @param menuProducts the list of menu product entities
      * @return the list of menu product response DTOs
      */
-    List<MenuProductResponse> toResponseList(List<MenuProduct> menuProducts);
+    List<MenuProductResponse> toResponseList(List<MenuProductEntity> menuProducts);
 }

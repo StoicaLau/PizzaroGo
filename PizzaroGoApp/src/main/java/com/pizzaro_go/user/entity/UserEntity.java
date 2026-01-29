@@ -1,7 +1,7 @@
 package com.pizzaro_go.user.entity;
 
 import com.pizzaro_go.common.enums.Role;
-import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.order.entity.OrderEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "users")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,5 +42,5 @@ public class User {
     private Role role = Role.CUSTOMER;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Order> orders;
+    private List<OrderEntity> orders;
 }

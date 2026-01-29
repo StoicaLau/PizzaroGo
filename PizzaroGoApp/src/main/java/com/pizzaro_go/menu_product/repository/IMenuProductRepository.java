@@ -1,11 +1,10 @@
 package com.pizzaro_go.menu_product.repository;
 
-import com.pizzaro_go.menu_product.entity.MenuProduct;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.Optional;
 
@@ -13,7 +12,7 @@ import java.util.Optional;
  * Repository interface for MenuProduct entities.
  * Provides custom query methods for accessing menu products.
  */
-public interface IMenuProductRepository extends JpaRepository<MenuProduct, Long> {
+public interface IMenuProductRepository extends JpaRepository<MenuProductEntity, Long> {
 
         @Modifying
         @Transactional
@@ -27,10 +26,10 @@ public interface IMenuProductRepository extends JpaRepository<MenuProduct, Long>
          * @param id the ID of the menu product
          * @return an Optional containing the menu product if found, or empty otherwise
          */
-        @Query("SELECT mp FROM MenuProduct mp " +
+        @Query("SELECT mp FROM MenuProductEntity mp " +
                         "LEFT JOIN FETCH mp.productStockUsages psu " +
                         "LEFT JOIN FETCH psu.stockItem " +
                         "WHERE mp.id = :id")
-        Optional<MenuProduct> findByIdWithStockUsage(Long id);
+        Optional<MenuProductEntity> findByIdWithStockUsage(Long id);
 
 }

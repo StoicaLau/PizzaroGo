@@ -1,9 +1,10 @@
 package com.pizzaro_go.order.mapper;
 
 import com.pizzaro_go.common.enums.Status;
+import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
-import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.order.entity.OrderEntity;
 import com.pizzaro_go.oreder_item.mapper.IOrderItemMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,7 +14,7 @@ import org.mapstruct.MappingConstants;
  * Mapper for converting between Order entities and Order DTOs.
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, imports = {
-        Status.class }, uses = IOrderItemMapper.class)
+        Status.class, StringUtils.class }, uses = IOrderItemMapper.class)
 public interface IOrderMapper {
 
     /**
@@ -26,7 +27,7 @@ public interface IOrderMapper {
     @Mapping(target = "user", ignore = true) // set it in service
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "status", expression = "java(request.getStatus() != null ? Status.valueOf(request.getStatus().toUpperCase()) : Status.PENDING)")
-    Order toEntity(OrderRequest request);
+    OrderEntity toEntity(OrderRequest request);
 
     /**
      * Converts an Order entity into an OrderResponse.
@@ -35,6 +36,6 @@ public interface IOrderMapper {
      * @return the mapped OrderResponse DTO
      */
     @Mapping(target = "userId", expression = "java(order.getUser().getId())")
-    @Mapping(target = "status", expression = "java(order.getStatus().name())")
-    OrderResponse toResponse(Order order);
+    @Mapping(target = "status", expression = "java(order.getStatus() != null ? StringUtils.capitalize(order.getStatus().name()) : null)")
+    OrderResponse toResponse(OrderEntity order);
 }

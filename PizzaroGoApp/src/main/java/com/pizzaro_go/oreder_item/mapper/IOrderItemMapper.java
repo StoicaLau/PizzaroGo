@@ -4,7 +4,7 @@ import com.pizzaro_go.common.enums.Status;
 import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
 import com.pizzaro_go.oreder_item.dtos.OrderItemResponse;
-import com.pizzaro_go.oreder_item.entity.OrderItem;
+import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -25,7 +25,7 @@ public interface IOrderItemMapper {
     @Mapping(target = "order", ignore = true)
     @Mapping(target = "menuProduct", ignore = true)
     @Mapping(target = "status", expression = "java(request.getStatus() != null ? Status.valueOf(request.getStatus().toUpperCase()) : Status.PENDING)")
-    OrderItem toEntity(OrderItemRequest request);
+    OrderItemEntity toEntity(OrderItemRequest request);
 
     /**
      * Converts an OrderItem entity into an OrderItemResponse.
@@ -37,5 +37,5 @@ public interface IOrderItemMapper {
     @Mapping(target = "menuProductId", expression = "java(entity.getMenuProduct().getId())")
     @Mapping(target = "menuProductName", expression = "java(entity.getMenuProduct().getName())")
     @Mapping(target = "status", expression = "java(entity.getStatus() != null ? StringUtils.capitalize(entity.getStatus().name()) : null)")
-    OrderItemResponse toResponse(OrderItem entity);
+    OrderItemResponse toResponse(OrderItemEntity entity);
 }

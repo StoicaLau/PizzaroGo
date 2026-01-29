@@ -1,8 +1,8 @@
 package com.pizzaro_go.order.entity;
 
 import com.pizzaro_go.common.enums.Status;
-import com.pizzaro_go.oreder_item.entity.OrderItem;
-import com.pizzaro_go.user.entity.User;
+import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
+import com.pizzaro_go.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "orders")
-public class Order {
+public class OrderEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_user"))
-    private User user;
+    private UserEntity user;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -49,6 +49,6 @@ public class Order {
     private Double totalPrice = 0.0;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
 
 }

@@ -1,16 +1,15 @@
 package com.pizzaro_go.user.repository;
 
 import com.pizzaro_go.common.exceptions.RepositoryException;
-import com.pizzaro_go.user.entity.User;
+import com.pizzaro_go.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 
 import java.util.Optional;
 
 /**
  * User repository interface
  */
-public interface IUserRepository extends JpaRepository<User, Long> {
+public interface IUserRepository extends JpaRepository<UserEntity, Long> {
     /**
      * Checks if a user exists by username.
      *
@@ -36,6 +35,6 @@ public interface IUserRepository extends JpaRepository<User, Long> {
      * @return an Optional containing the user if found, or empty if not
      * @throws RepositoryException if a data access error occurs
      */
-    Optional<User> getByEmail(String email) throws RepositoryException;
+    Optional<UserEntity> getByEmail(String email) throws RepositoryException;
 
 }

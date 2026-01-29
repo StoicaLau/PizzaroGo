@@ -7,11 +7,11 @@ import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
 import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
-import com.pizzaro_go.menu_product.entity.MenuProduct;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
 import com.pizzaro_go.menu_product.mapper.IMenuProductMapper;
 import com.pizzaro_go.menu_product.repository.IMenuProductRepository;
 import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageRequest;
-import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsageEntity;
 import com.pizzaro_go.product_stock_usage.repository.IProductStockUsageRepository;
 import com.pizzaro_go.product_stock_usage.service.ProductStockUsageService;
 import jakarta.persistence.EntityManager;
@@ -79,7 +79,7 @@ public class MenuProductService {
         Long menuProductId = menuProductRequest.getId();
         this.log.info("Updating the menu_product with id: {}", menuProductId);
         try {
-            MenuProduct menuProductToUpdate = this.menuProductMapper.toEntity(menuProductRequest);
+            MenuProductEntity menuProductToUpdate = this.menuProductMapper.toEntity(menuProductRequest);
             menuProductToUpdate = this.menuProductRepository.save(menuProductToUpdate);
             setProductStockUsageOnProduct(menuProductToUpdate, menuProductRequest.getStockUsages());
 
@@ -94,7 +94,7 @@ public class MenuProductService {
 
             menuProductToUpdate.setDescription(menuProductDescription);
 
-            MenuProduct updatedMenuProduct = this.menuProductRepository.save(menuProductToUpdate);
+            MenuProductEntity updatedMenuProduct = this.menuProductRepository.save(menuProductToUpdate);
             return new MessageResponse(updatedMenuProduct.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when updating the menu product  with id: " + menuProductId + " ->";
@@ -116,7 +116,7 @@ public class MenuProductService {
     public MessageResponse create(MenuProductRequest menuProductRequest) throws PGException {
         this.log.info("Creating a new menu product item: {}", menuProductRequest.getName());
         try {
-            MenuProduct menuProduct = this.menuProductMapper.toEntity(menuProductRequest);
+            MenuProductEntity menuProduct = this.menuProductMapper.toEntity(menuProductRequest);
             menuProduct = this.menuProductRepository.save(menuProduct);
 
             setProductStockUsageOnProduct(menuProduct, menuProductRequest.getStockUsages());
@@ -128,13 +128,11 @@ public class MenuProductService {
             menuProduct = this.menuProductRepository.findByIdWithStockUsage(menuProduct.getId())
                     .orElseThrow(() -> new PGException("MenuProduct not found after initial save"));
 
-
-
             String menuProductDescription = getMenuProductDescription(menuProduct);
 
             menuProduct.setDescription(menuProductDescription);
 
-            MenuProduct savedMenuProduct = this.menuProductRepository.save(menuProduct);
+            MenuProductEntity savedMenuProduct = this.menuProductRepository.save(menuProduct);
             return new MessageResponse(savedMenuProduct.getId().toString());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when creating new menu product -> " + e.getMessage();
@@ -205,7 +203,7 @@ public class MenuProductService {
      * @throws PGException if a referenced stock item is not found or a repository
      *                     error occurs
      */
-    private void setProductStockUsageOnProduct(MenuProduct menuProduct,
+    private void setProductStockUsageOnProduct(MenuProductEntity menuProduct,
             List<ProductStockUsageRequest> stockUsageRequests)
             throws PGException {
         this.log.info("Set stock usages for product with id: " + menuProduct.getId());
@@ -241,14 +239,14 @@ public class MenuProductService {
      * @return a comma-separated string of stock item names, or an empty string if
      *         not applicable
      */
-    private String getMenuProductDescription(MenuProduct menuProduct) {
+    private String getMenuProductDescription(MenuProductEntity menuProduct) {
         String menuProductDescription = "";
 
         if (menuProduct.getProductCategory().equals(ProductCategory.PIZZA)
                 && menuProduct.getProductStockUsages() != null) {
             this.log.info("Product is PIZZA with {} stock usages", menuProduct.getProductStockUsages().size());
             StringJoiner joiner = new StringJoiner(", ");
-            for (ProductStockUsage usage : menuProduct.getProductStockUsages()) {
+            for (ProductStockUsageEntity usage : menuProduct.getProductStockUsages()) {
                 if (usage.getStockItem() != null) {
                     String stockItemName = usage.getStockItem().getName();
                     String unit = StringUtils.capitalize(usage.getStockItem().getUnit().toString());

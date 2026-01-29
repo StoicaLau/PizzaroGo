@@ -3,14 +3,15 @@ package com.pizzaro_go.oreder_item.service;
 import com.pizzaro_go.common.dtos.MessageResponse;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
-import com.pizzaro_go.menu_product.entity.MenuProduct;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
 import com.pizzaro_go.menu_product.repository.IMenuProductRepository;
-import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.order.entity.OrderEntity;
 import com.pizzaro_go.order.repository.IOrderRepository;
 import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
-import com.pizzaro_go.oreder_item.entity.OrderItem;
+import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
 import com.pizzaro_go.oreder_item.mapper.IOrderItemMapper;
 import com.pizzaro_go.oreder_item.repository.IOrderItemRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.util.Optional;
  * Service layer for order item operations.
  */
 @Service
+@Transactional
 public class OrderItemService {
 
     @Autowired
@@ -46,8 +48,8 @@ public class OrderItemService {
     public MessageResponse create(OrderItemRequest request) throws PGException {
         try {
             this.log.info("Create a new order item");
-            OrderItem orderItem = this.toOrderItem(request);
-            OrderItem savedOrderItem = this.orderItemRepository.save(orderItem);
+            OrderItemEntity orderItem = this.toOrderItem(request);
+            OrderItemEntity savedOrderItem = this.orderItemRepository.save(orderItem);
             return new MessageResponse(savedOrderItem.getId().toString());
 
         } catch (RepositoryException e) {
@@ -65,12 +67,12 @@ public class OrderItemService {
      *         product
      * @throws PGException if the order/menu product does not exist
      */
-    public OrderItem toOrderItem(OrderItemRequest request) throws PGException {
+    public OrderItemEntity toOrderItem(OrderItemRequest request) throws PGException {
         try {
-            OrderItem orderItem = this.orderItemMapper.toEntity(request);
+            OrderItemEntity orderItem = this.orderItemMapper.toEntity(request);
 
             if (request.getOrderId() != null) {
-                Optional<Order> order = this.orderRepository.findById(request.getOrderId());
+                Optional<OrderEntity> order = this.orderRepository.findById(request.getOrderId());
                 if (order.isPresent()) {
                     orderItem.setOrder(order.get());
                 } else {
@@ -79,7 +81,8 @@ public class OrderItemService {
             }
 
             if (request.getMenuProductId() != null) {
-                Optional<MenuProduct> menuProduct = this.menuProductRepository.findById(request.getMenuProductId());
+                Optional<MenuProductEntity> menuProduct = this.menuProductRepository
+                        .findById(request.getMenuProductId());
                 if (menuProduct.isPresent()) {
                     orderItem.setMenuProduct(menuProduct.get());
                     orderItem.setTotalPrice(menuProduct.get().getPrice() * orderItem.getQuantity());

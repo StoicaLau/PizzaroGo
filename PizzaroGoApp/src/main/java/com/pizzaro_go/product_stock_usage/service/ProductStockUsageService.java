@@ -3,14 +3,15 @@ package com.pizzaro_go.product_stock_usage.service;
 import com.pizzaro_go.common.dtos.MessageResponse;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
-import com.pizzaro_go.menu_product.entity.MenuProduct;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
 import com.pizzaro_go.menu_product.repository.IMenuProductRepository;
 import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageRequest;
-import com.pizzaro_go.product_stock_usage.entity.ProductStockUsage;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsageEntity;
 import com.pizzaro_go.product_stock_usage.mapper.IProductStockUsageMapper;
 import com.pizzaro_go.product_stock_usage.repository.IProductStockUsageRepository;
-import com.pizzaro_go.stock_item.entity.StockItem;
+import com.pizzaro_go.stock_item.entity.StockItemEntity;
 import com.pizzaro_go.stock_item.repository.IStockItemRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.util.Optional;
  * Service layer for product stock usage operations.
  */
 @Service
+@Transactional
 public class ProductStockUsageService {
 
     @Autowired
@@ -46,7 +48,7 @@ public class ProductStockUsageService {
     public MessageResponse create(ProductStockUsageRequest productStockUsageRequest) throws PGException {
         try {
             this.log.info("Create a product stock usage");
-            ProductStockUsage productStockUsageToSave = this.toProductStockUsage((productStockUsageRequest));
+            ProductStockUsageEntity productStockUsageToSave = this.toProductStockUsage((productStockUsageRequest));
             productStockUsageToSave = this.productStockUsageRepository.save(productStockUsageToSave);
             return new MessageResponse(productStockUsageToSave.getId().toString());
         } catch (RepositoryException e) {
@@ -67,13 +69,14 @@ public class ProductStockUsageService {
      * @throws PGException if the menu product/stock item does not exist or a
      *                     repository error occurs
      */
-    public ProductStockUsage toProductStockUsage(ProductStockUsageRequest productStockUsageRequest) throws PGException {
+    public ProductStockUsageEntity toProductStockUsage(ProductStockUsageRequest productStockUsageRequest)
+            throws PGException {
         try {
-            ProductStockUsage productStockUsage = this.productStockUsageMapper.toEntity(productStockUsageRequest);
+            ProductStockUsageEntity productStockUsage = this.productStockUsageMapper.toEntity(productStockUsageRequest);
 
             Long menuProductId = productStockUsageRequest.getMenuProductId();
             if (menuProductId != null) {
-                Optional<MenuProduct> menuProduct = this.menuProductRepository.findById(menuProductId);
+                Optional<MenuProductEntity> menuProduct = this.menuProductRepository.findById(menuProductId);
                 if (menuProduct.isPresent()) {
                     productStockUsage.setMenuProduct(menuProduct.get());
                 } else {
@@ -86,7 +89,7 @@ public class ProductStockUsageService {
 
             Long stockItemId = productStockUsageRequest.getStockItemId();
             if (stockItemId != null) {
-                Optional<StockItem> stockItem = this.stockItemRepository.findById(stockItemId);
+                Optional<StockItemEntity> stockItem = this.stockItemRepository.findById(stockItemId);
                 if (stockItem.isPresent()) {
                     productStockUsage.setStockItem(stockItem.get());
                 } else {

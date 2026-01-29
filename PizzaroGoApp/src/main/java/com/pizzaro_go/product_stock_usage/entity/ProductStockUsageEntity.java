@@ -1,7 +1,7 @@
 package com.pizzaro_go.product_stock_usage.entity;
 
-import com.pizzaro_go.menu_product.entity.MenuProduct;
-import com.pizzaro_go.stock_item.entity.StockItem;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
+import com.pizzaro_go.stock_item.entity.StockItemEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "product_stock_usages")
-public class ProductStockUsage {
+public class ProductStockUsageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +22,11 @@ public class ProductStockUsage {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_product_stock_usage_product"))
-    private MenuProduct menuProduct;
+    private MenuProductEntity menuProduct;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "stock_item_id", nullable = false, foreignKey = @ForeignKey(name = "fk_product_stock_usage_stock_item"))
-    private StockItem stockItem;
+    private StockItemEntity stockItem;
 
     @Column(name = "quantity_per_unit", nullable = false)
     private Double quantityPerUnit = 1.0;

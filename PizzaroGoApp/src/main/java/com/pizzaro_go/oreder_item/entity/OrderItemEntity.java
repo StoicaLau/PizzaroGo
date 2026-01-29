@@ -1,8 +1,8 @@
 package com.pizzaro_go.oreder_item.entity;
 
 import com.pizzaro_go.common.enums.Status;
-import com.pizzaro_go.menu_product.entity.MenuProduct;
-import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.menu_product.entity.MenuProductEntity;
+import com.pizzaro_go.order.entity.OrderEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "order_items")
-public class OrderItem {
+public class OrderItemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +23,11 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_order"))
-    private Order order;
+    private OrderEntity order;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_product"))
-    private MenuProduct menuProduct;
+    private MenuProductEntity menuProduct;
 
     @Column(nullable = false)
     private Integer quantity = 1;

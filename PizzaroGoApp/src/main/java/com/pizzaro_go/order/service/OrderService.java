@@ -6,14 +6,14 @@ import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
-import com.pizzaro_go.order.entity.Order;
+import com.pizzaro_go.order.entity.OrderEntity;
 import com.pizzaro_go.order.mapper.IOrderMapper;
 import com.pizzaro_go.order.repository.IOrderRepository;
 import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
-import com.pizzaro_go.oreder_item.entity.OrderItem;
+import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
 import com.pizzaro_go.oreder_item.repository.IOrderItemRepository;
 import com.pizzaro_go.oreder_item.service.OrderItemService;
-import com.pizzaro_go.user.entity.User;
+import com.pizzaro_go.user.entity.UserEntity;
 import com.pizzaro_go.user.repository.IUserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -66,15 +66,10 @@ public class OrderService {
     public MessageResponse create(OrderRequest order) throws PGException {
         try {
             this.log.info("Create an order for the user with id: {}", order.getUserId());
-            Order orderToSave = this.toOrder(order);
+            OrderEntity orderToSave = this.toOrder(order);
             orderToSave.setStatus(Status.PENDING);
             orderToSave.setCreatedAt(LocalDateTime.now());
-            if (orderToSave.getOrderPrice() == null)
-                orderToSave.setOrderPrice(0.0);
-            if (orderToSave.getDeliveryPrice() == null)
-                orderToSave.setDeliveryPrice(0.0);
-            if (orderToSave.getTotalPrice() == null)
-                orderToSave.setTotalPrice(0.0);
+
             orderToSave = this.orderRepository.save(orderToSave);
             setOrderItemToOrder(orderToSave, order.getOrderItems());
 
@@ -86,7 +81,7 @@ public class OrderService {
 
             calculateOrderPrices(orderToSave);
 
-            Order savedOrder = this.orderRepository.save(orderToSave);
+            OrderEntity savedOrder = this.orderRepository.save(orderToSave);
 
             return new MessageResponse(savedOrder.getId().toString());
         } catch (RepositoryException e) {
@@ -108,7 +103,7 @@ public class OrderService {
     public OrderResponse getById(Long id) throws PGException {
         try {
             this.log.info("Retrieving an order");
-            Optional<Order> order = this.orderRepository.findById(id);
+            Optional<OrderEntity> order = this.orderRepository.findById(id);
             if (order.isPresent()) {
                 return this.orderMapper.toResponse(order.get());
             } else {
@@ -137,7 +132,7 @@ public class OrderService {
         Long orderId = order.getId();
         this.log.info("Updating the order with id: {}", orderId);
         try {
-            Order orderToUpdate = this.toOrder(order);
+            OrderEntity orderToUpdate = this.toOrder(order);
             orderToUpdate = this.orderRepository.save(orderToUpdate);
 
             setOrderItemToOrder(orderToUpdate, order.getOrderItems());
@@ -150,7 +145,7 @@ public class OrderService {
 
             calculateOrderPrices(orderToUpdate);
 
-            Order updatedOrder = this.orderRepository.save(orderToUpdate);
+            OrderEntity updatedOrder = this.orderRepository.save(orderToUpdate);
 
             return new MessageResponse(updatedOrder.getId().toString());
 
@@ -229,12 +224,12 @@ public class OrderService {
      * @return the mapped Order entity with the associated user
      * @throws PGException if the user does not exist or a repository error occurs
      */
-    private Order toOrder(OrderRequest orderRequest) throws PGException {
+    private OrderEntity toOrder(OrderRequest orderRequest) throws PGException {
         try {
-            Order order = this.orderMapper.toEntity(orderRequest);
+            OrderEntity order = this.orderMapper.toEntity(orderRequest);
             Long userId = orderRequest.getUserId();
 
-            Optional<User> user = this.userRepository.findById(userId);
+            Optional<UserEntity> user = this.userRepository.findById(userId);
             if (user.isPresent()) {
                 order.setUser(user.get());
                 return order;
@@ -253,7 +248,8 @@ public class OrderService {
         }
     }
 
-    private void setOrderItemToOrder(Order order, List<OrderItemRequest> orderItemRequestList) throws PGException {
+    private void setOrderItemToOrder(OrderEntity order, List<OrderItemRequest> orderItemRequestList)
+            throws PGException {
         try {
             this.orderItemRepository.deleteByOrderId(order.getId());
             if (orderItemRequestList != null && !orderItemRequestList.isEmpty()) {
@@ -279,10 +275,10 @@ public class OrderService {
      *
      * @param order the order for which to calculate prices
      */
-    private void calculateOrderPrices(Order order) {
+    private void calculateOrderPrices(OrderEntity order) {
         double orderPrice = 0.0;
         if (order.getOrderItems() != null) {
-            for (OrderItem item : order.getOrderItems()) {
+            for (OrderItemEntity item : order.getOrderItems()) {
                 if (item.getTotalPrice() != null) {
                     orderPrice += item.getTotalPrice();
                 }
