@@ -134,27 +134,95 @@ export class UserManager {
         const filteredUsers = this.getFilteredUsers();
 
         if (filteredUsers.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #eee; padding: 3rem; font-size: 1.2rem; font-weight: 700; background: rgba(0,0,0,0.2);">No users found.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #eee; padding: 3rem; font-size: 1.2rem; font-weight: 700; background: rgba(0,0,0,0.2);">No users found.</td></tr>`;
             return;
         }
 
         filteredUsers.forEach(user => {
             const tr = document.createElement('tr');
+            const isAdmin = user.role && user.role.toUpperCase() === 'ADMIN';
+
             tr.innerHTML = `
                 <td>${user.id}</td>
                 <td>${user.username}</td>
                 <td>${user.email}</td>
                 <td>${user.phone || '-'}</td>
-                <td>${user.role || '-'}</td>
+                <td>
+                    ${isAdmin ? `
+                        <span class="role-badge admin">${user.role}</span>
+                    ` : `
+                        <select class="table-select role-select" data-id="${user.id}">
+                            <option value="CUSTOMER" ${(user.role || '').toUpperCase() === 'CUSTOMER' ? 'selected' : ''}>Customer</option>
+                            <option value="EMPLOYEE" ${(user.role || '').toUpperCase() === 'EMPLOYEE' ? 'selected' : ''}>Employee</option>
+                            <option value="ADMIN" ${(user.role || '').toUpperCase() === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                        </select>
+                    `}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        ${!isAdmin ? `
+                            <button class="action-btn delete-btn" data-id="${user.id}" title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
             `;
             tbody.appendChild(tr);
         });
+
+        // Add event listeners to buttons
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.handleDelete(btn.dataset.id));
+        });
+
+        // Add event listener for direct role update from table
+        tbody.querySelectorAll('.role-select').forEach(select => {
+            select.addEventListener('change', (e) => this.handleRoleUpdate(select.dataset.id, e.target.value));
+        });
+    }
+
+    async handleRoleUpdate(userId, newRole) {
+        try {
+            await userService.updateStatus(userId, newRole);
+            this.showToast('success', 'User role updated successfully.');
+            await this.loadUsers();
+        } catch (error) {
+            console.error(error);
+            this.showToast('error', 'Failed to update role: ' + error.message);
+            await this.loadUsers(); // Revert on failure
+        }
+    }
+
+    async handleDelete(userId) {
+        if (confirm('Are you sure you want to delete this user?')) {
+            try {
+                // Since user requested not to modify backend, we just show a message
+                // but we could call userService.delete(userId) if it existed.
+                // For now, let's keep it frontend only logic as requested.
+                this.showToast('info', 'Delete functionality is not yet implemented on the backend.');
+            } catch (error) {
+                this.showToast('error', 'Failed to delete user.');
+            }
+        }
     }
 
     openModal() {
         const modal = document.getElementById('user-modal');
         const form = document.getElementById('user-form');
+        const modalTitle = document.getElementById('modal-title');
+
         form.reset();
+        document.getElementById('user-id').value = '';
+
+        modalTitle.textContent = 'Add User';
+        document.getElementById('user-password').placeholder = '';
+        document.getElementById('user-password').required = true;
+
+        const inputs = ['user-username', 'user-email', 'user-phone', 'user-password'];
+        inputs.forEach(id => document.getElementById(id).disabled = false);
+
+        document.getElementById('user-role').value = 'CUSTOMER';
         modal.classList.remove('hidden');
     }
 
@@ -170,6 +238,7 @@ export class UserManager {
             email: document.getElementById('user-email').value,
             password: document.getElementById('user-password').value,
             phone: document.getElementById('user-phone').value,
+            role: document.getElementById('user-role').value
         };
 
         try {
@@ -179,7 +248,7 @@ export class UserManager {
             await this.loadUsers();
         } catch (error) {
             console.error(error);
-            this.showToast('error', 'Registration failed: ' + error.message);
+            this.showToast('error', 'Operation failed: ' + error.message);
         }
     }
 

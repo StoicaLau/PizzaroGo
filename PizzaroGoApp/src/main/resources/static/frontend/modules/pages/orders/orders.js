@@ -72,6 +72,7 @@ function renderOrders(orders) {
                         <div>
                             <span class="item-qty">${item.quantity}x</span>
                             <span class="item-name">${item.menuProductName || 'Product'}</span>
+                            <span class="item-status item-status-${(item.status || 'PENDING').toLowerCase()}">${item.status || 'PENDING'}</span>
                         </div>
                         <span class="item-price">${(item.totalPrice || 0).toFixed(2)} RON</span>
                     </div>
@@ -139,7 +140,7 @@ function renderEditItems() {
         itemRow.className = 'edit-item-row';
         itemRow.innerHTML = `
             <div class="item-info">
-                <div class="item-name">${item.menuProductName}</div>
+                <div class="item-name">${item.menuProductName} <span class="item-status item-status-${(item.status || 'PENDING').toLowerCase()}">${item.status || 'PENDING'}</span></div>
                 <div class="item-price-unit">${(item.totalPrice / item.quantity).toFixed(2)} RON / unit</div>
             </div>
             <div class="edit-item-qty-controls">

@@ -38,4 +38,12 @@ public interface IOrderMapper {
     @Mapping(target = "userId", expression = "java(order.getUser().getId())")
     @Mapping(target = "status", expression = "java(order.getStatus() != null ? StringUtils.capitalize(order.getStatus().name()) : null)")
     OrderResponse toResponse(OrderEntity order);
+
+    /**
+     * Converts a list of Order entities into a list of OrderResponse DTOs.
+     *
+     * @param orders the list of Order entities to convert
+     * @return the list of mapped OrderResponse DTOs
+     */
+    java.util.List<OrderResponse> toResponseList(java.util.List<OrderEntity> orders);
 }

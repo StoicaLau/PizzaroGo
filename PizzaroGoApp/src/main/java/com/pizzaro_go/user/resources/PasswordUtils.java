@@ -25,7 +25,7 @@ public class PasswordUtils {
      * @return true if matches, false otherwise
      */
     public static boolean verifyPassword(String rawPassword, String encryptedPassword) {
-        if (encryptedPassword == null || !encryptedPassword.startsWith("$2a$")) {
+        if (encryptedPassword == null || !encryptedPassword.startsWith("$2")) {
             return false;
         }
         return BCrypt.checkpw(rawPassword, encryptedPassword);

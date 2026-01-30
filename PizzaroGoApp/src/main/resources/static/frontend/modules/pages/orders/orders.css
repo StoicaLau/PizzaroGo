@@ -156,6 +156,40 @@
     font-weight: 500;
 }
 
+.item-status {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.item-status-pending {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f1c40f;
+}
+
+.item-status-processing {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+.item-status-ready {
+    background: rgba(155, 89, 182, 0.15);
+    color: #9b59b6;
+}
+
+.item-status-delivered {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+}
+
+.item-status-cancelled {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
 .order-footer {
     display: flex;
     flex-direction: column;

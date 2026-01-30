@@ -1,9 +1,9 @@
 package com.pizzaro_go.order.repository;
 
+import com.pizzaro_go.common.enums.Status;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.order.entity.OrderEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -36,4 +36,12 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
             "LEFT JOIN FETCH oi.menuProduct " +
             "WHERE o.id = :id")
     Optional<OrderEntity> findByIdWithOrderItems(Long id);
+
+    /**
+     * Finds all orders that have statuses in the provided list.
+     *
+     * @param statuses the list of statuses to filter by
+     * @return a list of orders matching any of the given statuses
+     */
+    List<OrderEntity> findAllByStatusIn(List<Status> statuses);
 }

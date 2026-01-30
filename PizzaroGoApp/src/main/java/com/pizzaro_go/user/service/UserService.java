@@ -76,7 +76,7 @@ public class UserService {
     public UserResponse getByEmail(String email) throws PGException {
         try {
             this.log.info("Retrieving user with email: {}", email);
-            Optional<UserEntity> user = this.userRepository.getByEmail(email);
+            Optional<UserEntity> user = this.userRepository.findByEmail(email);
             if (user.isPresent()) {
                 return this.userMapper.toResponse(user.get());
             } else {
@@ -104,17 +104,30 @@ public class UserService {
      */
     public UserResponse login(UserRequest loginRequest) throws PGException {
         try {
-            this.log.info("Login request for email: {}", loginRequest.getEmail());
-            Optional<UserEntity> userOptional = this.userRepository.getByEmail(loginRequest.getEmail());
+
+            String email = loginRequest.getEmail() != null ? loginRequest.getEmail().trim() : "";
+            String rawPassword = loginRequest.getPassword() != null ? loginRequest.getPassword().trim() : "";
+
+            this.log.info("Login request received for email: [{}]", email);
+
+
+            Optional<UserEntity> userOptional = this.userRepository.findByEmail(email);
 
             if (userOptional.isPresent()) {
                 UserEntity user = userOptional.get();
-                if (PasswordUtils.verifyPassword(loginRequest.getPassword(), user.getPassword())) {
+                String dbHash = user.getPassword();
+
+                boolean isPasswordCorrect = PasswordUtils.verifyPassword(rawPassword, dbHash);
+
+                if (isPasswordCorrect) {
+                    this.log.info("LOGIN SUCCESS for user [{}]", email);
                     return this.userMapper.toResponse(user);
                 } else {
+                    this.log.warn("LOGIN FAILED: Wrong password for user [{}]", email);
                     throw new PGException("Invalid credentials.");
                 }
             } else {
+                this.log.warn("LOGIN FAILED: No user found with email [{}]", email);
                 throw new PGException("Invalid credentials.");
             }
 
@@ -145,8 +158,43 @@ public class UserService {
 
             errorMsg += e.getMessage();
             throw new PGException(errorMsg);
-
         }
+    }
 
+    /**
+     * Updates the status (Role) of an existing user.
+     *
+     * @param userRequest the request containing the user ID and the new role
+     * @return a MessageResponse with the result
+     * @throws PGException if a repository error occurs or user is not found
+     */
+    public MessageResponse updateStatus(UserRequest userRequest) throws PGException {
+        try {
+            Long id = userRequest.getId();
+            log.info("Updating status for user ID: {}", id);
+
+            Optional<UserEntity> userOptional = userRepository.findById(id);
+            if (userOptional.isPresent()) {
+                UserEntity user = userOptional.get();
+                if (userRequest.getRole() != null) {
+                    user.setRole(com.pizzaro_go.common.enums.Role.valueOf(userRequest.getRole().toUpperCase()));
+                }
+                userRepository.save(user);
+                return new MessageResponse("User status updated successfully.");
+            } else {
+                throw new UserNotFoundException("User not found with ID: " + id);
+            }
+        } catch (Exception e) {
+            log.error("Error updating user status", e);
+            throw new PGException("Failed to update user status: " + e.getMessage());
+        }
     }
 }
+          
+
+                
+                    
+                    
+                    
+
+                

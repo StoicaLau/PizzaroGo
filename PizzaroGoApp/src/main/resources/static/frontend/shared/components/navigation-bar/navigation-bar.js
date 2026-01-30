@@ -53,17 +53,38 @@
         }
     });
 
-    // 4. Update sync logic for other buttons if any
+    // 4. Update sync logic for navigation items
     function syncAuthButtons() {
-        // order-btn visibility might still need to depend on auth
-        const orderBtn = document.querySelector('.order-btn');
-        if (!orderBtn) return;
+        const role = window.getUserRole ? window.getUserRole() : null;
 
-        const authed = window.isAuthenticated ? window.isAuthenticated() : false;
-        if (authed) {
-            orderBtn.style.display = '';
-        } else {
-            orderBtn.style.display = 'none';
+        const navItems = {
+            home: document.getElementById('nav-home'),
+            menu: document.getElementById('nav-menu'),
+            orders: document.getElementById('nav-orders'),
+            stocks: document.getElementById('nav-stocks'),
+            products: document.getElementById('nav-products'),
+            users: document.getElementById('nav-users')
+        };
+
+        // Anyone can see: Home, Menu (Contact is also public by default)
+        if (navItems.home) navItems.home.style.display = '';
+        if (navItems.menu) navItems.menu.style.display = '';
+
+        // Customer and Employee can see: Home, Menu, Orders
+        // Admin can see: Home, Menu, Orders, Stock, Products, Users
+
+        const isSelfService = (role === 'CUSTOMER' || role === 'EMPLOYEE' || role === 'ADMIN');
+        const isAdmin = (role === 'ADMIN');
+
+        if (navItems.orders) navItems.orders.style.display = isSelfService ? '' : 'none';
+        if (navItems.stocks) navItems.stocks.style.display = isAdmin ? '' : 'none';
+        if (navItems.products) navItems.products.style.display = isAdmin ? '' : 'none';
+        if (navItems.users) navItems.users.style.display = isAdmin ? '' : 'none';
+
+        // Legacy order-btn visibility if present in some pages
+        const orderBtn = document.querySelector('.order-btn');
+        if (orderBtn) {
+            orderBtn.style.display = (role === 'CUSTOMER' || role === 'EMPLOYEE' || role === 'ADMIN') ? '' : 'none';
         }
     }
 

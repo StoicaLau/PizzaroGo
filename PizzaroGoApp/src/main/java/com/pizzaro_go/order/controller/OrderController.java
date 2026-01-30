@@ -80,4 +80,27 @@ public class OrderController {
         return this.orderService.deleteById(id);
     }
 
+    /**
+     * Retrieves all active orders (PENDING or PROCESSING).
+     *
+     * @return a list of OrderResponse objects representing active orders
+     */
+    @GetMapping("/active")
+    @Operation(summary = "Retrieve all active orders mapping to PENDING and PROCESSING statuses")
+    public List<OrderResponse> getActiveOrders() {
+        return this.orderService.getActiveOrders();
+    }
+
+    /**
+     * Updates the status of an existing order.
+     *
+     * @param orderRequest the request containing the order ID and the new status
+     * @return an OrderResponse with the updated order details
+     */
+    @PatchMapping("/status")
+    @Operation(summary = "Update order status")
+    public OrderResponse updateStatus(@RequestBody OrderRequest orderRequest) {
+        return this.orderService.updateOrderStatus(orderRequest);
+    }
+
 }

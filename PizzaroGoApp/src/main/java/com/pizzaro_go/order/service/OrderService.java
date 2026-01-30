@@ -1,6 +1,7 @@
 package com.pizzaro_go.order.service;
 
 import com.pizzaro_go.common.dtos.MessageResponse;
+import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.enums.Status;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
@@ -215,6 +216,95 @@ public class OrderService {
             throw new PGException(errorMsg);
         }
 
+    }
+
+    /**
+     * Retrieves all active orders (PENDING or PROCESSING).
+     *
+     * @return a list of OrderResponse objects representing active orders
+     * @throws PGException if a repository error occurs
+     */
+    public List<OrderResponse> getActiveOrders() throws PGException {
+        this.log.info("Retrieving all active orders (PENDING, PROCESSING)");
+        try {
+            List<Status> activeStatuses = List.of(Status.PENDING, Status.PROCESSING);
+            List<OrderEntity> orders = this.orderRepository.findAllByStatusIn(activeStatuses);
+            return this.orderMapper.toResponseList(orders);
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when retrieving active orders -> ";
+            this.log.error(errorMsg, e);
+            errorMsg += e.getMessage();
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Updates the status of an existing order and its associated order items.
+     * <p>
+     * When an order status is updated to PROCESSING, the delivery time is set and
+     * the status of order items is updated: PIZZA items become PROCESSING,
+     * while others (SAUCES, DRINKS) become READY.
+     * When an order is CANCELED or DELIVERED, all its items inherit that status.
+     *
+     * @param orderRequest the request containing the order ID, new status, and
+     *                     estimated delivery time
+     * @return an OrderResponse with the updated order details
+     * @throws PGException if the order is not found
+     */
+    public OrderResponse updateOrderStatus(OrderRequest orderRequest) {
+        Long orderId = orderRequest.getId();
+        this.log.info("Updating status for order #{} to {}", orderId, orderRequest.getStatus());
+
+        try {
+            OrderEntity order = this.orderRepository.findByIdWithOrderItems(orderId)
+                    .orElseThrow(() -> new PGException("Order not found with id: " + orderId));
+
+            Status newStatus = Status.valueOf(orderRequest.getStatus().toUpperCase());
+            order.setStatus(newStatus);
+
+            if (newStatus == Status.PROCESSING) {
+                order.setEstimatedAt(orderRequest.getEstimatedAt());
+                this.log.debug("Setting estimated delivery time for order #{} to {}", orderId,
+                        orderRequest.getEstimatedAt());
+            }
+
+            // Logic for updating individual order items based on the new order status
+            updateOrderItemStatuses(order, newStatus);
+
+            OrderEntity savedOrder = this.orderRepository.save(order);
+            this.log.info("Order #{} status successfully updated to {}", orderId, newStatus);
+
+            return this.orderMapper.toResponse(savedOrder);
+
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when updating status for order with id: " + orderId + " -> ";
+            this.log.error(errorMsg, e);
+            errorMsg += e.getMessage();
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Helper method to update order item statuses based on the new order status.
+     */
+    private void updateOrderItemStatuses(OrderEntity order, Status newOrderStatus) {
+        for (OrderItemEntity orderItem : order.getOrderItems()) {
+            if (newOrderStatus == Status.PROCESSING) {
+                // For processing orders, pizzas need prep time, other items are ready
+                // immediately
+                if (orderItem.getMenuProduct().getProductCategory() == ProductCategory.PIZZA) {
+                    orderItem.setStatus(Status.PROCESSING);
+                } else {
+                    orderItem.setStatus(Status.READY);
+                }
+            } else if (newOrderStatus == Status.CANCELED || newOrderStatus == Status.DELIVERED) {
+                // Final states are propagated to all items
+                orderItem.setStatus(newOrderStatus);
+            } else {
+                // For other states (READY, PENDING), items follow the order status
+                orderItem.setStatus(newOrderStatus);
+            }
+        }
     }
 
     /**

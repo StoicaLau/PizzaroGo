@@ -13,19 +13,49 @@ function isAuthenticated() {
 }
 window.isAuthenticated = isAuthenticated;
 
+function getUserRole() {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+        const user = JSON.parse(userStr);
+        return user.role ? user.role.toUpperCase() : null;
+    } catch (e) {
+        return null;
+    }
+}
+window.getUserRole = getUserRole;
+
 // Ensure auth-change event updates basic UI if needed
 window.addEventListener('auth-change', () => {
     console.log("Auth state changed, user logged in:", isAuthenticated());
 });
 
 let currentPageCss = null;
-const protectedPaths = ["/orders"];
+const protectedPaths = {
+    "/orders": ["CUSTOMER", "EMPLOYEE", "ADMIN"],
+    "/stocks": ["ADMIN"],
+    "/products": ["ADMIN"],
+    "/users": ["ADMIN"]
+};
 
 function navigate(path) {
-    if (protectedPaths.includes(path) && !isAuthenticated()) {
-        history.pushState({}, "", "/login");
-        loadPage("/login");
-        return;
+    const allowedRoles = protectedPaths[path];
+    if (allowedRoles) {
+        const authed = isAuthenticated();
+        const role = getUserRole();
+
+        if (!authed || !allowedRoles.includes(role)) {
+            // If not authorized, redirect to home or login
+            const target = authed ? "/home" : "/login";
+            history.pushState({}, "", target);
+            loadPage(target);
+
+            if (!authed) {
+                // Optionally open auth modal if not logged in
+                window.dispatchEvent(new CustomEvent('open-auth-modal'));
+            }
+            return;
+        }
     }
     history.pushState({}, "", path);
     loadPage(path);
@@ -36,6 +66,25 @@ window.navigate = navigate;
 
 async function loadPage(path) {
     console.log("Navigating to path:", path);
+
+    // Centralized Route Security (Frontend)
+    const allowedRoles = protectedPaths[path];
+    if (allowedRoles) {
+        const authed = isAuthenticated();
+        const role = getUserRole();
+
+        if (!authed || !allowedRoles.includes(role)) {
+            console.warn("Access denied for path:", path);
+            const target = authed ? "/home" : "/login";
+
+            // Redirect if trying to access unauthorized path
+            if (path !== target) {
+                history.replaceState({}, "", target);
+                return loadPage(target);
+            }
+        }
+    }
+
     let page;
     switch (path) {
         case "/":

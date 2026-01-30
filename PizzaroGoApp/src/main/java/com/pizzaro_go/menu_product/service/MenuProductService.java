@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -87,8 +88,13 @@ public class MenuProductService {
             this.entityManager.flush();
             this.entityManager.clear();
 
-            menuProductToUpdate = this.menuProductRepository.findByIdWithStockUsage(menuProductId)
-                    .orElseThrow(() -> new PGException("MenuProduct not found with id: " + menuProductId));
+            Optional<MenuProductEntity> menuProductOptional = this.menuProductRepository.findByIdWithStockUsage(menuProductId);
+            if (menuProductOptional.isPresent()) {
+                menuProductToUpdate = menuProductOptional.get();
+            } else {
+                throw new PGException("MenuProduct not found with id: " + menuProductId);
+            }
+
 
             String menuProductDescription = getMenuProductDescription(menuProductToUpdate);
 
@@ -125,8 +131,14 @@ public class MenuProductService {
             this.entityManager.flush();
             this.entityManager.clear();
 
-            menuProduct = this.menuProductRepository.findByIdWithStockUsage(menuProduct.getId())
-                    .orElseThrow(() -> new PGException("MenuProduct not found after initial save"));
+
+            Long menuProductId = menuProduct.getId();
+            Optional<MenuProductEntity> menuProductOptional = this.menuProductRepository.findByIdWithStockUsage(menuProductId);
+            if (menuProductOptional.isPresent()) {
+                menuProduct = menuProductOptional.get();
+            } else {
+                throw new PGException("MenuProduct not found with id: " + menuProductId);
+            }
 
             String menuProductDescription = getMenuProductDescription(menuProduct);
 
@@ -204,7 +216,7 @@ public class MenuProductService {
      *                     error occurs
      */
     private void setProductStockUsageOnProduct(MenuProductEntity menuProduct,
-            List<ProductStockUsageRequest> stockUsageRequests)
+                                               List<ProductStockUsageRequest> stockUsageRequests)
             throws PGException {
         this.log.info("Set stock usages for product with id: " + menuProduct.getId());
         try {
@@ -237,7 +249,7 @@ public class MenuProductService {
      *
      * @param menuProduct the menu product for which to generate the description
      * @return a comma-separated string of stock item names, or an empty string if
-     *         not applicable
+     * not applicable
      */
     private String getMenuProductDescription(MenuProductEntity menuProduct) {
         String menuProductDescription = "";

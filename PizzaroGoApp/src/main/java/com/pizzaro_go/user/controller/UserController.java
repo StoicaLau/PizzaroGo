@@ -67,4 +67,16 @@ public class UserController {
     public List<UserResponse> getAll() {
         return this.userService.getAll();
     }
+
+    /**
+     * Updates the status (Role) of an existing user.
+     *
+     * @param userRequest the request containing the user ID and the new role
+     * @return MessageResponse with the result
+     */
+    @PatchMapping("/status")
+    @Operation(summary = "Update user status")
+    public MessageResponse updateStatus(@RequestBody UserRequest userRequest) {
+        return this.userService.updateStatus(userRequest);
+    }
 }

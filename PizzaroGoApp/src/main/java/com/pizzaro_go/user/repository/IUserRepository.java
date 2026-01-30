@@ -33,8 +33,15 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
      *
      * @param email the email of the user
      * @return an Optional containing the user if found, or empty if not
-     * @throws RepositoryException if a data access error occurs
      */
-    Optional<UserEntity> getByEmail(String email) throws RepositoryException;
+    Optional<UserEntity> findByEmail(String email);
+
+    /**
+     * Retrieves a user by username.
+     *
+     * @param username the username of the user
+     * @return an Optional containing the user if found, or empty if not
+     */
+    Optional<UserEntity> findByUsername(String username);
 
 }

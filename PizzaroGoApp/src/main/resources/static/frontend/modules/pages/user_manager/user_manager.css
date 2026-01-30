@@ -129,51 +129,42 @@
     background-color: rgba(255, 255, 255, 0.03);
 }
 
+.action-btn {
+    background: #444;
+    border: 1px solid #666;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    color: #fff;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.edit-btn:hover {
+    background: linear-gradient(135deg, #ffaa00, #ff7b00);
+    border-color: transparent;
+    color: #111;
+    transform: scale(1.15) rotate(-15deg);
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.6);
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #ffaa00, #ff7b00);
+    border-color: transparent;
+    color: #111;
+    transform: scale(1.15) rotate(15deg);
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.6);
+}
+
 .user-footer-actions {
     margin-top: 2rem;
     display: flex;
     justify-content: flex-end;
-}
-
-/* Button Styles */
-.btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    transition: all 0.2s ease;
-    text-transform: capitalize;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #ffaa00, #ff7b00);
-    color: #111;
-    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 170, 0, 0.4);
-}
-
-.btn-secondary {
-    background-color: transparent;
-    color: #ffaa00;
-    border: 2px solid #ffaa00;
-    box-shadow: none;
-}
-
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #ffaa00, #ff7b00);
-    color: #111;
-    border-color: transparent;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
 }
 
 /* Modal Styles */
@@ -265,4 +256,111 @@
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 2rem;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    min-width: 120px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ffaa00, #ff7b00);
+    color: #111;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 170, 0, 0.4);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #ffaa00;
+    border: 2px solid #ffaa00;
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #ffaa00, #ff7b00);
+    color: #111;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+}
+
+.role-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+}
+
+.role-badge.admin {
+    background: rgba(255, 170, 0, 0.15);
+    color: #ffaa00;
+    border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.role-badge.customer {
+    background: rgba(64, 224, 208, 0.15);
+    color: #40e0d0;
+    border: 1px solid rgba(64, 224, 208, 0.3);
+}
+
+.read-only {
+    color: #666;
+    font-size: 0.85rem;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.table-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #eee;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+}
+
+.role-select {
+    color: #40e0d0;
+    background: rgba(64, 224, 208, 0.1);
+    border: 1px solid rgba(64, 224, 208, 0.2);
+}
+
+.role-select:hover {
+    background: rgba(64, 224, 208, 0.2);
+    border-color: #40e0d0;
+}
+
+.role-select option {
+    background: #222;
+    color: #eee;
 }

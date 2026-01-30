@@ -1,6 +1,7 @@
 package com.pizzaro_go.oreder_item.service;
 
 import com.pizzaro_go.common.dtos.MessageResponse;
+import com.pizzaro_go.common.enums.Status;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.menu_product.entity.MenuProductEntity;
@@ -8,6 +9,7 @@ import com.pizzaro_go.menu_product.repository.IMenuProductRepository;
 import com.pizzaro_go.order.entity.OrderEntity;
 import com.pizzaro_go.order.repository.IOrderRepository;
 import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
+import com.pizzaro_go.oreder_item.dtos.OrderItemResponse;
 import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
 import com.pizzaro_go.oreder_item.mapper.IOrderItemMapper;
 import com.pizzaro_go.oreder_item.repository.IOrderItemRepository;
@@ -36,6 +38,37 @@ public class OrderItemService {
     private IOrderItemMapper orderItemMapper;
 
     private final Logger log = LoggerFactory.getLogger(OrderItemService.class);
+
+    /**
+     * Updates the status of an existing order item.
+     *
+     * @param id     the ID of the order item
+     * @param status the new status as a string
+     * @return an OrderItemResponse with the updated order item details
+     * @throws PGException if the order item is not found or a repository error
+     *                     occurs
+     */
+    public OrderItemResponse updateStatus(Long id, String status) throws PGException {
+        this.log.info("Updating status for order item #{} to {}", id, status);
+        try {
+            OrderItemEntity orderItem = this.orderItemRepository.findById(id)
+                    .orElseThrow(() -> new PGException("Order item not found with id: " + id));
+
+            Status newStatus = Status.valueOf(status.toUpperCase());
+            orderItem.setStatus(newStatus);
+
+            OrderItemEntity savedItem = this.orderItemRepository.save(orderItem);
+            return this.orderItemMapper.toResponse(savedItem);
+
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when updating status for order item with id: " + id + " -> ";
+            this.log.error(errorMsg, e);
+            errorMsg += e.getMessage();
+            throw new PGException(errorMsg);
+        } catch (IllegalArgumentException e) {
+            throw new PGException("Invalid status: " + status);
+        }
+    }
 
     /**
      * Creates a new order item.
