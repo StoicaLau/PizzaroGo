@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+.orders-container {
+    padding: 120px 5% 60px;
+    background: radial-gradient(circle at top, #1e1b19 0%, #0f0e0d 100%);
+    /* Warm Charcoal */
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: #fefefe;
+}
+
+.orders-header {
+    margin-bottom: 50px;
+    text-align: center;
+}
+
+.orders-header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #ff4500, #ff8c00);
+    /* Pizza Orange-Red */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+}
+
+.orders-header p {
+    color: #a0958e;
+    font-size: 1.1rem;
+    font-weight: 300;
+}
+
+.orders-compact-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 30px;
+    align-items: start;
+}
+
+.order-card {
+    background: rgba(45, 41, 38, 0.7);
+    /* Warm Wood/Dough Dark */
+    border: 1px solid rgba(255, 69, 0, 0.15);
+    border-radius: 28px;
+    padding: 28px;
+    backdrop-filter: blur(12px);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    flex-direction: column;
+    height: 550px;
+    /* Slightly taller for breathing room */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.order-card:hover {
+    background: rgba(55, 51, 48, 0.9);
+    border-color: rgba(255, 69, 0, 0.5);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.order-card.extended {
+    height: auto;
+    min-height: 550px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+
+.order-id {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #fff;
+    line-height: 1;
+}
+
+.order-id span {
+    display: block;
+    font-size: 0.85rem;
+    color: #a0958e;
+    font-weight: 400;
+    margin-top: 6px;
+}
+
+/* Iconic Status Badges */
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: rgba(255, 140, 0, 0.1);
+    color: #ff8c00;
+    border: 1px solid rgba(255, 140, 0, 0.3);
+}
+
+.status-ready {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.status-delivered {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.status-cancelled,
+.status-canceled {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.order-items-container {
+    flex: 1;
+    overflow: hidden;
+}
+
+.order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* More space between items */
+}
+
+.order-item-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 16px;
+}
+
+.order-item-row:last-child {
+    border-bottom: none;
+}
+
+.item-main {
+    display: flex;
+    justify-content: space-between;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.item-desc {
+    font-size: 0.9rem;
+    color: #b0a59e;
+    /* Warm Gray */
+    line-height: 1.6;
+    /* Better leading for text */
+    margin-top: 6px;
+    display: block;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255, 69, 0, 0.3);
+    /* Visual cue for description */
+}
+
+.item-price {
+    font-weight: 700;
+    color: #ff8c00;
+    font-size: 0.95rem;
+}
+
+.btn-extend {
+    background: rgba(255, 255, 255, 0.03);
+    border: none;
+    color: #ff4500;
+    font-weight: 600;
+    padding: 12px;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 12px;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.btn-extend:hover {
+    background: rgba(255, 69, 0, 0.1);
+}
+
+.order-footer {
+    border-top: 2px dashed rgba(255, 255, 255, 0.1);
+    /* 'Pizza box' style dash */
+    padding-top: 20px;
+    margin-top: 15px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.total-label span {
+    display: block;
+    font-size: 0.8rem;
+    color: #a0958e;
+}
+
+.total-value {
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.8rem;
+}
+
+.btn-action {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-deliver {
+    background: #ff4500;
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(255, 69, 0, 0.3);
+}
+
+.btn-cancel-item {
+    background: transparent;
+    color: #e74c3c;
+    border: 2px solid rgba(231, 76, 60, 0.3);
+}
+
+.btn-action:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.2);
+}

@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="./frontend/modules/pages/orders/orders_compact.css">
 <div class="orders-container">
     <header class="orders-header">
         <h1>My Orders</h1>
@@ -5,7 +6,12 @@
     </header>
 
     <div class="orders-content">
-        <div id="orders-list" class="orders-list">
+        <div class="orders-filters">
+            <div class="filter-stats">
+                <span class="stat">Total orders: <b id="total-orders-count">0</b></span>
+            </div>
+        </div>
+        <div id="orders-list" class="orders-compact-list">
             <div class="loading-spinner">Loading orders...</div>
         </div>
     </div>

@@ -262,7 +262,7 @@ public class OrderService {
             Status newStatus = Status.valueOf(orderRequest.getStatus().toUpperCase());
             order.setStatus(newStatus);
 
-            if (orderRequest.getEstimatedAt()!=null) {
+            if (orderRequest.getEstimatedAt() != null) {
                 order.setEstimatedAt(orderRequest.getEstimatedAt());
                 this.log.debug("Setting estimated delivery time for order #{} to {}", orderId,
                         orderRequest.getEstimatedAt());

@@ -1,19 +1,8 @@
 import { orderService } from '../../../domains/order/OrderService.js';
 
-let currentEditingOrder = null;
-
 export async function init() {
-    console.log("Initializing Orders Page");
-    setupEventListeners();
+    console.log("Initializing Orders Page (Compact View)");
     await loadOrders();
-}
-
-function setupEventListeners() {
-    const closeBtn = document.getElementById('close-edit-modal');
-    if (closeBtn) closeBtn.onclick = () => document.getElementById('edit-order-modal').classList.add('hidden');
-
-    const saveBtn = document.getElementById('save-order-btn');
-    if (saveBtn) saveBtn.onclick = saveOrderChanges;
 }
 
 async function loadOrders() {
@@ -21,22 +10,38 @@ async function loadOrders() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     if (!user) {
-        list.innerHTML = `
-            <div class="text-center">
-                <p class="no-orders-msg">Please login to view your orders.</p>
-                <button class="btn-primary" style="margin-top:20px;" onclick="window.dispatchEvent(new CustomEvent('open-auth-modal'))">Login</button>
-            </div>
-        `;
+        list.innerHTML = `<div class="text-center"><p class="no-orders-msg">Please login to manage orders.</p></div>`;
         return;
     }
 
     try {
-        const orders = await orderService.getByUserId(user.id);
+        // Fetch all active orders for the manager/user
+        // Requirement implies manager usage: if user is admin, we might want ALL,
+        // but for now stick to current user (or list all if preferred)
+        let orders = await orderService.getByUserId(user.id);
 
-        // reverse to show newest first
-        if (orders.length > 0 && orders[0].id) {
-            orders.sort((a, b) => b.id - a.id);
-        }
+        // Sorting Logic:
+        // Prio 1: NOT READY && NOT DELIVERED/CANCELLED
+        // Prio 2: READY
+        // Prio 3: DELIVERED/CANCELLED
+        const getPriority = (status) => {
+            const s = status ? status.toUpperCase() : 'PENDING';
+            if (s === 'PENDING') return 1;
+            if (s === 'PROCESSING') return 2;
+            if (s === 'READY') return 3;
+            if (s === 'DELIVERED') return 4;
+            return 5; // Cancelled/Other
+        };
+
+        orders.sort((a, b) => {
+            const pA = getPriority(a.status);
+            const pB = getPriority(b.status);
+            if (pA !== pB) return pA - pB;
+            return b.id - a.id; // Newest first within same priority
+        });
+
+        const totalCount = document.getElementById('total-orders-count');
+        if (totalCount) totalCount.textContent = orders.length;
 
         renderOrders(orders);
     } catch (error) {
@@ -50,178 +55,123 @@ function renderOrders(orders) {
     list.innerHTML = '';
 
     if (orders.length === 0) {
-        list.innerHTML = '<p class="no-orders-msg">You haven\'t placed any orders yet. <br> <a href="#" onclick="navigate(\'/menu\'); return false;" style="color:var(--primary-color); font-size:1rem;">Go to Menu</a></p>';
+        list.innerHTML = '<p class="no-orders-msg">No orders found.</p>';
         return;
     }
 
     orders.forEach(order => {
-        const card = document.createElement('div');
-        card.className = 'order-card';
+        const div = document.createElement('div');
+        div.className = 'order-card';
+        div.id = `order-card-${order.id}`;
 
-        let statusClass = 'status-pending';
-        if (order.status === 'COMPLETED') statusClass = 'status-completed';
-        if (order.status === 'CANCELLED') statusClass = 'status-cancelled';
-
+        const status = (order.status || 'PENDING').toUpperCase();
         const date = order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Just now';
 
         let itemsHtml = '';
-        if (order.orderItems && order.orderItems.length > 0) {
-            itemsHtml = `<div class="order-items">
-                ${order.orderItems.map(item => `
-                    <div class="order-item-row">
-                        <div>
-                            <span class="item-qty">${item.quantity}x</span>
-                            <span class="item-name">${item.menuProductName || 'Product'}</span>
-                            <span class="item-status item-status-${(item.status || 'PENDING').toLowerCase()}">${item.status || 'PENDING'}</span>
+        const maxInitialItems = 2; // Show only 2 items initially for uniform height
+        const hasMoreItems = order.orderItems && order.orderItems.length > maxInitialItems;
+
+        if (order.orderItems) {
+            itemsHtml = order.orderItems.map((item, index) => {
+                const itemStatus = (item.status || 'PENDING').toUpperCase();
+                const isHidden = index >= maxInitialItems ? 'style="display:none;" data-expandable="true"' : '';
+                return `
+                    <div class="order-item-row" ${isHidden}>
+                        <div class="item-main">
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div>
+                                        <span class="item-qty">${item.quantity}x</span>
+                                        <span class="item-name">${item.menuProductName}</span>
+                                    </div>
+                                    <span class="status-badge status-${itemStatus.toLowerCase()}" style="font-size: 0.65rem; padding: 4px 10px;">${itemStatus}</span>
+                                </div>
+                                <div class="item-desc">${item.menuProductDescription || ''}</div>
+                            </div>
+                            <span class="item-price" style="margin-left: 15px;">${(item.totalPrice || 0).toFixed(2)} RON</span>
                         </div>
-                        <span class="item-price">${(item.totalPrice || 0).toFixed(2)} RON</span>
                     </div>
-                `).join('')}
-            </div>`;
+                `;
+            }).join('');
         }
 
-        card.innerHTML = `
+        div.innerHTML = `
             <div class="order-header">
-                <div class="order-id">Order <span>#${order.id}</span></div>
-                <div class="order-status ${statusClass}">${order.status}</div>
+                <div class="order-id">Order #${order.id} <span>${date}</span></div>
+                <div class="status-badge status-${status.toLowerCase()}">${status}</div>
             </div>
-            <div class="order-meta">
-                <span class="order-date"><i class="far fa-calendar-alt"></i> ${date}</span>
+            
+            <div class="order-items-container">
+                <div class="order-items">
+                    ${itemsHtml}
+                </div>
             </div>
-            ${itemsHtml}
+
+            ${hasMoreItems ? `
+                <button class="btn-extend" id="extend-btn-${order.id}" onclick="window.toggleExtended(${order.id})">
+                    <i class="fas fa-chevron-down"></i> View ${order.orderItems.length - maxInitialItems} more items
+                </button>
+            ` : ''}
+
             <div class="order-footer">
-                <div class="price-breakdown">
-                    <div class="price-row">
-                        <span>Subtotal:</span>
-                        <span>${(order.orderPrice || 0).toFixed(2)} RON</span>
+                <div class="total-row">
+                    <div class="total-label">
+                         <span>Subtotal: ${(order.orderPrice || 0).toFixed(2)}</span>
+                         <span>Delivery: ${(order.deliveryPrice || 0).toFixed(2)}</span>
                     </div>
-                    <div class="price-row">
-                        <span>Delivery:</span>
-                        <span>${(order.deliveryPrice || 0).toFixed(2)} RON</span>
-                    </div>
-                    <div class="price-row total">
-                        <span>Total:</span>
-                        <span>${(order.totalPrice || 0).toFixed(2)} RON</span>
-                    </div>
+                    <span class="total-value">${(order.totalPrice || 0).toFixed(2)} RON</span>
                 </div>
-                <div class="order-actions">
-                    ${order.status === 'PENDING' ? `
-                        <button class="btn-edit" onclick="window.openEditOrder(${order.id})"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn-cancel" onclick="window.cancelOrder(${order.id})"><i class="fas fa-times"></i> Cancel</button>
-                    ` : ''}
+                <div class="order-main-actions">
+                    ${status === 'READY' ?
+                `<button class="btn-action btn-deliver" onclick="window.updateOrderStatusAction(${order.id}, 'DELIVERED')">
+                            <i class="fas fa-check-double"></i> DELIVER ORDER
+                        </button>`
+                : ''}
+                    ${status === 'PENDING' ?
+                `<button class="btn-action btn-cancel-item" onclick="window.cancelOrder(${order.id})">
+                            <i class="fas fa-times"></i> CANCEL ORDER
+                        </button>`
+                : ''}
                 </div>
             </div>
         `;
-        list.appendChild(card);
+        list.appendChild(div);
     });
 }
 
-window.openEditOrder = async (orderId) => {
-    try {
-        const order = await orderService.getById(orderId);
-        currentEditingOrder = JSON.parse(JSON.stringify(order)); // Deep clone
+window.toggleExtended = (orderId) => {
+    const card = document.getElementById(`order-card-${orderId}`);
+    const btn = document.getElementById(`extend-btn-${orderId}`);
+    const isExtended = card.classList.toggle('extended');
 
-        document.getElementById('edit-order-id-display').textContent = orderId;
-        renderEditItems();
-        updateEditTotal();
-
-        document.getElementById('edit-order-modal').classList.remove('hidden');
-    } catch (error) {
-        alert("Failed to load order details: " + error.message);
-    }
-};
-
-function renderEditItems() {
-    const list = document.getElementById('edit-order-items-list');
-    list.innerHTML = '';
-
-    currentEditingOrder.orderItems.forEach((item, index) => {
-        const itemRow = document.createElement('div');
-        itemRow.className = 'edit-item-row';
-        itemRow.innerHTML = `
-            <div class="item-info">
-                <div class="item-name">${item.menuProductName} <span class="item-status item-status-${(item.status || 'PENDING').toLowerCase()}">${item.status || 'PENDING'}</span></div>
-                <div class="item-price-unit">${(item.totalPrice / item.quantity).toFixed(2)} RON / unit</div>
-            </div>
-            <div class="edit-item-qty-controls">
-                <button class="btn-sm" onclick="window.updateEditQty(${index}, ${item.quantity - 1})">-</button>
-                <span>${item.quantity}</span>
-                <button class="btn-sm" onclick="window.updateEditQty(${index}, ${item.quantity + 1})">+</button>
-                <button class="btn-sm text-danger" onclick="window.removeEditItem(${index})"><i class="fas fa-trash"></i></button>
-            </div>
-        `;
-        list.appendChild(itemRow);
+    // Toggle visibility of extra items
+    const extraItems = card.querySelectorAll('[data-expandable="true"]');
+    extraItems.forEach(item => {
+        item.style.display = isExtended ? 'block' : 'none';
     });
-}
 
-window.updateEditQty = (index, newQty) => {
-    if (newQty < 1) return;
-    const item = currentEditingOrder.orderItems[index];
-    const unitPrice = item.totalPrice / item.quantity;
-    item.quantity = newQty;
-    item.totalPrice = unitPrice * newQty;
-    renderEditItems();
-    updateEditTotal();
-};
-
-window.removeEditItem = (index) => {
-    currentEditingOrder.orderItems.splice(index, 1);
-    renderEditItems();
-    updateEditTotal();
-};
-
-function updateEditTotal() {
-    const subtotal = currentEditingOrder.orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
-    const total = subtotal + (currentEditingOrder.deliveryPrice || 0);
-    document.getElementById('edit-order-total-display').textContent = `${total.toFixed(2)} RON`;
-}
-
-async function saveOrderChanges() {
-    if (currentEditingOrder.orderItems.length === 0) {
-        alert("Order must have at least one item!");
-        return;
+    if (btn) {
+        btn.innerHTML = isExtended ?
+            `<i class="fas fa-chevron-up"></i> Show less` :
+            `<i class="fas fa-chevron-down"></i> View ${extraItems.length} more items`;
     }
+};
 
-    const saveBtn = document.getElementById('save-order-btn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving...';
-
+window.updateOrderStatusAction = async (orderId, status) => {
     try {
-        const updateData = {
-            id: currentEditingOrder.id,
-            userId: currentEditingOrder.userId,
-            status: currentEditingOrder.status,
-            deliveryPrice: currentEditingOrder.deliveryPrice,
-            orderItems: currentEditingOrder.orderItems.map(item => ({
-                id: item.id,
-                orderId: currentEditingOrder.id,
-                menuProductId: item.menuProductId,
-                quantity: item.quantity,
-                totalPrice: item.totalPrice,
-                status: item.status
-            }))
-        };
-
-        await orderService.update(updateData);
-        document.getElementById('edit-order-modal').classList.add('hidden');
-        await loadOrders(); // Reload the list
-        alert("Order updated successfully!");
-    } catch (error) {
-        alert("Failed to update order: " + error.message);
-    } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save Changes';
+        await orderService.updateStatus({ id: orderId, status: status });
+        await loadOrders();
+    } catch (e) {
+        alert("Action failed: " + e.message);
     }
-}
+};
 
 window.cancelOrder = async (orderId) => {
-    if (!confirm(`Are you sure you want to cancel order #${orderId}? This cannot be undone.`)) return;
-
+    if (!confirm(`Cancel order #${orderId}?`)) return;
     try {
         await orderService.deleteById(orderId);
-        await loadOrders(); // Refresh list
-        alert("Order cancelled successfully.");
+        await loadOrders();
     } catch (error) {
-        alert("Failed to cancel order: " + error.message);
+        alert("Error: " + error.message);
     }
 };

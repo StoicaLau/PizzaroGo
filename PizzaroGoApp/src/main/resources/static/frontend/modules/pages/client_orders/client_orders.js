@@ -27,14 +27,6 @@ export function init() {
 
     const deliverBtn = document.getElementById('deliver-order-btn');
     if (deliverBtn) deliverBtn.addEventListener('click', markOrderDelivered);
-
-    // Auto-refresh every 5 seconds
-    setInterval(() => {
-        // Only refresh if no modal is active (optional, but safer prevents jarring updates while editing)
-        // Actually, requirement says "new orders visible immediately", so we should refresh.
-        // renderOrders handles preserving the open modal details carefully.
-        loadOrders(true); // pass strict=true or similar if needed, but loadOrders is void
-    }, 5000);
 }
 
 // Global Toggle Function
@@ -58,20 +50,17 @@ let allOrders = [];
 let currentOrderId = null; // For start modal
 let activeProcessingOrderId = null; // For details modal
 
-async function loadOrders(isAutoRefresh = false) {
-    if (!isAutoRefresh) console.log("Client Orders: Fetching active orders...");
+async function loadOrders() {
+    console.log("Client Orders: Fetching active orders...");
     try {
         allOrders = await orderService.getActiveOrders();
-        // Console spam reduction
-        if (!isAutoRefresh) console.log(`Client Orders: Received ${allOrders.length} orders`);
+        console.log(`Client Orders: Received ${allOrders.length} orders`);
         renderOrders();
     } catch (error) {
-        // Only alert on manual load, otherwise just log
         console.error('Client Orders: Error loading orders:', error);
-        if (!isAutoRefresh) {
-            const msg = error.message || JSON.stringify(error);
-            alert('Error loading orders: ' + msg);
-        }
+        // Show detailed error
+        const msg = error.message || JSON.stringify(error);
+        alert('Error loading orders: ' + msg);
     }
 }
 
