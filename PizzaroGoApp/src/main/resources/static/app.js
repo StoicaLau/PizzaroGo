@@ -35,7 +35,8 @@ const protectedPaths = {
     "/orders": ["CUSTOMER", "EMPLOYEE", "ADMIN"],
     "/stocks": ["ADMIN"],
     "/products": ["ADMIN"],
-    "/users": ["ADMIN"]
+    "/users": ["ADMIN"],
+    "/client-orders": ["EMPLOYEE"]
 };
 
 function navigate(path) {
@@ -108,6 +109,9 @@ async function loadPage(path) {
             break;
         case "/products":
             page = "/frontend/modules/pages/product_manager/product_manager.html";
+            break;
+        case "/client-orders":
+            page = "/frontend/modules/pages/client_orders/client_orders.html";
             break;
         default:
             page = "/frontend/modules/pages/home/home.html";

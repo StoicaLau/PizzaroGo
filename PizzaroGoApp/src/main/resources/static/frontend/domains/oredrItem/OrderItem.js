@@ -9,15 +9,17 @@ export class OrderItem {
      * @param {number} quantity
      * @param {number} totalPrice
      * @param {string} [menuProductName]
+     * @param {string} [menuProductDescription]
      * @param {string} [status]
      */
-    constructor(id = null, orderId, menuProductId, quantity, totalPrice, menuProductName = null, status = 'PENDING') {
+    constructor(id = null, orderId, menuProductId, quantity, totalPrice, menuProductName = null, menuProductDescription = null, status = 'PENDING') {
         this.id = id;
         this.orderId = orderId;
         this.menuProductId = menuProductId;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.menuProductName = menuProductName;
+        this.menuProductDescription = menuProductDescription;
         this.status = status;
     }
 
@@ -34,6 +36,7 @@ export class OrderItem {
             json.quantity,
             json.totalPrice,
             json.menuProductName,
+            json.menuProductDescription,
             json.status
         );
     }

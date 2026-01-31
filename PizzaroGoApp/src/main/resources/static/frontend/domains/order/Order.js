@@ -33,17 +33,23 @@ export class Order {
      * @returns {Order}
      */
     static fromJson(json) {
-        const orderItems = json.orderItems ? json.orderItems.map(item => OrderItem.fromJson(item)) : [];
-        return new Order(
-            json.id,
-            json.userId,
-            json.createdAt,
-            json.estimatedAt,
-            json.status,
-            json.orderPrice,
-            json.deliveryPrice,
-            json.totalPrice,
-            orderItems
-        );
+        console.log("Order.fromJson mapping:", json);
+        try {
+            const orderItems = json.orderItems ? json.orderItems.map(item => OrderItem.fromJson(item)) : [];
+            return new Order(
+                json.id,
+                json.userId,
+                json.createdAt,
+                json.estimatedAt,
+                json.status,
+                json.orderPrice,
+                json.deliveryPrice,
+                json.totalPrice,
+                orderItems
+            );
+        } catch (e) {
+            console.error("Order.fromJson error:", e, json);
+            throw e;
+        }
     }
 }

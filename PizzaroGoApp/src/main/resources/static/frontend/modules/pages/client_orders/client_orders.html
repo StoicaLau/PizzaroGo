@@ -1,0 +1,108 @@
+<div class="client_orders-container">
+    <div class="page-header">
+        <h1>Kitchen Display System</h1>
+        <div class="header-stats">
+            <span class="stat-badge pending"><i class="fas fa-clock"></i> Pending: <b id="stat-pending">0</b></span>
+            <span class="stat-badge processing"><i class="fas fa-fire"></i> Cooking: <b
+                    id="stat-processing">0</b></span>
+        </div>
+    </div>
+
+    <!-- Active Orders Grid -->
+    <div class="kds-board">
+
+        <!-- PENDING SECTION (Urgent) -->
+        <section class="kds-section pending-section">
+            <div class="section-title">
+                <i class="fas fa-bell"></i> New Orders (Needs Action)
+            </div>
+            <div id="pending-orders-grid" class="cards-grid">
+                <!-- Cards injected here -->
+            </div>
+        </section>
+
+        <!-- PROCESSING SECTION (In Progress) -->
+        <section class="kds-section processing-section">
+            <div class="section-title">
+                <i class="fas fa-fire-burner"></i> In Preparation
+            </div>
+            <div id="processing-orders-grid" class="cards-grid">
+                <!-- Cards injected here -->
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- Quick Start Modal -->
+<div id="start-order-modal" class="modal hidden">
+    <div class="modal-content glass-panel compact-modal">
+        <div class="modal-header-clean">
+            <h3>Start Order #<span id="modal-order-id"></span></h3>
+            <button onclick="window.closeModal()" class="close-icon"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <p class="instruction-text">Tap estimated prep time:</p>
+
+            <div class="quick-time-presets">
+                <button class="time-btn" onclick="setQuickTime(30)">
+                    <span>30</span><small>min</small>
+                </button>
+                <button class="time-btn" onclick="setQuickTime(60)">
+                    <span>1h</span><small></small>
+                </button>
+                <button class="time-btn" onclick="setQuickTime(120)">
+                    <span>2h</span><small></small>
+                </button>
+                <button class="time-btn" onclick="setQuickTime(180)">
+                    <span>3h</span><small></small>
+                </button>
+            </div>
+
+            <div class="custom-time-wrapper">
+                <label>Or precise time:</label>
+                <input type="datetime-local" id="estimated-time" class="glass-input">
+            </div>
+
+            <div id="start-order-items-summary" class="mini-items-list">
+                <!-- Items list -->
+            </div>
+        </div>
+
+        <div class="modal-actions-big">
+            <button id="confirm-start-btn" class="btn primary big-btn">
+                <i class="fas fa-play"></i> START COOKING
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details / Delivery Modal -->
+<div id="order-details-modal" class="modal hidden">
+    <div class="modal-content glass-panel large-modal">
+        <div class="modal-header-clean">
+            <h3>Order #<span id="details-order-id"></span></h3>
+            <button onclick="window.closeDetailsModal()" class="close-icon"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="kds-checklist">
+            <div class="checklist-header">
+                <span>Item</span>
+                <span>Status</span>
+            </div>
+            <div id="order-items-list" class="checklist-items">
+                <!-- Items -->
+            </div>
+        </div>
+
+        <div class="modal-footer-actions">
+            <button id="deliver-order-btn" class="btn success big-btn" disabled>
+                <i class="fas fa-check-double"></i> MARK READY / DELIVERED
+            </button>
+            <div id="order-status-text" style="text-align: center; margin-top: 10px; color: #aaa;">
+                Waiting for items...
+            </div>
+        </div>
+    </div>
+</div>

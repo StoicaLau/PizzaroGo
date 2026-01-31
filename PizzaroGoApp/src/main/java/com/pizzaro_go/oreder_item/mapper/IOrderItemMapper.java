@@ -36,6 +36,7 @@ public interface IOrderItemMapper {
     @Mapping(target = "orderId", expression = "java(entity.getOrder().getId())")
     @Mapping(target = "menuProductId", expression = "java(entity.getMenuProduct().getId())")
     @Mapping(target = "menuProductName", expression = "java(entity.getMenuProduct().getName())")
+    @Mapping(target = "menuProductDescription", expression = "java(entity.getMenuProduct().getDescription())")
     @Mapping(target = "status", expression = "java(entity.getStatus() != null ? StringUtils.capitalize(entity.getStatus().name()) : null)")
     OrderItemResponse toResponse(OrderItemEntity entity);
 }

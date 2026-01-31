@@ -16,5 +16,6 @@ public class OrderItemResponse {
     private Integer quantity;
     private Double totalPrice;
     private String menuProductName;
+    private String menuProductDescription;
     private String status;
 }

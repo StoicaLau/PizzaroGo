@@ -208,6 +208,8 @@ async function handleFinishOrder() {
         }))
     };
 
+
+
     try {
         await orderService.create(orderData);
         Cart.clear();

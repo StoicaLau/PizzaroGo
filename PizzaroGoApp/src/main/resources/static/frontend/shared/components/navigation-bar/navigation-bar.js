@@ -63,7 +63,8 @@
             orders: document.getElementById('nav-orders'),
             stocks: document.getElementById('nav-stocks'),
             products: document.getElementById('nav-products'),
-            users: document.getElementById('nav-users')
+            users: document.getElementById('nav-users'),
+            clientOrders: document.getElementById('nav-client-orders')
         };
 
         // Anyone can see: Home, Menu (Contact is also public by default)
@@ -79,7 +80,11 @@
         if (navItems.orders) navItems.orders.style.display = isSelfService ? '' : 'none';
         if (navItems.stocks) navItems.stocks.style.display = isAdmin ? '' : 'none';
         if (navItems.products) navItems.products.style.display = isAdmin ? '' : 'none';
+
         if (navItems.users) navItems.users.style.display = isAdmin ? '' : 'none';
+
+        // Client Orders for Employee (and Admin)
+        if (navItems.clientOrders) navItems.clientOrders.style.display = (role === 'EMPLOYEE') ? '' : 'none';
 
         // Legacy order-btn visibility if present in some pages
         const orderBtn = document.querySelector('.order-btn');

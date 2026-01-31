@@ -1,0 +1,764 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #ff5e00;
+    --primary-hover: #ff7b00;
+    --status-pending: #f1c40f;
+    --status-processing: #3498db;
+    --status-ready: #9b59b6;
+    --status-completed: #2ecc71;
+    --status-cancelled: #e74c3c;
+    --card-bg: rgba(30, 30, 30, 0.7);
+    --text-primary: #ffffff;
+    --text-secondary: #aaaaaa;
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 10px 20px rgba(255, 94, 0, 0.2);
+}
+
+.client_orders-container {
+    padding: 120px 5% 60px;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-primary);
+    background: radial-gradient(circle at top right, #2a2a2a, #121212);
+}
+
+/* Header */
+.page-header {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.page-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #ff5e00, #ffae00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* KDS Board Layout */
+.kds-board {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.kds-section {
+    background: rgba(26, 26, 26, 0.6);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pending-section .section-title {
+    color: #ffd700;
+}
+
+.processing-section .section-title {
+    color: #2ecc71;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Order Board Cards */
+.order-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Status Indicator Strip */
+.order-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+}
+
+.pending-section .order-card::before {
+    background: #ffae00;
+}
+
+.processing-section .order-card::before {
+    background: #2ecc71;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.card-id {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+}
+
+.card-time {
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: right;
+}
+
+.card-content {
+    flex-grow: 1;
+    margin-bottom: 20px;
+}
+
+.item-count {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #eee;
+    margin-bottom: 5px;
+}
+
+.total-price {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.card-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-start {
+    background: linear-gradient(135deg, #ff5e00, #ff9100);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3);
+}
+
+.btn-start:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+
+.btn-view {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-view:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Calendar Icon Fix for Dark Mode */
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* Quick Time Modal Styles */
+.modal-header-clean {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.modal-header-clean h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close-icon {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.close-icon:hover {
+    color: white;
+}
+
+.quick-time-presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.time-btn {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px 10px;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-btn span {
+    font-size: 1.6rem;
+    font-weight: 700;
+    display: block;
+}
+
+.time-btn:hover,
+.time-btn.selected {
+    background: rgba(255, 94, 0, 0.2);
+    border-color: #ff5e00;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.time-btn.selected {
+    box-shadow: 0 0 15px rgba(255, 94, 0, 0.3);
+}
+
+.custom-time-wrapper {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.custom-time-wrapper label {
+    display: block;
+    margin-bottom: 8px;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    font-size: 1.1rem;
+    width: 100%;
+    color-scheme: dark;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.glass-input:focus {
+    border-color: #ff5e00;
+}
+
+.modal-actions-big {
+    margin-top: 20px;
+}
+
+.big-btn {
+    width: 100%;
+    padding: 18px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+/* Checklist Styling */
+.kds-checklist {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.checklist-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.checklist-items {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.check-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.check-item:last-child {
+    border-bottom: none;
+}
+
+.check-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Modals Summary List */
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.item-name-big {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.item-qty {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 10px;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Large Checkbox Switch */
+.big-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.big-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.big-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.big-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.big-slider {
+    background-color: #2ecc71;
+}
+
+input:checked+.big-slider:before {
+    transform: translateX(26px);
+}
+
+.order-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.3s;
+}
+
+.order-item-row:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.item-name {
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-status {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.item-status span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--status-completed);
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.icon-btn:hover {
+    color: white;
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 94, 0, 0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 94, 0, 0.1);
+    width: 90%;
+    max-width: 450px;
+    color: white;
+    position: relative;
+    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-content.large-modal {
+    max-width: 700px;
+}
+
+
+.modal-footer-actions {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .client_orders-container {
+        padding: 100px 20px 40px;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Updated Time Display in Cards */
+.card-time-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.time-row {
+    font-size: 0.85rem;
+    color: #aaa;
+    display: flex;
+    gap: 6px;
+}
+
+.time-row .val {
+    font-weight: 600;
+    color: #eee;
+}
+
+.time-row .val.accent {
+    color: #2ecc71;
+    /* Green for due time */
+}
+
+
+/* Cancel Button */
+.btn-cancel {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    flex: 0 0 50px;
+    /* fixed smaller width */
+}
+
+.btn-cancel:hover {
+    background: rgba(231, 76, 60, 0.4);
+    transform: scale(1.05);
+}
+
+/* Item Description in Details */
+.item-name .main-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.item-name .sub-text {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* Item Preview in Cards */
+.item-preview-row {
+    margin-bottom: 4px;
+}
+
+.preview-main {
+    font-size: 0.95rem;
+    color: #eee;
+}
+
+.preview-sub {
+    font-size: 0.8rem;
+    color: #888;
+    margin-left: 20px;
+    /* Indent description */
+    font-style: italic;
+    /* Removed white-space: nowrap */
+}
+
+/* Cancel Text Button */
+.btn-cancel-text {
+    background: transparent;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
+.btn-cancel-text:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Mark Ready Buttons */
+.item-status-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-mark-ready {
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.btn-mark-ready:hover {
+    background: #27ae60;
+}
+
+.btn-ready-disabled {
+    background: #444;
+    color: #888;
+    border: 1px solid #555;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: not-allowed;
+    pointer-events: none;
+    /* Completely blocked as requested */
+}
+
+/* Undo Icon */
+.undo-icon {
+    color: #aaa;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+.undo-icon:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
