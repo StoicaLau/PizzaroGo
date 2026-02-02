@@ -32,4 +32,5 @@ public interface IMenuProductRepository extends JpaRepository<MenuProductEntity,
                         "WHERE mp.id = :id")
         Optional<MenuProductEntity> findByIdWithStockUsage(Long id);
 
+        Optional<MenuProductEntity> findFirstByName(String name);
 }

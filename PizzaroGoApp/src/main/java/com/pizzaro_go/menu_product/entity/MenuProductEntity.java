@@ -26,7 +26,7 @@ public class MenuProductEntity {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(name = "image_URL", length = 1000)
+    @Column(name = "image_URL", length = 5000)
     private String imageURL;
 
     @Column(length = 500)

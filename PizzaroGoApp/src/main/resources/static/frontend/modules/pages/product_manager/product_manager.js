@@ -31,6 +31,11 @@ export class ProductManager {
         });
 
         document.getElementById('btn-add-product')?.addEventListener('click', () => this.openModal());
+        document.getElementById('btn-import-products')?.addEventListener('click', () => {
+            document.getElementById('product-import-input')?.click();
+        });
+        document.getElementById('product-import-input')?.addEventListener('change', (e) => this.handleImport(e));
+        document.getElementById('btn-export-products')?.addEventListener('click', () => menuProductService.exportProducts());
         document.getElementById('btn-delete-all-products')?.addEventListener('click', () => this.openConfirmModal(null, true));
 
         // Modal Basics
@@ -121,8 +126,8 @@ export class ProductManager {
 
     updateStats() {
         const total = this.products.length;
-        const drinks = this.products.filter(p => p.productCategory === 'DRINK').length;
-        const sauces = this.products.filter(p => p.productCategory === 'SAUCE').length;
+        const drinks = this.products.filter(p => (p.productCategory || '').toUpperCase() === 'DRINK').length;
+        const sauces = this.products.filter(p => (p.productCategory || '').toUpperCase() === 'SAUCE').length;
 
         const totalEl = document.getElementById('stat-total-products');
         const drinksEl = document.getElementById('stat-total-drinks');
@@ -255,7 +260,7 @@ export class ProductManager {
             title.textContent = 'Edit Product';
             document.getElementById('product-name').value = product.name;
             document.getElementById('product-image').value = product.imageURL;
-            document.getElementById('product-category').value = product.productCategory;
+            document.getElementById('product-category').value = (product.productCategory || '').toUpperCase();
             document.getElementById('product-price').value = product.price;
 
             // Map existing stock usages
@@ -370,6 +375,23 @@ export class ProductManager {
             this.showToast('error', e.message);
         } finally {
             this.closeConfirmModal();
+        }
+    }
+
+    async handleImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            this.showToast('info', 'Importing products...');
+            await menuProductService.importProducts(file);
+            this.showToast('success', 'Products imported successfully');
+            await this.loadProducts();
+        } catch (e) {
+            console.error('Import error:', e);
+            this.showToast('error', e.message);
+        } finally {
+            event.target.value = ''; // Reset input
         }
     }
 

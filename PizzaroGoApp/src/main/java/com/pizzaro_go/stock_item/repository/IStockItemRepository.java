@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for StockItem entities.
@@ -20,4 +21,8 @@ public interface IStockItemRepository extends JpaRepository<StockItemEntity, Lon
     void resetIdSequence();
 
     List<StockItemEntity> findByCategory(com.pizzaro_go.common.enums.Category category);
+
+    Optional<StockItemEntity> findFirstByName(String name);
+
+    Optional<StockItemEntity> findFirstByNameIgnoreCase(String name);
 }

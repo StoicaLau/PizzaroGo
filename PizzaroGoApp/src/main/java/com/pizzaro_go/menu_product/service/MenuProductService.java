@@ -1,7 +1,6 @@
 package com.pizzaro_go.menu_product.service;
 
 import com.pizzaro_go.common.dtos.MessageResponse;
-import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.common.utils.StringUtils;
@@ -21,10 +20,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.ArrayList;
+
+import com.pizzaro_go.fileimport.excel.entities.MenuProductFileData;
+import com.pizzaro_go.stock_item.entity.StockItemEntity;
+import com.pizzaro_go.stock_item.repository.IStockItemRepository;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service layer for menu product operations.
@@ -43,6 +57,9 @@ public class MenuProductService {
 
     @Autowired
     private ProductStockUsageService productStockUsageService;
+
+    @Autowired
+    private IStockItemRepository stockItemRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -88,13 +105,13 @@ public class MenuProductService {
             this.entityManager.flush();
             this.entityManager.clear();
 
-            Optional<MenuProductEntity> menuProductOptional = this.menuProductRepository.findByIdWithStockUsage(menuProductId);
+            Optional<MenuProductEntity> menuProductOptional = this.menuProductRepository
+                    .findByIdWithStockUsage(menuProductId);
             if (menuProductOptional.isPresent()) {
                 menuProductToUpdate = menuProductOptional.get();
             } else {
                 throw new PGException("MenuProduct not found with id: " + menuProductId);
             }
-
 
             String menuProductDescription = getMenuProductDescription(menuProductToUpdate);
 
@@ -131,9 +148,9 @@ public class MenuProductService {
             this.entityManager.flush();
             this.entityManager.clear();
 
-
             Long menuProductId = menuProduct.getId();
-            Optional<MenuProductEntity> menuProductOptional = this.menuProductRepository.findByIdWithStockUsage(menuProductId);
+            Optional<MenuProductEntity> menuProductOptional = this.menuProductRepository
+                    .findByIdWithStockUsage(menuProductId);
             if (menuProductOptional.isPresent()) {
                 menuProduct = menuProductOptional.get();
             } else {
@@ -216,7 +233,7 @@ public class MenuProductService {
      *                     error occurs
      */
     private void setProductStockUsageOnProduct(MenuProductEntity menuProduct,
-                                               List<ProductStockUsageRequest> stockUsageRequests)
+            List<ProductStockUsageRequest> stockUsageRequests)
             throws PGException {
         this.log.info("Set stock usages for product with id: " + menuProduct.getId());
         try {
@@ -249,33 +266,152 @@ public class MenuProductService {
      *
      * @param menuProduct the menu product for which to generate the description
      * @return a comma-separated string of stock item names, or an empty string if
-     * not applicable
+     *         not applicable
      */
     private String getMenuProductDescription(MenuProductEntity menuProduct) {
-        String menuProductDescription = "";
-
-        if (menuProduct.getProductCategory().equals(ProductCategory.PIZZA)
-                && menuProduct.getProductStockUsages() != null) {
-            this.log.info("Product is PIZZA with {} stock usages", menuProduct.getProductStockUsages().size());
-            StringJoiner joiner = new StringJoiner(", ");
+        StringJoiner joiner = new StringJoiner(", ");
+        if (menuProduct.getProductStockUsages() != null) {
             for (ProductStockUsageEntity usage : menuProduct.getProductStockUsages()) {
                 if (usage.getStockItem() != null) {
                     String stockItemName = usage.getStockItem().getName();
                     String unit = StringUtils.capitalize(usage.getStockItem().getUnit().toString());
                     double quantity = usage.getQuantityPerUnit();
-                    String ingredient = stockItemName + " " + quantity + unit;
+                    String ingredient = stockItemName + " " + quantity + " " + unit;
                     joiner.add(ingredient);
                 } else {
                     this.log.warn("ProductStockUsage {} has null stockItem", usage.getId());
                 }
             }
-            menuProductDescription = joiner.toString();
-            this.log.info("Final description: '{}'", menuProductDescription);
-        } else {
-            this.log.info("Not generating description - Category: {}, StockUsages null: {}",
-                    menuProduct.getProductCategory(),
-                    menuProduct.getProductStockUsages() == null);
         }
-        return menuProductDescription;
+        String description = joiner.toString();
+        this.log.info("Final description: '{}'", description);
+        return description;
+    }
+
+    /**
+     * Generates an Excel file containing all menu products.
+     *
+     * @return a byte array containing the Excel file data
+     * @throws PGException if an error occurs during export
+     */
+    public byte[] exportMenuProducts() throws PGException {
+        this.log.info("Generating Excel export for menu products.");
+        try (XSSFWorkbook workbook = new XSSFWorkbook();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            Sheet sheet = workbook.createSheet("Menu Products");
+
+            // Header
+            Row headerRow = sheet.createRow(0);
+            String[] columns = { "Name", "Category", "Price", "Description", "Image URL" };
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+            }
+
+            // Data
+            List<MenuProductEntity> products = this.menuProductRepository.findAll();
+            int rowIdx = 1;
+            for (MenuProductEntity product : products) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(product.getName());
+                row.createCell(1)
+                        .setCellValue(product.getProductCategory() != null ? product.getProductCategory().name() : "");
+                row.createCell(2).setCellValue(product.getPrice());
+                row.createCell(3).setCellValue(product.getDescription());
+                row.createCell(4).setCellValue(product.getImageURL());
+            }
+
+            workbook.write(outputStream);
+            this.log.info("Successfully generated menu products Excel file.");
+            return outputStream.toByteArray();
+
+        } catch (IOException | RepositoryException e) {
+            String errorMsg = "Error occurred while generating menu products Excel file -> " + e.getMessage();
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Imports menu products from an Excel file.
+     *
+     * @param file the Excel file containing menu product data
+     * @throws PGException if an error occurs during processing
+     */
+    public void importMenuProducts(MultipartFile file) throws PGException {
+        this.log.info("Clearing existing menu products and importing from Excel file.");
+        try (InputStream stream = file.getInputStream()) {
+            // Clear existing menu products before import
+            this.menuProductRepository.deleteAll();
+            this.menuProductRepository.resetIdSequence();
+
+            List<MenuProductFileData> menuProductFileDataList = Poiji.fromExcel(stream, PoijiExcelType.XLSX,
+                    MenuProductFileData.class);
+
+            for (MenuProductFileData fileData : menuProductFileDataList) {
+                MenuProductRequest request = new MenuProductRequest();
+                request.setName(fileData.getName());
+                request.setProductCategory(fileData.getCategory());
+                request.setPrice(fileData.getPrice());
+                request.setImageURL(fileData.getImageURL());
+
+                // Parse description for ingredients
+                List<ProductStockUsageRequest> usageRequests = new ArrayList<>();
+                String description = fileData.getDescription();
+                if (description != null && !description.isEmpty()) {
+                    String[] ingredients = description.split(",\\s*");
+                    for (String ingredientStr : ingredients) {
+                        ingredientStr = ingredientStr.trim();
+                        if (ingredientStr.isEmpty())
+                            continue;
+
+                        String[] parts = ingredientStr.split("\\s+");
+                        if (parts.length >= 3) {
+                            // Format: [Name parts...] [Quantity] [Unit]
+                            // We know: last is Unit, second-to-last is Quantity
+                            int quantityIndex = parts.length - 2;
+
+                            StringBuilder stockItemNameBuilder = new StringBuilder();
+                            for (int i = 0; i < quantityIndex; i++) {
+                                if (i > 0)
+                                    stockItemNameBuilder.append(" ");
+                                stockItemNameBuilder.append(parts[i]);
+                            }
+                            String stockItemName = stockItemNameBuilder.toString().trim();
+
+                            try {
+                                double quantity = Double.parseDouble(parts[quantityIndex]);
+
+                                Optional<StockItemEntity> stockItemOpt = this.stockItemRepository
+                                        .findFirstByNameIgnoreCase(stockItemName);
+                                if (stockItemOpt.isPresent()) {
+                                    ProductStockUsageRequest usageRequest = new ProductStockUsageRequest();
+                                    usageRequest.setStockItemId(stockItemOpt.get().getId());
+                                    usageRequest.setQuantityPerUnit(quantity);
+                                    usageRequests.add(usageRequest);
+                                } else {
+                                    this.log.warn("Stock item not found by name: {}", stockItemName);
+                                }
+                            } catch (NumberFormatException e) {
+                                this.log.warn("Could not parse quantity for ingredient: {}", ingredientStr);
+                            }
+                        }
+                    }
+                }
+                request.setStockUsages(usageRequests);
+
+                // Since we cleared the table, we just create new entries
+                this.create(request);
+            }
+        } catch (IOException e) {
+            String errorMsg = "Error processing Excel file -> " + e.getMessage();
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg);
+        } catch (NumberFormatException e) {
+            String errorMsg = "Error parsing quantity in description -> " + e.getMessage();
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg);
+        }
     }
 }

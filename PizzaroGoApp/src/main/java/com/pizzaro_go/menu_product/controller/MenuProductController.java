@@ -6,7 +6,13 @@ import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
 import com.pizzaro_go.menu_product.service.MenuProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pizzaro_go.common.exceptions.PGException;
 
 import java.util.List;
 
@@ -76,5 +82,38 @@ public class MenuProductController {
     @Operation(summary = "Delete entire menu")
     public MessageResponse deleteAll() {
         return this.menuProductService.deleteAll();
+    }
+
+    /**
+     * Exports all menu products to an Excel file and returns it for download.
+     *
+     * @return a ResponseEntity containing the Excel file bytes
+     */
+    @GetMapping("/export")
+    @Operation(summary = "Exports menu products to an Excel file for download")
+    public ResponseEntity<byte[]> exportMenuProducts() {
+        try {
+            byte[] excelContent = this.menuProductService.exportMenuProducts();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=menu_products.xlsx")
+                    .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_OCTET_STREAM))
+                    .body(excelContent);
+        } catch (PGException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Imports menu products from an Excel file.
+     *
+     * @param file the Excel file containing menu product data
+     * @return a MessageResponse confirming the import
+     */
+    @PostMapping("/import")
+    @Operation(summary = "Imports menu products from an Excel file")
+    public MessageResponse importMenuProducts(@RequestParam("file") MultipartFile file) {
+        this.menuProductService.importMenuProducts(file);
+        return new MessageResponse("Menu products imported successfully!");
     }
 }

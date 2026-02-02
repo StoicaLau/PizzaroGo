@@ -33,9 +33,16 @@
             <input type="text" id="product-search" placeholder="Search products..." autocomplete="off">
         </div>
         <div class="product-actions-toolbar">
+            <button id="btn-import-products" class="btn btn-secondary">
+                <i class="fas fa-file-import"></i> Import
+            </button>
+            <button id="btn-export-products" class="btn btn-secondary">
+                <i class="fas fa-file-export"></i> Export
+            </button>
             <button id="btn-delete-all-products" class="btn btn-danger">
                 <i class="fas fa-trash-alt"></i> Delete All
             </button>
+            <input type="file" id="product-import-input" accept=".xlsx" style="display: none;">
         </div>
     </div>
 

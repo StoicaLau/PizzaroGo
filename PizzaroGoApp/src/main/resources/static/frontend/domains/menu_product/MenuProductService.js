@@ -59,6 +59,26 @@ class MenuProductService {
         }
         return await response.json();
     }
+
+    exportProducts() {
+        window.location.href = `${this.baseUrl}/export`;
+    }
+
+    async importProducts(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`${this.baseUrl}/import`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to import products');
+        }
+        return await response.json();
+    }
 }
 
 export const menuProductService = new MenuProductService();
