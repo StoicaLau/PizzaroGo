@@ -22,6 +22,20 @@ class StockItemService {
     }
 
     /**
+     * Fetches stock items by product category.
+     * @param {string} productCategory The product category to filter by (e.g., 'PIZZA').
+     * @returns {Promise<Array<StockItem>>} List of stock items.
+     */
+    async getByProductCategory(productCategory) {
+        const response = await fetch(`${this.baseUrl}/by-product-category/${productCategory}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch stocks for category ${productCategory}`);
+        }
+        const data = await response.json();
+        return data.map(item => StockItem.fromUrl(item));
+    }
+
+    /**
      * Creates a new stock item.
      * @param {Object} stockItem The stock item object to create.
      * @returns {Promise<Object>} The created stock item.

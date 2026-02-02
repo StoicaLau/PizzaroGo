@@ -1,6 +1,8 @@
 package com.pizzaro_go.stock_item.service;
 
 import com.pizzaro_go.common.dtos.MessageResponse;
+import com.pizzaro_go.common.enums.Category;
+import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.exceptions.PGException;
 import com.pizzaro_go.common.exceptions.RepositoryException;
 import com.pizzaro_go.fileimport.excel.entities.StockItemFileData;
@@ -55,6 +57,41 @@ public class StockItemService {
             return this.stockItemMapper.toResponseList(this.stockItemRepository.findAll());
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when retrieve entire stock ->";
+            this.log.error(errorMsg, e);
+
+            errorMsg += e.getMessage();
+
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Retrieves stock items filtered by product category.
+     * If the product category is PIZZA, it returns items with category INGREDIENT.
+     * Otherwise, it returns items with category PRODUCT.
+     *
+     * @param productCategoryStr the product category as a string
+     * @return a list of StockItemResponse objects
+     * @throws PGException if a repository error occurs
+     */
+    public List<StockItemResponse> getByProductCategory(String productCategoryStr) throws PGException {
+        this.log.info("Retrieve stock items for product category: {}", productCategoryStr);
+        try {
+            ProductCategory productCategory = ProductCategory.valueOf(productCategoryStr.toUpperCase());
+            Category categoryToFilter;
+
+            if (productCategory == ProductCategory.PIZZA) {
+                categoryToFilter = Category.INGREDIENT;
+            } else {
+                categoryToFilter = Category.PRODUCT;
+            }
+
+            List<StockItemEntity> entities = this.stockItemRepository.findByCategory(categoryToFilter);
+            return this.stockItemMapper.toResponseList(entities);
+        } catch (IllegalArgumentException e) {
+            throw new PGException("Invalid product category: " + productCategoryStr);
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when retrieve stock items by category ->";
             this.log.error(errorMsg, e);
 
             errorMsg += e.getMessage();

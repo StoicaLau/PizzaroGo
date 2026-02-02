@@ -36,6 +36,18 @@ public class StockItemController {
     }
 
     /**
+     * Retrieves stock items filtered by product category.
+     *
+     * @param productCategory the product category to filter by
+     * @return a list of StockItemResponse objects
+     */
+    @GetMapping("/by-product-category/{productCategory}")
+    @Operation(summary = "Retrieves stock items by product category")
+    public List<StockItemResponse> getByProductCategory(@PathVariable("productCategory") String productCategory) {
+        return this.stockItemService.getByProductCategory(productCategory);
+    }
+
+    /**
      * Adds a new stock item.
      *
      * @param stockItemRequest the request containing new stock item details

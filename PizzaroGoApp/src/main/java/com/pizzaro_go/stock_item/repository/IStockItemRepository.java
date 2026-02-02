@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Repository interface for StockItem entities.
  *
@@ -16,4 +18,6 @@ public interface IStockItemRepository extends JpaRepository<StockItemEntity, Lon
     @Transactional
     @Query(value = "ALTER TABLE stock_items AUTO_INCREMENT = 1", nativeQuery = true)
     void resetIdSequence();
+
+    List<StockItemEntity> findByCategory(com.pizzaro_go.common.enums.Category category);
 }

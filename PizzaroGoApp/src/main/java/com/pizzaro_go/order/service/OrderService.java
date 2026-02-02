@@ -16,6 +16,9 @@ import com.pizzaro_go.oreder_item.repository.IOrderItemRepository;
 import com.pizzaro_go.oreder_item.service.OrderItemService;
 import com.pizzaro_go.user.entity.UserEntity;
 import com.pizzaro_go.user.repository.IUserRepository;
+import com.pizzaro_go.stock_item.repository.IStockItemRepository;
+import com.pizzaro_go.stock_item.entity.StockItemEntity;
+import com.pizzaro_go.product_stock_usage.entity.ProductStockUsageEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
@@ -52,6 +55,9 @@ public class OrderService {
     @Autowired
     private IOrderMapper orderMapper;
 
+    @Autowired
+    private IStockItemRepository stockItemRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -81,6 +87,7 @@ public class OrderService {
                     .orElseThrow(() -> new PGException("Order not found after initial save"));
 
             calculateOrderPrices(orderToSave);
+            updateStock(orderToSave, true);
 
             OrderEntity savedOrder = this.orderRepository.save(orderToSave);
 
@@ -133,6 +140,13 @@ public class OrderService {
         Long orderId = order.getId();
         this.log.info("Updating the order with id: {}", orderId);
         try {
+            OrderEntity existingOrder = this.orderRepository.findByIdWithOrderItems(orderId)
+                    .orElse(null);
+
+            if (existingOrder != null && existingOrder.getStatus() != Status.CANCELED) {
+                updateStock(existingOrder, false);
+            }
+
             OrderEntity orderToUpdate = this.toOrder(order);
             orderToUpdate = this.orderRepository.save(orderToUpdate);
 
@@ -146,6 +160,10 @@ public class OrderService {
 
             calculateOrderPrices(orderToUpdate);
 
+            if (orderToUpdate.getStatus() != Status.CANCELED) {
+                updateStock(orderToUpdate, true);
+            }
+
             OrderEntity updatedOrder = this.orderRepository.save(orderToUpdate);
 
             return new MessageResponse(updatedOrder.getId().toString());
@@ -158,7 +176,6 @@ public class OrderService {
 
             throw new PGException(errorMsg);
         }
-
     }
 
     /**
@@ -259,8 +276,15 @@ public class OrderService {
             OrderEntity order = this.orderRepository.findByIdWithOrderItems(orderId)
                     .orElseThrow(() -> new PGException("Order not found with id: " + orderId));
 
+            Status oldStatus = order.getStatus();
             Status newStatus = Status.valueOf(orderRequest.getStatus().toUpperCase());
             order.setStatus(newStatus);
+
+            if (newStatus == Status.CANCELED && oldStatus != Status.CANCELED) {
+                updateStock(order, false);
+            } else if (newStatus != Status.CANCELED && oldStatus == Status.CANCELED) {
+                updateStock(order, true);
+            }
 
             if (orderRequest.getEstimatedAt() != null) {
                 order.setEstimatedAt(orderRequest.getEstimatedAt());
@@ -376,6 +400,40 @@ public class OrderService {
         }
         order.setOrderPrice(orderPrice);
         order.setTotalPrice(orderPrice + (order.getDeliveryPrice() != null ? order.getDeliveryPrice() : 0.0));
+    }
+
+    /**
+     * Updates the stock level based on the items in an order.
+     *
+     * @param order    the order containing items
+     * @param subtract true to subtract from stock, false to add back
+     */
+    private void updateStock(OrderEntity order, boolean subtract) {
+        if (order.getOrderItems() == null)
+            return;
+
+        for (OrderItemEntity item : order.getOrderItems()) {
+            if (item.getMenuProduct() == null || item.getMenuProduct().getProductStockUsages() == null) {
+                continue;
+            }
+
+            for (ProductStockUsageEntity usage : item.getMenuProduct().getProductStockUsages()) {
+                StockItemEntity stockItem = usage.getStockItem();
+                if (stockItem != null) {
+                    double amount = item.getQuantity() * usage.getQuantityPerUnit();
+                    if (subtract) {
+                        stockItem.setQuantity(stockItem.getQuantity() - amount);
+                        this.log.info("Subtracting {} from stock item {} (New: {})", amount, stockItem.getName(),
+                                stockItem.getQuantity());
+                    } else {
+                        stockItem.setQuantity(stockItem.getQuantity() + amount);
+                        this.log.info("Restoring {} to stock item {} (New: {})", amount, stockItem.getName(),
+                                stockItem.getQuantity());
+                    }
+                    this.stockItemRepository.save(stockItem);
+                }
+            }
+        }
     }
 
 }

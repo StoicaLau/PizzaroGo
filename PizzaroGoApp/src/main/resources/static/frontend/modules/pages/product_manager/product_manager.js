@@ -20,7 +20,7 @@ export class ProductManager {
 
     async init() {
         this.bindEvents();
-        await Promise.all([this.loadProducts(), this.loadStockItems()]);
+        await this.loadProducts();
     }
 
     bindEvents() {
@@ -133,14 +133,6 @@ export class ProductManager {
         if (saucesEl) saucesEl.textContent = sauces;
     }
 
-    async loadStockItems() {
-        try {
-            this.stockItems = await stockItemService.getAll();
-            this.renderStockList();
-        } catch (e) {
-            this.showToast('error', 'Failed to load stock');
-        }
-    }
 
     renderTable() {
         const tbody = document.getElementById('product-table-body');
@@ -290,7 +282,7 @@ export class ProductManager {
         document.getElementById('product-modal').classList.add('hidden');
     }
 
-    goToStep(step) {
+    async goToStep(step) {
         document.getElementById('step-1').classList.toggle('hidden', step !== 1);
         document.getElementById('step-2').classList.toggle('hidden', step !== 2);
 
@@ -299,7 +291,16 @@ export class ProductManager {
             el.classList.toggle('active', parseInt(el.dataset.step) === step);
         });
 
-        if (step === 2) this.renderSelectedIngredients();
+        if (step === 2) {
+            const productCategory = document.getElementById('product-category').value;
+            try {
+                this.stockItems = await stockItemService.getByProductCategory(productCategory);
+                this.renderStockList();
+                this.renderSelectedIngredients();
+            } catch (e) {
+                this.showToast('error', 'Failed to load appropriate stock items');
+            }
+        }
     }
 
     async handleSave() {
