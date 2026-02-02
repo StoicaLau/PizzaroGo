@@ -141,9 +141,10 @@ public class OrderService {
         this.log.info("Updating the order with id: {}", orderId);
         try {
             OrderEntity existingOrder = this.orderRepository.findByIdWithOrderItems(orderId)
-                    .orElse(null);
+                    .orElseThrow(() -> new PGException("Order not found with id: " + orderId));
 
-            if (existingOrder != null && existingOrder.getStatus() != Status.CANCELED) {
+            // If the order was active, return the stock before applying changes
+            if (existingOrder.getStatus() != Status.CANCELED) {
                 updateStock(existingOrder, false);
             }
 
@@ -160,20 +161,17 @@ public class OrderService {
 
             calculateOrderPrices(orderToUpdate);
 
+            // If the updated order is still active, subtract the new stock requirements
             if (orderToUpdate.getStatus() != Status.CANCELED) {
                 updateStock(orderToUpdate, true);
             }
 
             OrderEntity updatedOrder = this.orderRepository.save(orderToUpdate);
-
             return new MessageResponse(updatedOrder.getId().toString());
 
         } catch (RepositoryException e) {
-            String errorMsg = "Error occurred when updating the order with id: " + orderId + " ->";
+            String errorMsg = "Error occurred when updating the order with id: " + orderId + " -> " + e.getMessage();
             this.log.error(errorMsg, e);
-
-            errorMsg += e.getMessage();
-
             throw new PGException(errorMsg);
         }
     }
@@ -188,9 +186,12 @@ public class OrderService {
     public MessageResponse deleteById(Long id) throws PGException {
         this.log.info("Delete the order with id: {}", id);
         try {
+            OrderEntity order = this.orderRepository.findByIdWithOrderItems(id)
+                    .orElseThrow(() -> new PGException("Order with id " + id + " not found!"));
 
-            if (!this.orderRepository.existsById(id)) {
-                throw new PGException("Order with id " + id + " not found!");
+            // Restore stock if the order was active
+            if (order.getStatus() != Status.CANCELED) {
+                updateStock(order, false);
             }
 
             this.orderRepository.deleteById(id);
@@ -199,10 +200,7 @@ public class OrderService {
         } catch (RepositoryException e) {
             String errorMsg = "Error occurred when deleting the order with id: " + id + " ->";
             this.log.error(errorMsg, e);
-
-            errorMsg += e.getMessage();
-
-            throw new PGException(errorMsg);
+            throw new PGException(errorMsg + e.getMessage());
         }
     }
 
@@ -280,10 +278,14 @@ public class OrderService {
             Status newStatus = Status.valueOf(orderRequest.getStatus().toUpperCase());
             order.setStatus(newStatus);
 
-            if (newStatus == Status.CANCELED && oldStatus != Status.CANCELED) {
-                updateStock(order, false);
-            } else if (newStatus != Status.CANCELED && oldStatus == Status.CANCELED) {
-                updateStock(order, true);
+            // ONLY handle stock if we transition TO or FROM CANCELED
+            // This prevents double subtraction when moving from PENDING to PROCESSING
+            if (oldStatus != newStatus) {
+                if (newStatus == Status.CANCELED) {
+                    updateStock(order, false); // Restore stock
+                } else if (oldStatus == Status.CANCELED) {
+                    updateStock(order, true); // Re-take stock
+                }
             }
 
             if (orderRequest.getEstimatedAt() != null) {
@@ -300,10 +302,9 @@ public class OrderService {
 
             return this.orderMapper.toResponse(savedOrder);
 
-        } catch (RepositoryException e) {
-            String errorMsg = "Error occurred when updating status for order with id: " + orderId + " -> ";
-            this.log.error(errorMsg, e);
-            errorMsg += e.getMessage();
+        } catch (RepositoryException | IllegalArgumentException e) {
+            String errorMsg = "Error updating status for order #" + orderId + ": " + e.getMessage();
+            this.log.error(errorMsg);
             throw new PGException(errorMsg);
         }
     }
@@ -413,23 +414,19 @@ public class OrderService {
             return;
 
         for (OrderItemEntity item : order.getOrderItems()) {
-            if (item.getMenuProduct() == null || item.getMenuProduct().getProductStockUsages() == null) {
+            if (item.getMenuProduct() == null || item.getMenuProduct().getProductStockUsages() == null)
                 continue;
-            }
 
             for (ProductStockUsageEntity usage : item.getMenuProduct().getProductStockUsages()) {
                 StockItemEntity stockItem = usage.getStockItem();
                 if (stockItem != null) {
                     double amount = item.getQuantity() * usage.getQuantityPerUnit();
-                    if (subtract) {
-                        stockItem.setQuantity(stockItem.getQuantity() - amount);
-                        this.log.info("Subtracting {} from stock item {} (New: {})", amount, stockItem.getName(),
-                                stockItem.getQuantity());
-                    } else {
-                        stockItem.setQuantity(stockItem.getQuantity() + amount);
-                        this.log.info("Restoring {} to stock item {} (New: {})", amount, stockItem.getName(),
-                                stockItem.getQuantity());
-                    }
+                    double currentQty = stockItem.getQuantity();
+                    stockItem.setQuantity(subtract ? currentQty - amount : currentQty + amount);
+
+                    this.log.info("{} {} units of {} (Order #{})",
+                            subtract ? "Subtracted" : "Restored", amount, stockItem.getName(), order.getId());
+
                     this.stockItemRepository.save(stockItem);
                 }
             }
