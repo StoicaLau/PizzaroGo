@@ -26,7 +26,7 @@ export function init() {
     if (closeDetailsBtn) closeDetailsBtn.addEventListener('click', closeDetailsModal);
 
     const deliverBtn = document.getElementById('deliver-order-btn');
-    if (deliverBtn) deliverBtn.addEventListener('click', markOrderDelivered);
+    if (deliverBtn) deliverBtn.addEventListener('click', markOrderReady);
 }
 
 // Global Toggle Function
@@ -404,17 +404,32 @@ function closeDetailsModal() {
     activeProcessingOrderId = null;
 }
 
-async function markOrderDelivered() {
+async function markOrderReady() {
     if (!activeProcessingOrderId) return;
 
     const payload = {
         id: activeProcessingOrderId,
-        status: "DELIVERED"
+        status: "READY"
     };
 
     try {
         await orderService.updateStatus(payload);
         closeDetailsModal();
+        loadOrders();
+    } catch (e) {
+        console.error(e);
+        alert("Failed to update status: " + e.message);
+    }
+}
+
+window.markOrderReadyById = async function (id) {
+    const payload = {
+        id: id,
+        status: "READY"
+    };
+
+    try {
+        await orderService.updateStatus(payload);
         loadOrders();
     } catch (e) {
         console.error(e);

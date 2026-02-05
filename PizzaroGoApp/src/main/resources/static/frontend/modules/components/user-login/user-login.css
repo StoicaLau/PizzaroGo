@@ -95,24 +95,39 @@
     transform: translateY(0);
 }
 
-/* Footer */
-.form-footer {
+/* Demo Credentials */
+.demo-credentials {
     margin-top: 24px;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #6b7280;
+    padding: 16px;
+    background: rgba(255, 107, 107, 0.05);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 107, 107, 0.3);
 }
 
-.form-footer a {
+.credential-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+.credential-item:last-child {
+    margin-bottom: 0;
+}
+
+.credential-item .role {
+    font-size: 0.75rem;
+    font-weight: 700;
     color: #FF6B6B;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
 }
 
-.form-footer a:hover {
-    color: #E05555;
-    text-decoration: underline;
+.credential-item .details {
+    font-size: 0.85rem;
+    color: #4b5563;
+    font-family: 'Courier New', Courier, monospace;
+    word-break: break-all;
 }
 
 /* Utility */

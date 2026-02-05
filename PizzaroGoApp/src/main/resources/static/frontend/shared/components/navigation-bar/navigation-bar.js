@@ -59,6 +59,7 @@
 
         const navItems = {
             home: document.getElementById('nav-home'),
+            admin: document.getElementById('nav-admin'),
             menu: document.getElementById('nav-menu'),
             orders: document.getElementById('nav-orders'),
             stocks: document.getElementById('nav-stocks'),
@@ -67,23 +68,32 @@
             clientOrders: document.getElementById('nav-client-orders')
         };
 
-        // Anyone can see: Home, Menu (Contact is also public by default)
+        // Anyone can see: Home, Menu
         if (navItems.home) navItems.home.style.display = '';
         if (navItems.menu) navItems.menu.style.display = '';
 
         // Customer and Employee can see: Home, Menu, Orders
-        // Admin can see: Home, Menu, Orders, Stock, Products, Users
+        // Admin can see: Home, Menu, Orders, Dashboard (and individual mgmt links if desired)
 
         const isSelfService = (role === 'CUSTOMER' || role === 'EMPLOYEE' || role === 'ADMIN');
         const isAdmin = (role === 'ADMIN');
 
         if (navItems.orders) navItems.orders.style.display = isSelfService ? '' : 'none';
-        if (navItems.stocks) navItems.stocks.style.display = isAdmin ? '' : 'none';
-        if (navItems.products) navItems.products.style.display = isAdmin ? '' : 'none';
 
-        if (navItems.users) navItems.users.style.display = isAdmin ? '' : 'none';
+        // Admin specific
+        // Show Admin Dashboard link
+        if (navItems.admin) navItems.admin.style.display = isAdmin ? '' : 'none';
 
-        // Client Orders for Employee (and Admin)
+        // Hide direct management links from Navbar (accessed via Dashboard)
+        if (navItems.stocks) navItems.stocks.style.display = 'none';
+        if (navItems.products) navItems.products.style.display = 'none';
+        if (navItems.users) navItems.users.style.display = 'none';
+
+        // Client Orders for Employee (Admin sees via Dashboard) - wait user said NO kitchen orders for admin?
+        // "fara kitchen orders pt admin" -> "no kitchen orders for admin"
+        // So hide it completely for admin even in dashboard? Use said "remove kitchen orders for admin".
+        // I removed it from dashboard HTML.
+        // And from navbar logic?
         if (navItems.clientOrders) navItems.clientOrders.style.display = (role === 'EMPLOYEE') ? '' : 'none';
 
         // Legacy order-btn visibility if present in some pages

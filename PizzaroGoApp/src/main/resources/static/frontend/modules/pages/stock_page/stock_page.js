@@ -154,12 +154,20 @@ export class StockPage {
 
         filteredStocks.forEach(stock => {
             const tr = document.createElement('tr');
+
+            // Helper to format uppercase strings to Capitalized (e.g. INGREDIENT -> Ingredient)
+            const formatCapitalized = (str) => {
+                if (!str) return '';
+                const lower = str.toLowerCase();
+                return lower.charAt(0).toUpperCase() + lower.slice(1);
+            };
+
             tr.innerHTML = `
                 <td>${stock.id}</td>
                 <td>${stock.name}</td>
-                <td>${stock.category}</td>
+                <td>${formatCapitalized(stock.category)}</td>
                 <td>${stock.quantity}</td>
-                <td>${stock.unit}</td>
+                <td>${formatCapitalized(stock.unit)}</td>
                 <td>
                     <button class="action-btn edit-btn" data-id="${stock.id}"><i class="fas fa-pencil-alt"></i></button>
                     <button class="action-btn delete-btn" data-id="${stock.id}"><i class="fas fa-trash"></i></button>
@@ -275,9 +283,9 @@ export class StockPage {
             title.textContent = 'Edit Item';
             document.getElementById('stock-id').value = stock.id;
             document.getElementById('stock-name').value = stock.name;
-            document.getElementById('stock-category').value = stock.category;
+            document.getElementById('stock-category').value = (stock.category || '').toUpperCase();
             document.getElementById('stock-quantity').value = stock.quantity;
-            document.getElementById('stock-unit').value = stock.unit;
+            document.getElementById('stock-unit').value = (stock.unit || '').toUpperCase();
         } else {
             title.textContent = 'Add Item';
             form.reset();

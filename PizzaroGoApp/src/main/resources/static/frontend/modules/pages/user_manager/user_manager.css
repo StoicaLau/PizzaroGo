@@ -1,15 +1,65 @@
 .user-manager-container {
-    padding: 2rem;
+    padding: 1rem;
     color: #f0f0f0;
-    max-width: 1200px;
+    max-width: 98%;
     margin: 0 auto;
     font-family: 'Inter', sans-serif;
+}
+
+/* Segmented Navigation */
+.nav-segment-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 12px;
+    display: flex;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-segment {
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #888;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-segment:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-segment.active {
+    background: linear-gradient(135deg, #ffaa00, #ff7b00);
+    color: #111;
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.2);
+    border-color: transparent;
+}
+
+.nav-segment.active i {
+    color: #111;
 }
 
 .user-header {
     margin-bottom: 2rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-nav-buttons {
+    display: flex;
+    gap: 15px;
 }
 
 .user-header h1 {
@@ -30,6 +80,11 @@
     margin-bottom: 2rem;
     gap: 2rem;
     flex-wrap: wrap;
+}
+
+.toolbar-left {
+    display: flex;
+    gap: 15px;
 }
 
 .search-container {
@@ -91,15 +146,17 @@
 
 .user-table th,
 .user-table td {
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1.2rem;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 1.3rem;
+    /* Significantly larger */
 }
 
 .user-table th {
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 1.1rem;
     letter-spacing: 0.05em;
     color: #aaa;
     border-bottom: 2px solid rgba(255, 170, 0, 0.5);

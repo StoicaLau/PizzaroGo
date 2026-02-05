@@ -29,7 +29,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
+//TODO verificat daca sunt in stock sau nu daca e la limita sau daca e mai put4in , aici putem face la get all products
+//TODO sa pui ResponseEntity
+//TODO sesiune la autentificare
+//TODO CORS
 /**
  * Service layer for stockItem operations.
  */

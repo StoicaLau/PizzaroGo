@@ -72,8 +72,14 @@
 
             if (this.cartBtn) {
                 this.cartBtn.onclick = () => {
-                    if (window.navigate) {
-                        window.navigate('/menu'); // Take them back to menu to finish order
+                    const currentPath = window.location.hash || window.location.pathname;
+                    if (currentPath.includes('menu')) {
+                        // We are already on menu page, just open it (menu.js will handle its own listener, but we can trigger it)
+                        const openCartEvent = new CustomEvent('open-menu-cart');
+                        window.dispatchEvent(openCartEvent);
+                    } else if (window.navigate) {
+                        localStorage.setItem('open_cart_on_load', 'true');
+                        window.navigate('/menu');
                     }
                 };
             }
@@ -136,8 +142,9 @@
         logout() {
             localStorage.removeItem('user');
             localStorage.removeItem('token');
-            // Also clear cart on logout? User might prefer it or not. 
-            // localStorage.removeItem('pizzarogo_cart'); 
+            // Clear cart on logout
+            localStorage.removeItem('pizzarogo_cart');
+            window.dispatchEvent(new CustomEvent('cart-change', { detail: [] }));
             window.dispatchEvent(new CustomEvent('auth-change'));
             if (window.navigate) window.navigate('/');
         }

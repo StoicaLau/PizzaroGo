@@ -15,29 +15,22 @@ async function loadOrders() {
     }
 
     try {
-        // Fetch all active orders for the manager/user
-        // Requirement implies manager usage: if user is admin, we might want ALL,
-        // but for now stick to current user (or list all if preferred)
         let orders = await orderService.getByUserId(user.id);
 
-        // Sorting Logic:
-        // Prio 1: NOT READY && NOT DELIVERED/CANCELLED
-        // Prio 2: READY
-        // Prio 3: DELIVERED/CANCELLED
         const getPriority = (status) => {
             const s = status ? status.toUpperCase() : 'PENDING';
             if (s === 'PENDING') return 1;
             if (s === 'PROCESSING') return 2;
             if (s === 'READY') return 3;
             if (s === 'DELIVERED') return 4;
-            return 5; // Cancelled/Other
+            return 5;
         };
 
         orders.sort((a, b) => {
             const pA = getPriority(a.status);
             const pB = getPriority(b.status);
             if (pA !== pB) return pA - pB;
-            return b.id - a.id; // Newest first within same priority
+            return b.id - a.id;
         });
 
         const totalCount = document.getElementById('total-orders-count');
@@ -55,7 +48,13 @@ function renderOrders(orders) {
     list.innerHTML = '';
 
     if (orders.length === 0) {
-        list.innerHTML = '<p class="no-orders-msg">No orders found.</p>';
+        list.innerHTML = `
+            <div class="loading-spinner">
+                <i class="fas fa-pizza-slice" style="font-size: 3rem; color: #333; margin-bottom: 20px;"></i>
+                <p>You haven't placed any orders yet.</p>
+                <button class="btn-primary-sm" style="max-width: 200px; margin: 20px auto;" onclick="navigate('/menu')">Go to Menu</button>
+            </div>
+        `;
         return;
     }
 
@@ -65,31 +64,23 @@ function renderOrders(orders) {
         div.id = `order-card-${order.id}`;
 
         const status = (order.status || 'PENDING').toUpperCase();
-        const date = order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Just now';
+        const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Today';
+        const time = order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
         let itemsHtml = '';
-        const maxInitialItems = 2; // Show only 2 items initially for uniform height
+        const maxInitialItems = 2;
         const hasMoreItems = order.orderItems && order.orderItems.length > maxInitialItems;
 
         if (order.orderItems) {
             itemsHtml = order.orderItems.map((item, index) => {
-                const itemStatus = (item.status || 'PENDING').toUpperCase();
                 const isHidden = index >= maxInitialItems ? 'style="display:none;" data-expandable="true"' : '';
                 return `
-                    <div class="order-item-row" ${isHidden}>
-                        <div class="item-main">
-                            <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                    <div>
-                                        <span class="item-qty">${item.quantity}x</span>
-                                        <span class="item-name">${item.menuProductName}</span>
-                                    </div>
-                                    <span class="status-badge status-${itemStatus.toLowerCase()}" style="font-size: 0.65rem; padding: 4px 10px;">${itemStatus}</span>
-                                </div>
-                                <div class="item-desc">${item.menuProductDescription || ''}</div>
-                            </div>
-                            <span class="item-price" style="margin-left: 15px;">${(item.totalPrice || 0).toFixed(2)} RON</span>
+                    <div class="order-item-chip" ${isHidden}>
+                        <div class="item-head">
+                            <span class="item-title">${item.menuProductName}</span>
+                            <span class="item-qty">x${item.quantity}</span>
                         </div>
+                        ${item.menuProductDescription ? `<div class="item-description">${item.menuProductDescription}</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -97,12 +88,15 @@ function renderOrders(orders) {
 
         div.innerHTML = `
             <div class="order-header">
-                <div class="order-id">Order #${order.id} <span>${date}</span></div>
+                <div class="order-id-group">
+                    <span class="order-id">#${order.id}</span>
+                    <span class="order-date">${date} • ${time}</span>
+                </div>
                 <div class="status-badge status-${status.toLowerCase()}">${status}</div>
             </div>
             
-            <div class="order-items-container">
-                <div class="order-items">
+            <div class="order-items-wrapper">
+                <div class="order-item-list">
                     ${itemsHtml}
                 </div>
             </div>
@@ -114,24 +108,28 @@ function renderOrders(orders) {
             ` : ''}
 
             <div class="order-footer">
-                <div class="total-row">
-                    <div class="total-label">
-                         <span>Subtotal: ${(order.orderPrice || 0).toFixed(2)}</span>
-                         <span>Delivery: ${(order.deliveryPrice || 0).toFixed(2)}</span>
-                    </div>
-                    <span class="total-value">${(order.totalPrice || 0).toFixed(2)} RON</span>
+                <div class="price-summary">
+                    <span class="total-label">Subtotal inkl. delivery</span>
+                    <span class="total-amount">${(order.totalPrice || 0).toFixed(2)} RON</span>
                 </div>
-                <div class="order-main-actions">
-                    ${status === 'READY' ?
-                `<button class="btn-action btn-deliver" onclick="window.updateOrderStatusAction(${order.id}, 'DELIVERED')">
-                            <i class="fas fa-check-double"></i> DELIVER ORDER
-                        </button>`
-                : ''}
-                    ${status === 'PENDING' ?
-                `<button class="btn-action btn-cancel-item" onclick="window.cancelOrder(${order.id})">
-                            <i class="fas fa-times"></i> CANCEL ORDER
-                        </button>`
-                : ''}
+                <div class="card-actions">
+                    ${status === 'READY' ? `
+                        <button class="btn-primary-sm" onclick="window.updateOrderStatusAction(${order.id}, 'DELIVERED')" style="flex: 1; justify-content: center; background: #2ecc71;">
+                            <i class="fas fa-check-circle"></i> Mark as Delivered
+                        </button>
+                    ` : status === 'PENDING' ? `
+                        <button class="btn-danger-sm" onclick="window.cancelOrder(${order.id})" style="flex: 1; justify-content: center;">
+                            <i class="fas fa-times-circle"></i> Cancel Order
+                        </button>
+                    ` : (status === 'DELIVERED' || status === 'CANCELED') ? `
+                        <button class="btn-primary-sm" onclick="window.reorder(${order.id})" style="flex: 1;">
+                            <i class="fas fa-redo"></i> Reorder Now
+                        </button>
+                    ` : `
+                        <div class="status-info" style="font-size: 0.85rem; color: #aaa; text-align: center; width: 100%;">
+                            <i class="fas fa-spinner fa-spin"></i> Preparation in progress...
+                        </div>
+                    `}
                 </div>
             </div>
         `;
@@ -139,12 +137,76 @@ function renderOrders(orders) {
     });
 }
 
+function showPremiumConfirm(title, body, onApprove) {
+    const modal = document.getElementById('premium-confirm-modal');
+    document.getElementById('confirm-modal-title').textContent = title;
+    document.getElementById('confirm-modal-body').textContent = body;
+
+    const approveBtn = document.getElementById('confirm-modal-approve');
+    const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+    approveBtn.onclick = () => {
+        modal.classList.add('hidden');
+        onApprove();
+    };
+
+    cancelBtn.onclick = () => {
+        modal.classList.add('hidden');
+    };
+
+    modal.classList.remove('hidden');
+}
+
+function showPremiumFeedback(title, body) {
+    const modal = document.getElementById('premium-feedback-modal');
+    document.getElementById('feedback-modal-title').textContent = title;
+    document.getElementById('feedback-modal-body').textContent = body;
+    modal.classList.remove('hidden');
+}
+
+window.reorder = async (orderId) => {
+    showPremiumConfirm(
+        "Reorder Items?",
+        "Do you want to add these items to a new order and place it now?",
+        async () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                const originalOrder = await orderService.getById(orderId);
+
+                if (!originalOrder || !originalOrder.orderItems) {
+                    throw new Error("Could not find original order details.");
+                }
+
+                const newOrderData = {
+                    userId: user.id,
+                    status: 'PENDING',
+                    deliveryPrice: originalOrder.deliveryPrice || 0,
+                    orderPrice: originalOrder.orderPrice,
+                    totalPrice: originalOrder.totalPrice,
+                    orderItems: originalOrder.orderItems.map(item => ({
+                        menuProductId: item.menuProductId,
+                        quantity: item.quantity,
+                        totalPrice: item.totalPrice,
+                        status: 'PENDING'
+                    }))
+                };
+
+                await orderService.create(newOrderData);
+                showPremiumFeedback("Awesome!", "🍕 Your reorder has been placed and is now in the oven.");
+                await loadOrders();
+            } catch (e) {
+                console.error("Reorder failed:", e);
+                alert("Failed to reorder: " + e.message);
+            }
+        }
+    );
+};
+
 window.toggleExtended = (orderId) => {
     const card = document.getElementById(`order-card-${orderId}`);
     const btn = document.getElementById(`extend-btn-${orderId}`);
     const isExtended = card.classList.toggle('extended');
 
-    // Toggle visibility of extra items
     const extraItems = card.querySelectorAll('[data-expandable="true"]');
     extraItems.forEach(item => {
         item.style.display = isExtended ? 'block' : 'none';
@@ -167,11 +229,17 @@ window.updateOrderStatusAction = async (orderId, status) => {
 };
 
 window.cancelOrder = async (orderId) => {
-    if (!confirm(`Cancel order #${orderId}?`)) return;
-    try {
-        await orderService.deleteById(orderId);
-        await loadOrders();
-    } catch (error) {
-        alert("Error: " + error.message);
-    }
+    showPremiumConfirm(
+        "Cancel Order?",
+        `Are you sure you want to cancel order #${orderId}? This cannot be undone.`,
+        async () => {
+            try {
+                await orderService.deleteById(orderId);
+                showPremiumFeedback("Cancelled", "🗑️ Order cancelled successfully.");
+                await loadOrders();
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        }
+    );
 };

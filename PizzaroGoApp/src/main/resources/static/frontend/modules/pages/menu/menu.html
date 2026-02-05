@@ -14,6 +14,22 @@
         </aside>
 
         <section class="products-section">
+            <div class="menu-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="menu-search" placeholder="Search for food...">
+                </div>
+                <div class="sort-box">
+                    <label for="menu-sort">Sort by:</label>
+                    <select id="menu-sort">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="price-asc">Price (Low to High)</option>
+                        <option value="price-desc">Price (High to Low)</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="products-grid" class="products-grid">
                 <!-- Products will be loaded here -->
                 <div class="loading-spinner">Loading...</div>
@@ -34,7 +50,7 @@
                     <span>Total:</span>
                     <span id="cart-total-amount">$0.00</span>
                 </div>
-                <button class="btn-primary full-width" id="finish-order-btn">Finish Order</button>
+                <button class="btn-primary full-width" id="finish-order-btn">Order Now</button>
             </div>
         </aside>
     </div>
@@ -42,10 +58,20 @@
 
 <!-- Success Modal -->
 <div id="order-success-modal" class="modal hidden">
-    <div class="modal-content text-center">
-        <div class="success-icon">✓</div>
-        <h2>Order Placed!</h2>
-        <p>Your delicious food is being prepared.</p>
-        <button class="btn-primary" onclick="navigate('/home')">Back to Home</button>
+    <div class="modal-backdrop"></div>
+    <div class="modal-content text-center premium-modal">
+        <div class="success-animation">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+            </div>
+        </div>
+        <h2 class="modal-title">Order Received!</h2>
+        <p class="modal-subtitle">✨ Your pizza is now in the oven and will be ready soon.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="navigate('/orders')">View My Orders</button>
+        </div>
     </div>
 </div>

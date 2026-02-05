@@ -4,12 +4,28 @@ import { Cart } from '../../../shared/utils/Cart.js';
 
 let allProducts = [];
 let activeCategory = 'ALL';
+let searchFilter = '';
+let sortOption = 'name-asc';
 
 export async function init() {
     console.log("Initializing Menu Page");
     setupEventListeners();
     await loadMenu();
     updateCartUI();
+
+    // Hide cart if not authenticated
+    if (!window.isAuthenticated()) {
+        const cart = document.getElementById('cart-panel');
+        if (cart) cart.style.display = 'none';
+        const container = document.querySelector('.menu-container');
+        if (container) container.classList.remove('cart-open');
+    }
+
+    // Check if we should open the cart (e.g. redirected from other page)
+    if (localStorage.getItem('open_cart_on_load') === 'true') {
+        localStorage.removeItem('open_cart_on_load');
+        openCart();
+    }
 }
 
 async function loadMenu() {
@@ -45,14 +61,34 @@ function renderCategories() {
 
 function renderProducts() {
     const grid = document.getElementById('products-grid');
+    if (!grid) return;
     grid.innerHTML = '';
 
-    const filtered = activeCategory === 'ALL'
-        ? allProducts
-        : allProducts.filter(p => p.productCategory === activeCategory);
+    // Filter
+    let filtered = allProducts;
+    if (activeCategory !== 'ALL') {
+        filtered = filtered.filter(p => p.productCategory === activeCategory);
+    }
+    if (searchFilter) {
+        filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+            (p.description && p.description.toLowerCase().includes(searchFilter.toLowerCase()))
+        );
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+        switch (sortOption) {
+            case 'name-asc': return a.name.localeCompare(b.name);
+            case 'name-desc': return b.name.localeCompare(a.name);
+            case 'price-asc': return a.price - b.price;
+            case 'price-desc': return b.price - a.price;
+            default: return 0;
+        }
+    });
 
     if (filtered.length === 0) {
-        grid.innerHTML = '<p class="text-center">No products found in this category.</p>';
+        grid.innerHTML = '<div class="no-results"><h3>No items found</h3><p>Try a different category or search term.</p></div>';
         return;
     }
 
@@ -102,6 +138,23 @@ function filterByCategory(category) {
 }
 
 function setupEventListeners() {
+    // Search & Sort
+    const searchInput = document.getElementById('menu-search');
+    if (searchInput) {
+        searchInput.oninput = (e) => {
+            searchFilter = e.target.value;
+            renderProducts();
+        };
+    }
+
+    const sortSelect = document.getElementById('menu-sort');
+    if (sortSelect) {
+        sortSelect.onchange = (e) => {
+            sortOption = e.target.value;
+            renderProducts();
+        };
+    }
+
     const allBtn = document.querySelector('[data-category="ALL"]');
     if (allBtn) allBtn.onclick = () => filterByCategory('ALL');
 
@@ -112,25 +165,32 @@ function setupEventListeners() {
     if (finishBtn) finishBtn.onclick = handleFinishOrder;
 
     // Listen to cart changes
+    window.removeEventListener('cart-change', updateCartUI);
     window.addEventListener('cart-change', updateCartUI);
 
-    // Click on nav badge can open cart
-    const navCartBtn = document.getElementById('hud-cart-btn');
-    if (navCartBtn) {
-        navCartBtn.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openCart();
-        };
-    }
+    // Listen for global open cart requests
+    window.addEventListener('open-menu-cart', openCart);
 }
 
 function openCart() {
-    document.getElementById('cart-panel').classList.add('open');
+    if (!window.isAuthenticated()) {
+        window.dispatchEvent(new CustomEvent('open-auth-modal'));
+        return;
+    }
+    const cart = document.getElementById('cart-panel');
+    const container = document.querySelector('.menu-container');
+    if (cart) {
+        cart.style.display = 'flex';
+        cart.classList.add('open');
+    }
+    if (container) container.classList.add('cart-open');
 }
 
 function closeCart() {
-    document.getElementById('cart-panel').classList.remove('open');
+    const cart = document.getElementById('cart-panel');
+    const container = document.querySelector('.menu-container');
+    if (cart) cart.classList.remove('open');
+    if (container) container.classList.remove('cart-open');
 }
 
 function updateCartUI() {

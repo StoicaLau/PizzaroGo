@@ -36,13 +36,15 @@ const protectedPaths = {
     "/stocks": ["ADMIN"],
     "/products": ["ADMIN"],
     "/users": ["ADMIN"],
-    "/client-orders": ["EMPLOYEE"]
+    "/client-orders": ["EMPLOYEE", "ADMIN"],
+    "/admin": ["ADMIN"]
 };
 
 function navigate(path) {
     const allowedRoles = protectedPaths[path];
     if (allowedRoles) {
         const authed = isAuthenticated();
+        // ... (rest of navigate function)
         const role = getUserRole();
 
         if (!authed || !allowedRoles.includes(role)) {
@@ -112,6 +114,9 @@ async function loadPage(path) {
             break;
         case "/client-orders":
             page = "/frontend/modules/pages/client_orders/client_orders.html";
+            break;
+        case "/admin":
+            page = "/frontend/modules/pages/admin_dashboard/admin_dashboard.html";
             break;
         default:
             page = "/frontend/modules/pages/home/home.html";

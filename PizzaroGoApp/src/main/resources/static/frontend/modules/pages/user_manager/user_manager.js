@@ -1,5 +1,10 @@
 import { userService } from '../../../domains/user/UserService.js';
 
+// Ensure navigate is available (it should be global from app.js)
+if (!window.navigate) {
+    console.error("Navigation function not found!");
+}
+
 export class UserManager {
     constructor() {
         this.users = [];

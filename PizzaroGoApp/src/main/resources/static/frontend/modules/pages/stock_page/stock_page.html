@@ -1,6 +1,17 @@
 <div class="stock-page-container">
     <div class="stock-header">
         <h1>Stock Management</h1>
+        <div class="nav-segment-container">
+            <button class="nav-segment" onclick="navigate('/users')">
+                <i class="fas fa-users-gear"></i> Users
+            </button>
+            <button class="nav-segment active">
+                <i class="fas fa-boxes-stacked"></i> Stock
+            </button>
+            <button class="nav-segment" onclick="navigate('/products')">
+                <i class="fas fa-pizza-slice"></i> Products
+            </button>
+        </div>
     </div>
 
     <div class="stock-toolbar">
@@ -75,11 +86,9 @@
                 <div class="form-group">
                     <label for="stock-unit">Unit</label>
                     <select id="stock-unit" required>
-                        <option value="KG">KG</option>
-                        <option value="G">G</option>
-                        <option value="PIECE">PIECE</option>
+                        <option value="KG">Kg</option>
+                        <option value="PIECE">Piece</option>
                         <option value="L">L</option>
-                        <option value="ML">ML</option>
                     </select>
                 </div>
 

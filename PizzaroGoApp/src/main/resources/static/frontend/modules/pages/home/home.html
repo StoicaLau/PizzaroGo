@@ -1,16 +1,62 @@
 <section class="home-hero">
+    <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>Fresh Pizza.<br>Delivered Fast.</h1>
-        <p>Experience the best pizza in town with just one click.</p>
+        <h1 class="text-gradient-gold">Craving the Perfect<br>Slice?</h1>
+        <p class="hero-description">Order fresh, hot, and delicious pizza directly from your device. Fast delivery,
+            premium ingredients, and unforgettable taste.</p>
 
         <div class="hero-buttons">
-            <button class="primary">Show Menu</button>
+            <button class="btn-primary-lg" onclick="navigate('/menu')">
+                <i class="fas fa-pizza-slice"></i> Order Now
+            </button>
+            <button class="btn-secondary-lg"
+                onclick="document.querySelector('.how-it-works').scrollIntoView({behavior: 'smooth'})">
+                <i class="fas fa-info-circle"></i> How it Works
+            </button>
         </div>
     </div>
 </section>
 
-<section class="home-features">
-    <div class="feature">🍕<h3>Top Quality</h3><p>Fresh ingredients daily</p></div>
-    <div class="feature">🚀<h3>Fast Delivery</h3><p>Under 30 minutes</p></div>
-    <div class="feature">📱<h3>Easy Ordering</h3><p>Simple & intuitive</p></div>
+<section class="how-it-works">
+    <div class="section-header">
+        <h2>Simple as 1, 2, 3</h2>
+        <p>Your favorite pizza is just a few taps away.</p>
+    </div>
+
+    <div class="steps-grid">
+        <div class="step-card glass-panel">
+            <div class="step-icon">
+                <i class="fas fa-mobile-screen-button"></i>
+                <span class="step-number">1</span>
+            </div>
+            <h3>Choose Your Pizza</h3>
+            <p>Browse our extensive menu of premium pizzas, drinks, and sauces.</p>
+        </div>
+
+        <div class="step-card glass-panel">
+            <div class="step-icon">
+                <i class="fas fa-fire-burner"></i>
+                <span class="step-number">2</span>
+            </div>
+            <h3>We Cook It Fresh</h3>
+            <p>Our expert chefs prepare your order with the finest ingredients.</p>
+        </div>
+
+        <div class="step-card glass-panel">
+            <div class="step-icon">
+                <i class="fas fa-motorcycle"></i>
+                <span class="step-number">3</span>
+            </div>
+            <h3>Fast Delivery</h3>
+            <p>We deliver it hot to your doorstep quickly and safely.</p>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section glass-panel">
+    <div class="cta-content">
+        <h2>Ready to Eat?</h2>
+        <p>Don't wait! Join thousands of happy customers today.</p>
+        <button class="btn-primary-lg" onclick="navigate('/menu')">Check Our Menu</button>
+    </div>
 </section>

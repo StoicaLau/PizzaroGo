@@ -1,38 +1,61 @@
-<link rel="stylesheet" href="./frontend/modules/pages/orders/orders_compact.css">
 <div class="orders-container">
+    <div class="orders-overlay"></div>
     <header class="orders-header">
-        <h1>My Orders</h1>
-        <p>Track your past and current delicious moments.</p>
+        <span class="header-badge">📦 Order History</span>
+        <h1 class="text-gradient-pizza">Your Delicious<br>Journey</h1>
+        <p>Track your orders from oven to doorstep.</p>
     </header>
 
     <div class="orders-content">
-        <div class="orders-filters">
-            <div class="filter-stats">
-                <span class="stat">Total orders: <b id="total-orders-count">0</b></span>
+        <div class="orders-toolbar">
+            <div class="filter-stats glass-panel">
+                <i class="fas fa-receipt"></i>
+                <span>Total Orders: <b id="total-orders-count">0</b></span>
             </div>
         </div>
+
         <div id="orders-list" class="orders-compact-list">
-            <div class="loading-spinner">Loading orders...</div>
+            <div class="loading-spinner">
+                <div class="spinner-icon"></div>
+                <span>Fetching your orders...</span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Order Modal -->
-<div id="edit-order-modal" class="modal hidden">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Edit Order #<span id="edit-order-id-display"></span></h2>
-            <button class="close-modal" id="close-edit-modal">&times;</button>
+<!-- Premium Confirmation Modal -->
+<div id="premium-confirm-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content premium-modal">
+        <div class="modal-icon-container warning">
+            <i class="fas fa-exclamation-triangle"></i>
         </div>
-        <div id="edit-order-items-list" class="edit-items-list">
-            <!-- Items for editing will be loaded here -->
+        <h2 id="confirm-modal-title" class="modal-title">Are you sure?</h2>
+        <p id="confirm-modal-body" class="modal-subtitle">Do you really want to proceed with this action?</p>
+        <div class="modal-actions-horizontal">
+            <button class="btn-secondary" id="confirm-modal-cancel">No, Go Back</button>
+            <button class="btn-primary" id="confirm-modal-approve">Yes, Proceed</button>
         </div>
-        <div class="modal-footer">
-            <div class="edit-total">
-                <span>Total: </span>
-                <span id="edit-order-total-display">0.00 RON</span>
+    </div>
+</div>
+
+<!-- Premium Feedback Modal -->
+<div id="premium-feedback-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content premium-modal">
+        <div class="success-animation">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
             </div>
-            <button class="btn-primary" id="save-order-btn">Save Changes</button>
+        </div>
+        <h2 id="feedback-modal-title" class="modal-title">Success!</h2>
+        <p id="feedback-modal-body" class="modal-subtitle">Action completed successfully.</p>
+        <div class="modal-actions">
+            <button class="btn-primary"
+                onclick="document.getElementById('premium-feedback-modal').classList.add('hidden')">Awesome</button>
         </div>
     </div>
 </div>

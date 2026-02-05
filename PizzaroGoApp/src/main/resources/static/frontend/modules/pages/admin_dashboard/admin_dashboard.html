@@ -1,0 +1,44 @@
+<div class="admin-dashboard-container">
+    <header class="dashboard-header">
+        <h1 class="text-gradient">Admin Dashboard</h1>
+        <p>Manage your restaurant's operations from one central hub.</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- User Management Card -->
+        <div class="dashboard-card glass-panel" onclick="navigate('/users')">
+            <div class="card-icon">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div class="card-content">
+                <h3>User Management</h3>
+                <p>Manage customer accounts, roles, and permissions.</p>
+                <button class="btn-modern-sm">Manage Users <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <!-- Stock Management Card -->
+        <div class="dashboard-card glass-panel" onclick="navigate('/stocks')">
+            <div class="card-icon">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div class="card-content">
+                <h3>Stock Management</h3>
+                <p>Track inventory, update quantities, and manage suppliers.</p>
+                <button class="btn-modern-sm">Manage Stocks <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <!-- Product Management Card -->
+        <div class="dashboard-card glass-panel" onclick="navigate('/products')">
+            <div class="card-icon">
+                <i class="fa-solid fa-pizza-slice"></i>
+            </div>
+            <div class="card-content">
+                <h3>Product Management</h3>
+                <p>Update menu items, prices, and product details.</p>
+                <button class="btn-modern-sm">Manage Products <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
