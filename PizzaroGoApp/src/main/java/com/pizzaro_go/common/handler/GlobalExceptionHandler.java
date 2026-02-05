@@ -5,8 +5,8 @@ import com.pizzaro_go.common.exceptions.PGException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
@@ -20,12 +20,13 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles custom PGException. These are usually business logic errors.
-     * The original message is returned to the frontend.
+     * The original message is returned to the frontend wrapped in a
+     * MessageResponse.
      */
     @ExceptionHandler(PGException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public MessageResponse handlePGException(PGException ex) {
+    public ResponseEntity<MessageResponse> handlePGException(PGException ex) {
         log.error("PGException caught: {}", ex.getMessage(), ex);
-        return new MessageResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new MessageResponse(ex.getMessage()));
     }
 }

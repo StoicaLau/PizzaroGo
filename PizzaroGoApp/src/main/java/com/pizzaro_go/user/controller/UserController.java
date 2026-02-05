@@ -5,8 +5,9 @@ import com.pizzaro_go.user.dtos.UserRequest;
 import com.pizzaro_go.user.dtos.UserResponse;
 import com.pizzaro_go.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,58 +26,58 @@ public class UserController {
      * Registers a new user.
      *
      * @param userRequest the registration details
-     * @return MessageResponse with a message
+     * @return a ResponseEntity with MessageResponse
      */
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
-    public MessageResponse register(@RequestBody UserRequest userRequest) {
-        return this.userService.register(userRequest);
+    public ResponseEntity<MessageResponse> register(@RequestBody UserRequest userRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.register(userRequest));
     }
 
     /**
      * Authenticates a user.
      *
      * @param loginRequest the login credentials
-     * @return UserResponse with user details
+     * @return a ResponseEntity with UserResponse
      */
     @PostMapping("/login")
     @Operation(summary = "Login a user")
-    public UserResponse login(@RequestBody UserRequest loginRequest) {
-        return this.userService.login(loginRequest);
+    public ResponseEntity<UserResponse> login(@RequestBody UserRequest loginRequest) {
+        return ResponseEntity.ok(this.userService.login(loginRequest));
     }
 
     /**
      * Retrieves a user by email.
      *
      * @param email the user's email address
-     * @return UserResponse with user details
+     * @return a ResponseEntity with UserResponse
      */
     @GetMapping("/{email}")
     @Operation(summary = "Retrieve a user by email")
-    public UserResponse getByEmail(@PathParam("email") String email) {
-        return this.userService.getByEmail(email);
+    public ResponseEntity<UserResponse> getByEmail(@PathVariable("email") String email) {
+        return ResponseEntity.ok(this.userService.getByEmail(email));
     }
 
     /**
      * Retrieves all users.
      *
-     * @return list of UserResponse objects
+     * @return a ResponseEntity with a list of UserResponse objects
      */
     @GetMapping("")
     @Operation(summary = "Retrieve all users")
-    public List<UserResponse> getAll() {
-        return this.userService.getAll();
+    public ResponseEntity<List<UserResponse>> getAll() {
+        return ResponseEntity.ok(this.userService.getAll());
     }
 
     /**
      * Updates the status (Role) of an existing user.
      *
      * @param userRequest the request containing the user ID and the new role
-     * @return MessageResponse with the result
+     * @return a ResponseEntity with MessageResponse
      */
     @PatchMapping("/status")
     @Operation(summary = "Update user status")
-    public MessageResponse updateStatus(@RequestBody UserRequest userRequest) {
-        return this.userService.updateStatus(userRequest);
+    public ResponseEntity<MessageResponse> updateStatus(@RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(this.userService.updateStatus(userRequest));
     }
 }

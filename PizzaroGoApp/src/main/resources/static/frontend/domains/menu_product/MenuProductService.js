@@ -7,7 +7,17 @@ class MenuProductService {
 
     async getAll() {
         const response = await fetch(this.baseUrl);
-        if (!response.ok) throw new Error('Failed to fetch menu products');
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorText;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
+        }
         const data = await response.json();
         return data.map(item => MenuProduct.fromResponse(item));
     }
@@ -19,8 +29,15 @@ class MenuProductService {
             body: JSON.stringify(productData)
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to create product');
+            const errorText = await response.text();
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorText;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
         }
         return await response.json();
     }
@@ -32,8 +49,15 @@ class MenuProductService {
             body: JSON.stringify({ ...productData, id: parseInt(id) })
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to update product');
+            const errorText = await response.text();
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorText;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
         }
         return await response.json();
     }
@@ -43,8 +67,15 @@ class MenuProductService {
             method: 'DELETE'
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to delete product');
+            const errorText = await response.text();
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorText;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
         }
         return await response.json();
     }
@@ -54,8 +85,15 @@ class MenuProductService {
             method: 'DELETE'
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to delete all products');
+            const errorText = await response.text();
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorText;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
         }
         return await response.json();
     }
@@ -74,8 +112,15 @@ class MenuProductService {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to import products');
+            const errorText = await response.text();
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorText;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
         }
         return await response.json();
     }

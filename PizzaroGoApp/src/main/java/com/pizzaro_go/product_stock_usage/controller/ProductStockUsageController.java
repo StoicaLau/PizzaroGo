@@ -5,10 +5,9 @@ import com.pizzaro_go.product_stock_usage.dtos.ProductStockUsageRequest;
 import com.pizzaro_go.product_stock_usage.service.ProductStockUsageService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for product stock usage operations.
@@ -24,11 +23,12 @@ public class ProductStockUsageController {
      *
      * @param productStockUsageRequest the request containing product stock usage
      *                                 details
-     * @return a MessageResponse with the created product stock usage ID
+     * @return a ResponseEntity with MessageResponse
      */
     @PostMapping("")
     @Operation(summary = "Create a new product stock usage")
-    public MessageResponse create(@RequestBody ProductStockUsageRequest productStockUsageRequest) {
-        return this.productStockUsageService.create(productStockUsageRequest);
+    public ResponseEntity<MessageResponse> create(@RequestBody ProductStockUsageRequest productStockUsageRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(this.productStockUsageService.create(productStockUsageRequest));
     }
 }

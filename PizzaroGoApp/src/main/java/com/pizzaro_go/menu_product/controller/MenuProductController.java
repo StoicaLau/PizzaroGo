@@ -7,12 +7,11 @@ import com.pizzaro_go.menu_product.service.MenuProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.pizzaro_go.common.exceptions.PGException;
 
 import java.util.List;
 
@@ -32,56 +31,60 @@ public class MenuProductController {
      */
     @GetMapping("")
     @Operation(summary = "Retrieve all menu products")
-    public List<MenuProductResponse> getAll() {
-        return this.menuProductService.getAll();
+    public ResponseEntity<List<MenuProductResponse>> getAll() {
+        return ResponseEntity.ok(this.menuProductService.getAll());
     }
 
     /**
      * Creates a new menu product.
      *
      * @param menuProductRequest the request containing new menu product details
-     * @return a MessageResponse with the new menu product ID
+     * @return a ResponseEntity with MessageResponse
      */
     @PostMapping("")
     @Operation(summary = "Create a new menu product")
-    public MessageResponse create(@RequestBody MenuProductRequest menuProductRequest) {
-        return this.menuProductService.create(menuProductRequest);
+    public ResponseEntity<MessageResponse> create(@RequestBody MenuProductRequest menuProductRequest) {
+        MessageResponse response = this.menuProductService.create(menuProductRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Updates an existing menu product.
      *
      * @param menuProductRequest the request containing updated menu product details
-     * @return a MessageResponse with the updated menu product ID
+     * @return a ResponseEntity with MessageResponse
      */
 
     @PatchMapping("")
     @Operation(summary = "Update an menu product")
-    public MessageResponse update(@RequestBody MenuProductRequest menuProductRequest) {
-        return this.menuProductService.update(menuProductRequest);
+    public ResponseEntity<MessageResponse> update(@RequestBody MenuProductRequest menuProductRequest) {
+        MessageResponse response = this.menuProductService.update(menuProductRequest);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Deletes a menu product by its ID.
      *
      * @param id the ID of the menu product to delete
-     * @return a MessageResponse confirming deletion
+     * @return a ResponseEntity with MessageResponse
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an menuProduct by id")
-    public MessageResponse deleteById(@PathVariable("id") Long id) {
-        return this.menuProductService.deleteById(id);
+    public ResponseEntity<MessageResponse> deleteById(@PathVariable("id") Long id) {
+        MessageResponse response = this.menuProductService.deleteById(id);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Deletes all menu products.
      *
-     * @return a MessageResponse confirming all menu products were deleted
+     * @return a ResponseEntity with MessageResponse
      */
     @DeleteMapping("")
     @Operation(summary = "Delete entire menu")
-    public MessageResponse deleteAll() {
-        return this.menuProductService.deleteAll();
+    public ResponseEntity<MessageResponse> deleteAll() {
+        MessageResponse response = this.menuProductService.deleteAll();
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -92,28 +95,24 @@ public class MenuProductController {
     @GetMapping("/export")
     @Operation(summary = "Exports menu products to an Excel file for download")
     public ResponseEntity<byte[]> exportMenuProducts() {
-        try {
-            byte[] excelContent = this.menuProductService.exportMenuProducts();
+        byte[] excelContent = this.menuProductService.exportMenuProducts();
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=menu_products.xlsx")
-                    .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_OCTET_STREAM))
-                    .body(excelContent);
-        } catch (PGException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=menu_products.xlsx")
+                .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_OCTET_STREAM))
+                .body(excelContent);
     }
 
     /**
      * Imports menu products from an Excel file.
      *
      * @param file the Excel file containing menu product data
-     * @return a MessageResponse confirming the import
+     * @return a ResponseEntity with MessageResponse
      */
     @PostMapping("/import")
     @Operation(summary = "Imports menu products from an Excel file")
-    public MessageResponse importMenuProducts(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<MessageResponse> importMenuProducts(@RequestParam("file") MultipartFile file) {
         this.menuProductService.importMenuProducts(file);
-        return new MessageResponse("Menu products imported successfully!");
+        return ResponseEntity.ok(new MessageResponse("Menu products imported successfully!"));
     }
 }
