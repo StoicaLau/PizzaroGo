@@ -5,7 +5,7 @@ import com.pizzaro_go.common.utils.StringUtils;
 import com.pizzaro_go.order.dtos.OrderRequest;
 import com.pizzaro_go.order.dtos.OrderResponse;
 import com.pizzaro_go.order.entity.OrderEntity;
-import com.pizzaro_go.oreder_item.mapper.IOrderItemMapper;
+import com.pizzaro_go.order_item.mapper.IOrderItemMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

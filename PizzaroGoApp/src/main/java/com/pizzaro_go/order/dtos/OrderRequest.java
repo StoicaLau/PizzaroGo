@@ -1,6 +1,6 @@
 package com.pizzaro_go.order.dtos;
 
-import com.pizzaro_go.oreder_item.dtos.OrderItemRequest;
+import com.pizzaro_go.order_item.dtos.OrderItemRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

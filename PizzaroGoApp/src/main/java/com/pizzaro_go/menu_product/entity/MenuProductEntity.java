@@ -1,7 +1,7 @@
 package com.pizzaro_go.menu_product.entity;
 
 import com.pizzaro_go.common.enums.ProductCategory;
-import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
+import com.pizzaro_go.order_item.entity.OrderItemEntity;
 import com.pizzaro_go.product_stock_usage.entity.ProductStockUsageEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

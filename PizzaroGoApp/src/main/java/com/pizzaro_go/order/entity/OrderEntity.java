@@ -1,7 +1,7 @@
 package com.pizzaro_go.order.entity;
 
 import com.pizzaro_go.common.enums.Status;
-import com.pizzaro_go.oreder_item.entity.OrderItemEntity;
+import com.pizzaro_go.order_item.entity.OrderItemEntity;
 import com.pizzaro_go.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.pizzaro_go.oreder_item.dtos.OrderItemResponse;
+import com.pizzaro_go.order_item.dtos.OrderItemResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 

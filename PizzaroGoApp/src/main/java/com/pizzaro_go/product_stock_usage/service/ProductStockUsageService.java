@@ -69,7 +69,7 @@ public class ProductStockUsageService {
      * @throws PGException if the menu product/stock item does not exist or a
      *                     repository error occurs
      */
-    public ProductStockUsageEntity toProductStockUsage(ProductStockUsageRequest productStockUsageRequest)
+    private ProductStockUsageEntity toProductStockUsage(ProductStockUsageRequest productStockUsageRequest)
             throws PGException {
         try {
             ProductStockUsageEntity productStockUsage = this.productStockUsageMapper.toEntity(productStockUsageRequest);
