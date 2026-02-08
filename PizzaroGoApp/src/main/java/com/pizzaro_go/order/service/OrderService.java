@@ -28,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -363,6 +365,13 @@ public class OrderService {
         }
     }
 
+    /**
+     * Associates order items with an order and saves them.
+     *
+     * @param order                the order entity
+     * @param orderItemRequestList the list of order item requests
+     * @throws PGException if a repository error occurs during creation
+     */
     private void setOrderItemToOrder(OrderEntity order, List<OrderItemRequest> orderItemRequestList)
             throws PGException {
         try {
@@ -408,11 +417,73 @@ public class OrderService {
      *
      * @param order    the order containing items
      * @param subtract true to subtract from stock, false to add back
+     * @throws PGException if stock is insufficient when subtracting
      */
-    private void updateStock(OrderEntity order, boolean subtract) {
-        if (order.getOrderItems() == null)
+    private void updateStock(OrderEntity order, boolean subtract) throws PGException {
+        if (order.getOrderItems() == null || order.getOrderItems().isEmpty())
             return;
 
+        if (subtract) {
+            checkStockAvailability(order);
+        }
+
+        applyStockChanges(order, subtract);
+    }
+
+    /**
+     * Checks if there is enough stock for all items in the order.
+     * Aggregates total usage per stock item to handle multiple products using the
+     * same ingredient.
+     * 
+     * @param order the order to validate stock for
+     * @throws PGException if any ingredient is insufficient
+     */
+    private void checkStockAvailability(OrderEntity order) throws PGException {
+        Map<Long, Double> requiredStock = new HashMap<>();
+        Map<Long, StockItemEntity> stockItemEntities = new HashMap<>();
+
+        for (OrderItemEntity item : order.getOrderItems()) {
+            if (item.getMenuProduct() == null || item.getMenuProduct().getProductStockUsages() == null)
+                continue;
+
+            for (ProductStockUsageEntity usage : item.getMenuProduct().getProductStockUsages()) {
+                StockItemEntity stockItem = usage.getStockItem();
+                if (stockItem != null) {
+                    double amount = item.getQuantity() * usage.getQuantityPerUnit();
+                    requiredStock.put(stockItem.getId(),
+                            requiredStock.getOrDefault(stockItem.getId(), 0.0) + amount);
+                    stockItemEntities.put(stockItem.getId(), stockItem);
+                }
+            }
+        }
+
+        StringBuilder errors = new StringBuilder();
+        for (Map.Entry<Long, Double> entry : requiredStock.entrySet()) {
+            StockItemEntity stockItem = stockItemEntities.get(entry.getKey());
+            double needed = entry.getValue();
+            if (stockItem.getQuantity() < needed) {
+                if (errors.length() > 0)
+                    errors.append(", ");
+                errors.append(String.format("%s (disponibil: %.2f, necesar: %.2f)",
+                        stockItem.getName(), stockItem.getQuantity(), needed));
+            }
+        }
+
+        if (errors.length() > 0) {
+            String errorMsg = "Stoc insuficient pentru: " + errors.toString();
+            this.log.error(errorMsg);
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Applies the stock changes to the database.
+     * Iterates through order items and their stock usages to update stock levels.
+     * 
+     * @param order    the order containing items
+     * @param subtract true to subtract, false to restore
+     */
+    private void applyStockChanges(OrderEntity order, boolean subtract) {
         for (OrderItemEntity item : order.getOrderItems()) {
             if (item.getMenuProduct() == null || item.getMenuProduct().getProductStockUsages() == null)
                 continue;
@@ -424,7 +495,7 @@ public class OrderService {
                     double currentQty = stockItem.getQuantity();
                     stockItem.setQuantity(subtract ? currentQty - amount : currentQty + amount);
 
-                    this.log.info("{} {} units of {} (Order #{})",
+                    this.log.debug("{} {} units of {} (Order #{})",
                             subtract ? "Subtracted" : "Restored", amount, stockItem.getName(), order.getId());
 
                     this.stockItemRepository.save(stockItem);

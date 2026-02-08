@@ -106,3 +106,40 @@
         </div>
     </div>
 </div>
+
+<!-- Premium Confirmation Modal -->
+<div id="premium-confirm-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content premium-modal">
+        <div class="modal-icon-container warning">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2 id="confirm-modal-title" class="modal-title">Are you sure?</h2>
+        <p id="confirm-modal-body" class="modal-subtitle">Do you really want to proceed with this action?</p>
+        <div class="modal-actions-horizontal">
+            <button class="btn-secondary" id="confirm-modal-cancel">No, Go Back</button>
+            <button class="btn-primary" id="confirm-modal-approve">Yes, Proceed</button>
+        </div>
+    </div>
+</div>
+
+<!-- Premium Feedback Modal -->
+<div id="premium-feedback-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content premium-modal">
+        <div class="success-animation">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+            </div>
+        </div>
+        <h2 id="feedback-modal-title" class="modal-title">Success!</h2>
+        <p id="feedback-modal-body" class="modal-subtitle">Action completed successfully.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" style="width: 100%;"
+                onclick="document.getElementById('premium-feedback-modal').classList.add('hidden')">Awesome</button>
+        </div>
+    </div>
+</div>

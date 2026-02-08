@@ -438,16 +438,52 @@ window.markOrderReadyById = async function (id) {
 }
 
 window.cancelOrder = async function (orderId) {
-    if (!confirm('Are you sure you want to cancel this order? It will be deleted.')) return;
+    showPremiumConfirm(
+        "Cancel Order?",
+        `Are you sure you want to cancel order #${orderId}? It will be marked as CANCELED.`,
+        async () => {
+            try {
+                await orderService.updateStatus({ id: orderId, status: 'CANCELED' });
+                showPremiumFeedback("Cancelled", "🗑️ Order marked as cancelled successfully.");
+                loadOrders();
+                if (activeProcessingOrderId === orderId) closeDetailsModal();
+            } catch (error) {
+                console.error(error);
+                alert("Error: " + error.message);
+            }
+        }
+    );
+};
 
-    try {
-        await orderService.deleteById(orderId);
-        loadOrders();
-        if (activeProcessingOrderId === orderId) closeDetailsModal();
-    } catch (e) {
-        console.error(e);
-        alert('Failed to delete order: ' + e.message);
-    }
+function showPremiumConfirm(title, body, onApprove) {
+    const modal = document.getElementById('premium-confirm-modal');
+    if (!modal) return;
+
+    document.getElementById('confirm-modal-title').textContent = title;
+    document.getElementById('confirm-modal-body').textContent = body;
+
+    const approveBtn = document.getElementById('confirm-modal-approve');
+    const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+    approveBtn.onclick = () => {
+        modal.classList.add('hidden');
+        onApprove();
+    };
+
+    cancelBtn.onclick = () => {
+        modal.classList.add('hidden');
+    };
+
+    modal.classList.remove('hidden');
+}
+
+function showPremiumFeedback(title, body) {
+    const modal = document.getElementById('premium-feedback-modal');
+    if (!modal) return;
+
+    document.getElementById('feedback-modal-title').textContent = title;
+    document.getElementById('feedback-modal-body').textContent = body;
+    modal.classList.remove('hidden');
 }
 
 // Expose functions globally for inline HTML

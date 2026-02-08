@@ -296,41 +296,57 @@ async function handleFinishOrder() {
         Cart.clear();
         closeCart();
 
-        if (window.Swal) {
-            await Swal.fire({
-                icon: 'success',
-                title: 'Order Placed!',
-                text: 'Your delicious order is on its way.',
-                background: '#1a1a1a',
-                color: '#fff',
-                confirmButtonColor: '#ff5e00',
-                timer: 3000,
-                timerProgressBar: true
-            });
-        } else {
-            document.getElementById('order-success-modal').classList.remove('hidden');
-        }
-
-        // Refresh menu to reflect new stock levels
+        showOrderSuccess();
         await loadMenu();
 
     } catch (error) {
-        console.error("Order failed:", error);
-        if (window.Swal) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Order Failed',
-                text: error.message,
-                background: '#1a1a1a',
-                color: '#fff',
-                confirmButtonColor: '#d33'
-            });
-        } else {
-            alert("Failed to place order: " + error.message);
-        }
+        handleOrderError(error);
     } finally {
         finishBtn.disabled = false;
         finishBtn.textContent = 'Finish Order';
+    }
+}
+
+function showOrderSuccess() {
+    if (window.Swal) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Order Placed!',
+            text: 'Your delicious order is on its way.',
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#ff5e00',
+            timer: 3000,
+            timerProgressBar: true
+        });
+    } else {
+        const successModal = document.getElementById('order-success-modal');
+        if (successModal) successModal.classList.remove('hidden');
+    }
+}
+
+function handleOrderError(error) {
+    console.error("Order failed:", error);
+
+    let title = 'Order Failed';
+    let icon = 'error';
+
+    if (error.message.includes('Stoc insuficient')) {
+        title = 'Lipsă Stoc';
+        icon = 'warning';
+    }
+
+    if (window.Swal) {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: error.message,
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#d33'
+        });
+    } else {
+        alert(`${title}: ${error.message}`);
     }
 }
 

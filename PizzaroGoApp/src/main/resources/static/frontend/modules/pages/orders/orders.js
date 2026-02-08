@@ -19,18 +19,17 @@ async function loadOrders() {
 
         const getPriority = (status) => {
             const s = status ? status.toUpperCase() : 'PENDING';
-            if (s === 'PENDING') return 1;
-            if (s === 'PROCESSING') return 2;
-            if (s === 'READY') return 3;
-            if (s === 'DELIVERED') return 4;
-            return 5;
+            if (s === 'PENDING' || s === 'PROCESSING' || s === 'READY') return 1;
+            return 2; // DELIVERED, CANCELED
         };
+
+        console.log("Orders received from API:", orders);
 
         orders.sort((a, b) => {
             const pA = getPriority(a.status);
             const pB = getPriority(b.status);
             if (pA !== pB) return pA - pB;
-            return b.id - a.id;
+            return b.id - a.id; // Newest first
         });
 
         const totalCount = document.getElementById('total-orders-count');
@@ -231,10 +230,10 @@ window.updateOrderStatusAction = async (orderId, status) => {
 window.cancelOrder = async (orderId) => {
     showPremiumConfirm(
         "Cancel Order?",
-        `Are you sure you want to cancel order #${orderId}? This cannot be undone.`,
+        `Are you sure you want to cancel order #${orderId}? It will be marked as CANCELED.`,
         async () => {
             try {
-                await orderService.deleteById(orderId);
+                await orderService.updateStatus({ id: orderId, status: 'CANCELED' });
                 showPremiumFeedback("Cancelled", "🗑️ Order cancelled successfully.");
                 await loadOrders();
             } catch (error) {

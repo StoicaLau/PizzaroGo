@@ -85,7 +85,6 @@ WHERE id IN (SELECT product_id FROM product_stock_usages WHERE stock_item_id = O
 
 -- 2. Product -> Orders: cleanup logic
 DROP TRIGGER IF EXISTS cleanup_menu_product_orders;
-DROP TRIGGER IF EXISTS cleanup_menu_product_items;
 
 -- Step A: Delete orders that will strictly become empty (contain only this product)
 CREATE TRIGGER cleanup_menu_product_orders
@@ -101,6 +100,3 @@ WHERE id IN (
         HAVING COUNT(*) = SUM(CASE WHEN product_id = OLD.id THEN 1 ELSE 0 END)
     ) AS empty_orders
 );
-
--- Note: No need for cleanup_menu_product_items trigger anymore as we added ON DELETE CASCADE to order_items.product_id foreign key.
--- But it's good to keep for Step B if there was any extra logic, but here it's simple enough.
