@@ -5,21 +5,28 @@ class MenuProductService {
         this.baseUrl = '/api/menu_products';
     }
 
-    async getAll() {
-        const response = await fetch(this.baseUrl);
-        if (!response.ok) {
-            const errorText = await response.text();
-            let errorMessage = 'Operation failed';
-            try {
-                const errorData = JSON.parse(errorText);
-                errorMessage = errorData.message || errorText;
-            } catch (e) {
-                errorMessage = errorText || errorMessage;
+    async getAvailable(all = false) {
+        try {
+            const url = all ? `${this.baseUrl}?all=true` : this.baseUrl;
+            const response = await fetch(url, {
+                cache: 'no-store', // Ensure we get fresh data from server (stock levels)
+                headers: {
+                    'pragma': 'no-cache',
+                    'cache-control': 'no-cache'
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to fetch available menu products');
             }
-            throw new Error(errorMessage);
+
+            const data = await response.json();
+            return data.map(item => MenuProduct.fromResponse(item));
+        } catch (error) {
+            console.error("MenuProductService.getAvailable error:", error);
+            throw error;
         }
-        const data = await response.json();
-        return data.map(item => MenuProduct.fromResponse(item));
     }
 
     async create(productData) {

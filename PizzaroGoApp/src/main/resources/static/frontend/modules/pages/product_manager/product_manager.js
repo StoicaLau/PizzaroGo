@@ -115,7 +115,7 @@ export class ProductManager {
 
     async loadProducts() {
         try {
-            this.products = await menuProductService.getAll();
+            this.products = await menuProductService.getAvailable(true);
             this.updateStats();
             this.applySort();
             this.renderTable();

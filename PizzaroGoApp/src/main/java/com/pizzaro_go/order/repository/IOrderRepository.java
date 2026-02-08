@@ -44,4 +44,9 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
      * @return a list of orders matching any of the given statuses
      */
     List<OrderEntity> findAllByStatusIn(List<Status> statuses);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query(value = "ALTER TABLE orders AUTO_INCREMENT = 1", nativeQuery = true)
+    void resetIdSequence();
 }

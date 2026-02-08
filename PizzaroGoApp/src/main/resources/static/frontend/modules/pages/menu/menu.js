@@ -29,14 +29,35 @@ export async function init() {
 }
 
 async function loadMenu() {
+    console.log("Loading Menu...");
     const grid = document.getElementById('products-grid');
+    if (!grid) return;
+
     try {
-        allProducts = await menuProductService.getAll();
+        allProducts = await menuProductService.getAvailable();
+        console.log(`Successfully fetched ${allProducts.length} available products.`);
+
         renderCategories();
         renderProducts();
     } catch (error) {
         console.error("Error loading products:", error);
-        grid.innerHTML = `<div class="error-msg">Failed to load menu: ${error.message}</div>`;
+
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Stock Error',
+                text: 'Could not load available products. Please refresh the page.',
+                background: '#1a1a1a',
+                color: '#fff',
+                confirmButtonColor: '#ff5e00'
+            });
+        }
+
+        grid.innerHTML = `<div class="error-msg">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Failed to load menu: ${error.message}</p>
+            <button onclick="location.reload()" class="btn-primary" style="margin-top: 20px;">Retry</button>
+        </div>`;
     }
 }
 
@@ -274,10 +295,39 @@ async function handleFinishOrder() {
         await orderService.create(orderData);
         Cart.clear();
         closeCart();
-        document.getElementById('order-success-modal').classList.remove('hidden');
+
+        if (window.Swal) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Order Placed!',
+                text: 'Your delicious order is on its way.',
+                background: '#1a1a1a',
+                color: '#fff',
+                confirmButtonColor: '#ff5e00',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        } else {
+            document.getElementById('order-success-modal').classList.remove('hidden');
+        }
+
+        // Refresh menu to reflect new stock levels
+        await loadMenu();
+
     } catch (error) {
         console.error("Order failed:", error);
-        alert("Failed to place order: " + error.message);
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Failed',
+                text: error.message,
+                background: '#1a1a1a',
+                color: '#fff',
+                confirmButtonColor: '#d33'
+            });
+        } else {
+            alert("Failed to place order: " + error.message);
+        }
     } finally {
         finishBtn.disabled = false;
         finishBtn.textContent = 'Finish Order';

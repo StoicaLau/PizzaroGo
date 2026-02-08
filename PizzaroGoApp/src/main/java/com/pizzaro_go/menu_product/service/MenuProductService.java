@@ -67,23 +67,100 @@ public class MenuProductService {
     private final Logger log = LoggerFactory.getLogger(MenuProductService.class);
 
     /**
-     * Retrieves all menu products.
+     * Retrieves all menu products that have sufficient stock for all their
+     * ingredients.
      *
-     * @return a list of MenuProductResponse objects representing the menu products
-     * @throws PGException if a repository error occurs during retrieval
+     * @return a list of available MenuProductResponse objects
+     * @throws PGException if a repository error occurs
      */
-    public List<MenuProductResponse> getAll() throws PGException {
-        this.log.info("Retrieve all menu products");
+    public List<MenuProductResponse> getAvailableProducts() throws PGException {
+        this.log.info("Retrieve all available menu products based on stock");
         try {
-            return this.menuProductMapper.toResponseList(this.menuProductRepository.findAll());
+            // Clear persistence context to ensure we get fresh data from DB (actual stock
+            // levels)
+            this.entityManager.clear();
+
+            List<MenuProductEntity> allProducts = this.menuProductRepository.findAllWithStockUsage();
+            List<MenuProductEntity> availableProducts = allProducts.stream()
+                    .filter(p -> {
+                        boolean available = this.isProductAvailable(p);
+                        if (!available) {
+                            this.log.info("Product '{}' filtered OUT because it is unavailable.", p.getName());
+                        }
+                        return available;
+                    })
+                    .toList();
+
+            this.log.info("Found {} available products out of {}.", availableProducts.size(), allProducts.size());
+            return this.menuProductMapper.toResponseList(availableProducts);
         } catch (RepositoryException e) {
-            String errorMsg = "Error occurred when retrieve all menu products ->";
+            String errorMsg = "Error occurred when retrieve available menu products";
             this.log.error(errorMsg, e);
-
-            errorMsg += e.getMessage();
-
-            throw new PGException(errorMsg);
+            throw new PGException(errorMsg + " -> " + e.getMessage());
         }
+    }
+
+    /**
+     * Retrieves all menu products regardless of stock.
+     *
+     * @return a list of all MenuProductResponse objects
+     * @throws PGException if a repository error occurs
+     */
+    public List<MenuProductResponse> getAllProducts() throws PGException {
+        this.log.info("Retrieve all menu products (no stock filter)");
+        try {
+            List<MenuProductEntity> allProducts = this.menuProductRepository.findAllWithStockUsage();
+            return this.menuProductMapper.toResponseList(allProducts);
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when retrieve all menu products";
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg + " -> " + e.getMessage());
+        }
+    }
+
+    /**
+     * Checks if a product has enough stock for all its ingredients.
+     *
+     * @param product the menu product entity to check
+     * @return true if all ingredients are available in sufficient quantity, false
+     *         otherwise
+     */
+    private boolean isProductAvailable(MenuProductEntity product) {
+        List<ProductStockUsageEntity> usages = product.getProductStockUsages();
+
+        // If there are no ingredients defined, the product is always available
+        // (common for bottled drinks or pre-packaged items).
+        if (usages == null || usages.isEmpty()) {
+            this.log.info("Product '{}' has no defined ingredients, marked as AVAILABLE.", product.getName());
+            return true;
+        }
+
+        // Check each ingredient requirement
+        for (ProductStockUsageEntity usage : usages) {
+            StockItemEntity stockItem = usage.getStockItem();
+            if (stockItem == null) {
+                this.log.warn("Product '{}' has a usage rule but missing the actual StockItem record!",
+                        product.getName());
+                continue;
+            }
+
+            double required = usage.getQuantityPerUnit() != null ? usage.getQuantityPerUnit() : 0.0;
+            double available = stockItem.getQuantity() != null ? stockItem.getQuantity() : 0.0;
+            this.log.info("Item '{}' needs {}, but only {} is in stock.",
+                    stockItem.getName(), required, available);
+
+            // If an ingredient is required (qty > 0) but stock is insufficient, hide the
+            // product.
+            if (required > 0 && available < required) {
+                this.log.info("Product '{}' is UNAVAILABLE: {} needs {}, but only {} is in stock.",
+                        product.getName(), stockItem.getName(), required, available);
+                return false;
+            }
+        }
+
+        // All ingredients are in stock
+        this.log.debug("Product '{}' passed all stock checks.", product.getName());
+        return true;
     }
 
     /**
@@ -140,9 +217,29 @@ public class MenuProductService {
         this.log.info("Creating a new menu product item: {}", menuProductRequest.getName());
         try {
             MenuProductEntity menuProduct = this.menuProductMapper.toEntity(menuProductRequest);
+            return saveProduct(menuProduct, menuProductRequest.getStockUsages());
+        } catch (RepositoryException e) {
+            String errorMsg = "Error occurred when creating new menu product -> " + e.getMessage();
+            this.log.error(errorMsg, e);
+            throw new PGException(errorMsg);
+        }
+    }
+
+    /**
+     * Helper method to handle the persistence of a MenuProduct and its stock
+     * usages.
+     *
+     * @param menuProduct   the entity to save
+     * @param usageRequests the list of stock usage requests
+     * @return a MessageResponse with the product ID
+     * @throws PGException if a repository error occurs
+     */
+    private MessageResponse saveProduct(MenuProductEntity menuProduct, List<ProductStockUsageRequest> usageRequests)
+            throws PGException {
+        try {
             menuProduct = this.menuProductRepository.save(menuProduct);
 
-            setProductStockUsageOnProduct(menuProduct, menuProductRequest.getStockUsages());
+            setProductStockUsageOnProduct(menuProduct, usageRequests);
 
             // Flush to ensure ProductStockUsage records are persisted
             this.entityManager.flush();
@@ -158,17 +255,13 @@ public class MenuProductService {
             }
 
             String menuProductDescription = getMenuProductDescription(menuProduct);
-
             menuProduct.setDescription(menuProductDescription);
 
             MenuProductEntity savedMenuProduct = this.menuProductRepository.save(menuProduct);
             return new MessageResponse(savedMenuProduct.getId().toString());
         } catch (RepositoryException e) {
-            String errorMsg = "Error occurred when creating new menu product -> " + e.getMessage();
-            this.log.error(errorMsg, e);
-
-            errorMsg += e.getMessage();
-            throw new PGException(errorMsg);
+            this.log.error("Error occurred when saving menu product", e);
+            throw new PGException(e.getMessage());
         }
     }
 
@@ -350,68 +443,72 @@ public class MenuProductService {
                     MenuProductFileData.class);
 
             for (MenuProductFileData fileData : menuProductFileDataList) {
-                MenuProductRequest request = new MenuProductRequest();
-                request.setName(fileData.getName());
-                request.setProductCategory(fileData.getCategory());
-                request.setPrice(fileData.getPrice());
-                request.setImageURL(fileData.getImageURL());
+                MenuProductEntity menuProduct = this.menuProductMapper.toEntity(fileData);
+                List<ProductStockUsageRequest> usageRequests = parseIngredients(fileData.getDescription());
 
-                // Parse description for ingredients
-                List<ProductStockUsageRequest> usageRequests = new ArrayList<>();
-                String description = fileData.getDescription();
-                if (description != null && !description.isEmpty()) {
-                    String[] ingredients = description.split(",\\s*");
-                    for (String ingredientStr : ingredients) {
-                        ingredientStr = ingredientStr.trim();
-                        if (ingredientStr.isEmpty())
-                            continue;
-
-                        String[] parts = ingredientStr.split("\\s+");
-                        if (parts.length >= 3) {
-                            // Format: [Name parts...] [Quantity] [Unit]
-                            // We know: last is Unit, second-to-last is Quantity
-                            int quantityIndex = parts.length - 2;
-
-                            StringBuilder stockItemNameBuilder = new StringBuilder();
-                            for (int i = 0; i < quantityIndex; i++) {
-                                if (i > 0)
-                                    stockItemNameBuilder.append(" ");
-                                stockItemNameBuilder.append(parts[i]);
-                            }
-                            String stockItemName = stockItemNameBuilder.toString().trim();
-
-                            try {
-                                double quantity = Double.parseDouble(parts[quantityIndex]);
-
-                                Optional<StockItemEntity> stockItemOpt = this.stockItemRepository
-                                        .findFirstByNameIgnoreCase(stockItemName);
-                                if (stockItemOpt.isPresent()) {
-                                    ProductStockUsageRequest usageRequest = new ProductStockUsageRequest();
-                                    usageRequest.setStockItemId(stockItemOpt.get().getId());
-                                    usageRequest.setQuantityPerUnit(quantity);
-                                    usageRequests.add(usageRequest);
-                                } else {
-                                    this.log.warn("Stock item not found by name: {}", stockItemName);
-                                }
-                            } catch (NumberFormatException e) {
-                                this.log.warn("Could not parse quantity for ingredient: {}", ingredientStr);
-                            }
-                        }
-                    }
-                }
-                request.setStockUsages(usageRequests);
-
-                // Since we cleared the table, we just create new entries
-                this.create(request);
+                this.saveProduct(menuProduct, usageRequests);
             }
         } catch (IOException e) {
             String errorMsg = "Error processing Excel file -> " + e.getMessage();
             this.log.error(errorMsg, e);
             throw new PGException(errorMsg);
-        } catch (NumberFormatException e) {
-            String errorMsg = "Error parsing quantity in description -> " + e.getMessage();
-            this.log.error(errorMsg, e);
-            throw new PGException(errorMsg);
         }
+    }
+
+    /**
+     * Parses the description string from Excel to extract ingredients and
+     * quantities.
+     * The expected format is: "Ingredient Name 1.0 Unit, Next Ingredient 2.5 Unit"
+     *
+     * @param description the description string from the Excel file
+     * @return a list of ProductStockUsageRequest DTOs
+     */
+    private List<ProductStockUsageRequest> parseIngredients(String description) {
+        List<ProductStockUsageRequest> usageRequests = new ArrayList<>();
+        if (description == null || description.isEmpty()) {
+            return usageRequests;
+        }
+
+        String[] ingredients = description.split(",\\s*");
+        for (String ingredientStr : ingredients) {
+            ingredientStr = ingredientStr.trim();
+            if (ingredientStr.isEmpty())
+                continue;
+
+            String[] parts = ingredientStr.split("\\s+");
+            if (parts.length >= 3) {
+                // Format: [Name parts...] [Quantity] [Unit]
+                // We know: last is Unit, second-to-last is Quantity
+                int quantityIndex = parts.length - 2;
+
+                StringBuilder stockItemNameBuilder = new StringBuilder();
+                for (int i = 0; i < quantityIndex; i++) {
+                    if (i > 0)
+                        stockItemNameBuilder.append(" ");
+                    stockItemNameBuilder.append(parts[i]);
+                }
+                String stockItemName = stockItemNameBuilder.toString().trim();
+
+                try {
+                    double quantity = Double.parseDouble(parts[quantityIndex]);
+
+                    Optional<StockItemEntity> stockItemOpt = this.stockItemRepository
+                            .findFirstByNameIgnoreCase(stockItemName);
+                    if (stockItemOpt.isPresent()) {
+                        StockItemEntity stockItem = stockItemOpt.get();
+
+                        ProductStockUsageRequest usageRequest = new ProductStockUsageRequest();
+                        usageRequest.setStockItemId(stockItem.getId());
+                        usageRequest.setQuantityPerUnit(quantity);
+                        usageRequests.add(usageRequest);
+                    } else {
+                        this.log.warn("Stock item not found by name: {}", stockItemName);
+                    }
+                } catch (NumberFormatException e) {
+                    this.log.warn("Could not parse quantity for ingredient: {}", ingredientStr);
+                }
+            }
+        }
+        return usageRequests;
     }
 }

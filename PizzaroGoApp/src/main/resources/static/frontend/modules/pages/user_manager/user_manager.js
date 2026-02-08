@@ -31,22 +31,11 @@ export class UserManager {
             });
         }
 
-        // Add User Button
-        const btnAddUser = document.getElementById('btn-add-user');
-        if (btnAddUser) {
-            btnAddUser.addEventListener('click', () => this.openModal());
-        }
 
-        // Modal Close
-        document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => this.closeModals());
-        });
-        document.querySelectorAll('.close-modal-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.closeModals());
-        });
 
-        // Form Submit
-        document.getElementById('user-form').addEventListener('submit', (e) => this.handleFormSubmit(e));
+
+
+
 
         // Table Sorting
         document.querySelectorAll('.sortable').forEach(th => {
@@ -212,50 +201,7 @@ export class UserManager {
         }
     }
 
-    openModal() {
-        const modal = document.getElementById('user-modal');
-        const form = document.getElementById('user-form');
-        const modalTitle = document.getElementById('modal-title');
 
-        form.reset();
-        document.getElementById('user-id').value = '';
-
-        modalTitle.textContent = 'Add User';
-        document.getElementById('user-password').placeholder = '';
-        document.getElementById('user-password').required = true;
-
-        const inputs = ['user-username', 'user-email', 'user-phone', 'user-password'];
-        inputs.forEach(id => document.getElementById(id).disabled = false);
-
-        document.getElementById('user-role').value = 'CUSTOMER';
-        modal.classList.remove('hidden');
-    }
-
-    closeModals() {
-        document.getElementById('user-modal').classList.add('hidden');
-    }
-
-    async handleFormSubmit(event) {
-        event.preventDefault();
-
-        const userData = {
-            username: document.getElementById('user-username').value,
-            email: document.getElementById('user-email').value,
-            password: document.getElementById('user-password').value,
-            phone: document.getElementById('user-phone').value,
-            role: document.getElementById('user-role').value
-        };
-
-        try {
-            await userService.register(userData);
-            this.showToast('success', 'User registered successfully.');
-            this.closeModals();
-            await this.loadUsers();
-        } catch (error) {
-            console.error(error);
-            this.showToast('error', 'Operation failed: ' + error.message);
-        }
-    }
 
     showToast(type, message) {
         let container = document.getElementById('toast-container');

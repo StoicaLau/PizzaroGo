@@ -34,14 +34,14 @@ public class StockItemEntity {
     @Column(nullable = false)
     private Category category;
 
-    @Column(nullable = false)
-    private Double quantity = 0.0;
-
     @Enumerated(EnumType.STRING)
     @Column()
     private Unit unit;
 
-    @OneToMany(mappedBy = "stockItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(nullable = false)
+    private Double quantity = 0.0;
+
+    @OneToMany(mappedBy = "stockItem", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<ProductStockUsageEntity> usages = new ArrayList<>();
 
 }

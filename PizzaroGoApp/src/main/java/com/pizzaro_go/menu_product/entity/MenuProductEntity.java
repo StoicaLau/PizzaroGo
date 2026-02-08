@@ -39,10 +39,10 @@ public class MenuProductEntity {
     @Column(nullable = false)
     private Double price = 0.0;
 
-    @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menuProduct", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<ProductStockUsageEntity> productStockUsages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menuProduct", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
 }

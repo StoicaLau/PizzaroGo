@@ -2,6 +2,7 @@ package com.pizzaro_go.menu_product.mapper;
 
 import com.pizzaro_go.common.enums.ProductCategory;
 import com.pizzaro_go.common.utils.StringUtils;
+import com.pizzaro_go.fileimport.excel.entities.MenuProductFileData;
 import com.pizzaro_go.menu_product.dtos.MenuProductRequest;
 import com.pizzaro_go.menu_product.dtos.MenuProductResponse;
 import com.pizzaro_go.menu_product.entity.MenuProductEntity;
@@ -47,4 +48,16 @@ public interface IMenuProductMapper {
      * @return the list of menu product response DTOs
      */
     List<MenuProductResponse> toResponseList(List<MenuProductEntity> menuProducts);
+
+    /**
+     * Converts a MenuProductFileData object from Excel to a MenuProduct entity.
+     *
+     * @param fileData the menu product file data from Excel
+     * @return the mapped MenuProduct entity
+     */
+    @Mapping(target = "productCategory", expression = "java(fileData.getCategory() != null ? ProductCategory.valueOf(fileData.getCategory().toUpperCase()) : null)")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orderItems", ignore = true)
+    @Mapping(target = "productStockUsages", ignore = true)
+    MenuProductEntity toEntity(MenuProductFileData fileData);
 }

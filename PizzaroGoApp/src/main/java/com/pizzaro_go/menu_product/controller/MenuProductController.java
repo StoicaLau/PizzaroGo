@@ -25,14 +25,21 @@ public class MenuProductController {
     private MenuProductService menuProductService;
 
     /**
-     * Retrieves all menu products.
+     * Retrieves menu products.
+     * By default, returns only those with sufficient stock.
+     * If 'all' is true, returns all products (useful for management).
      *
-     * @return a list of MenuProductResponse objects representing the menu products
+     * @param all whether to return all products regardless of stock
+     * @return a list of MenuProductResponse objects
      */
     @GetMapping("")
-    @Operation(summary = "Retrieve all menu products")
-    public ResponseEntity<List<MenuProductResponse>> getAll() {
-        return ResponseEntity.ok(this.menuProductService.getAll());
+    @Operation(summary = "Retrieve menu products")
+    public ResponseEntity<List<MenuProductResponse>> getProducts(
+            @RequestParam(value = "all", defaultValue = "false") boolean all) {
+        if (all) {
+            return ResponseEntity.ok(this.menuProductService.getAllProducts());
+        }
+        return ResponseEntity.ok(this.menuProductService.getAvailableProducts());
     }
 
     /**

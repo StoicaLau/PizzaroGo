@@ -32,5 +32,16 @@ public interface IMenuProductRepository extends JpaRepository<MenuProductEntity,
                         "WHERE mp.id = :id")
         Optional<MenuProductEntity> findByIdWithStockUsage(Long id);
 
+        /**
+         * Finds all menu products and eagerly fetches their associated stock usages and
+         * stock items.
+         *
+         * @return a list of all menu products
+         */
+        @Query("SELECT DISTINCT mp FROM MenuProductEntity mp " +
+                        "LEFT JOIN FETCH mp.productStockUsages psu " +
+                        "LEFT JOIN FETCH psu.stockItem")
+        java.util.List<MenuProductEntity> findAllWithStockUsage();
+
         Optional<MenuProductEntity> findFirstByName(String name);
 }
