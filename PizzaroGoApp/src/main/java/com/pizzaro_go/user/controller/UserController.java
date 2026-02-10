@@ -34,16 +34,48 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.register(userRequest));
     }
 
+    @Autowired
+    private jakarta.servlet.http.HttpSession httpSession;
+
     /**
-     * Authenticates a user.
+     * Authenticates a user and starts a session.
      *
      * @param loginRequest the login credentials
      * @return a ResponseEntity with UserResponse
      */
     @PostMapping("/login")
-    @Operation(summary = "Login a user")
+    @Operation(summary = "Login a user and start session")
     public ResponseEntity<UserResponse> login(@RequestBody UserRequest loginRequest) {
-        return ResponseEntity.ok(this.userService.login(loginRequest));
+        UserResponse user = this.userService.login(loginRequest);
+        httpSession.setAttribute("loggedUser", user);
+        return ResponseEntity.ok(user);
+    }
+
+    /**
+     * Retrieves the currently logged-in user from the session.
+     *
+     * @return a ResponseEntity with UserResponse or UNAUTHORIZED
+     */
+    @GetMapping("/me")
+    @Operation(summary = "Get currently logged in user")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        UserResponse user = (UserResponse) httpSession.getAttribute("loggedUser");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(user);
+    }
+
+    /**
+     * Terminates the current session.
+     *
+     * @return a ResponseEntity with MessageResponse
+     */
+    @PostMapping("/logout")
+    @Operation(summary = "Logout the user")
+    public ResponseEntity<MessageResponse> logout() {
+        httpSession.invalidate();
+        return ResponseEntity.ok(new MessageResponse("Logged out successfully"));
     }
 
     /**

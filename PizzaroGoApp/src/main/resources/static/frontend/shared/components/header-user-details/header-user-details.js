@@ -7,19 +7,27 @@
         }
 
         async init() {
-            // Wait for DOM to be ready if needed, but since we are imported, it might be safer to wait or check
-            // However, usually this script runs after the HTML is injected if we handle it that way.
-            // For now, we assume the HTML is already in the DOM or will be injected.
-            // But wait! The current app.js inserts navbar HTML, which should contain this component's placeholder.
-            // We need to attach listeners to *existing* elements.
+            // Dynamic import for UserService
+            try {
+                const { userService } = await import('/frontend/domains/user/UserService.js');
+                this.userService = userService;
+                await this.syncSession();
+            } catch (e) {
+                console.error("Hud: Failed to load UserService", e);
+            }
 
-            // Re-query elements in case of re-renders
             this.updateReferences();
             this.bindEvents();
-            this.checkAuthState();
+            await this.checkAuthState();
 
-            // Listen for global auth changes
-            window.addEventListener('auth-change', () => this.checkAuthState());
+            // Listen for global auth changes (e.g. after login/logout)
+            window.addEventListener('auth-change', async () => {
+                if (this.userService) {
+                    // Force refresh internal state in service
+                    this.userService._currentUser = null;
+                }
+                await this.checkAuthState();
+            });
 
             // Listen for cart changes
             window.addEventListener('cart-change', (e) => this.updateCartBadge(e.detail));
@@ -32,6 +40,16 @@
                     this.updateArrow(false);
                 }
             });
+        }
+
+        async syncSession() {
+            if (!this.userService) return;
+            try {
+                // me() now caches in memory, so this is safe to call
+                await this.userService.me();
+            } catch (e) {
+                console.error("Hud: Session sync failed", e);
+            }
         }
 
         updateReferences() {
@@ -74,7 +92,6 @@
                 this.cartBtn.onclick = () => {
                     const currentPath = window.location.hash || window.location.pathname;
                     if (currentPath.includes('menu')) {
-                        // We are already on menu page, just open it (menu.js will handle its own listener, but we can trigger it)
                         const openCartEvent = new CustomEvent('open-menu-cart');
                         window.dispatchEvent(openCartEvent);
                     } else if (window.navigate) {
@@ -116,10 +133,13 @@
             this.cartCount.classList.toggle('hidden', count === 0);
         }
 
-        checkAuthState() {
-            const user = JSON.parse(localStorage.getItem('user') || 'null');
-            const isLoggedIn = !!user;
+        async checkAuthState() {
+            let user = null;
+            if (this.userService) {
+                user = await this.userService.me();
+            }
 
+            const isLoggedIn = !!user;
             this.updateReferences();
 
             if (isLoggedIn) {
@@ -128,21 +148,25 @@
                 if (this.usernameLabel) this.usernameLabel.textContent = user.username || 'User';
                 if (this.emailLabel) this.emailLabel.textContent = user.email || '';
 
-                // Initialize cart badge from storage
                 const cartData = localStorage.getItem('pizzarogo_cart');
                 const items = cartData ? JSON.parse(cartData) : [];
                 this.updateCartBadge(items);
-
             } else {
                 if (this.unauthSection) this.unauthSection.classList.remove('hidden');
                 if (this.authSection) this.authSection.classList.add('hidden');
             }
         }
 
-        logout() {
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
-            // Clear cart on logout
+        async logout() {
+            try {
+                if (this.userService) {
+                    await this.userService.logout();
+                }
+            } catch (e) {
+                console.warn("Logout on server failed, clearing local stats anyway", e);
+            }
+
+            // Remove only NON-SENSITIVE local cache like cart (optional)
             localStorage.removeItem('pizzarogo_cart');
             window.dispatchEvent(new CustomEvent('cart-change', { detail: [] }));
             window.dispatchEvent(new CustomEvent('auth-change'));

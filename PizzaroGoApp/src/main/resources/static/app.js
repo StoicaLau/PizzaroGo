@@ -7,27 +7,40 @@ fetch("/frontend/shared/components/navigation-bar/navigation-bar.html")
         import("/frontend/shared/components/navigation-bar/navigation-bar.js").catch(() => { });
     });
 
-// Simple auth helper (placeholder). Replace with real auth/token logic later.
-function isAuthenticated() {
-    return !!localStorage.getItem("token");
-}
-window.isAuthenticated = isAuthenticated;
+// State object for current user
+let currentUser = null;
 
-function getUserRole() {
-    const userStr = localStorage.getItem("user");
-    if (!userStr) return null;
+async function refreshSession() {
     try {
-        const user = JSON.parse(userStr);
-        return user.role ? user.role.toUpperCase() : null;
+        const { userService } = await import("/frontend/domains/user/UserService.js");
+        currentUser = await userService.me();
+        return currentUser;
     } catch (e) {
+        console.error("Failed to refresh session", e);
         return null;
     }
 }
+
+// Auth helpers
+async function isAuthenticated() {
+    const user = await refreshSession();
+    return !!user;
+}
+window.isAuthenticatedAsync = isAuthenticated;
+
+// For synchronous checks where we already have the state
+window.isAuthenticated = () => !!currentUser;
+
+function getUserRole() {
+    if (!currentUser) return null;
+    return currentUser.role ? currentUser.role.toUpperCase() : null;
+}
 window.getUserRole = getUserRole;
 
-// Ensure auth-change event updates basic UI if needed
-window.addEventListener('auth-change', () => {
-    console.log("Auth state changed, user logged in:", isAuthenticated());
+// Ensure auth-change event updates basic UI
+window.addEventListener('auth-change', async () => {
+    await refreshSession();
+    console.log("Auth state changed, user logged in:", !!currentUser);
 });
 
 let currentPageCss = null;
@@ -40,21 +53,19 @@ const protectedPaths = {
     "/admin": ["ADMIN"]
 };
 
-function navigate(path) {
+async function navigate(path) {
     const allowedRoles = protectedPaths[path];
     if (allowedRoles) {
-        const authed = isAuthenticated();
-        // ... (rest of navigate function)
+        const user = await refreshSession();
+        const authed = !!user;
         const role = getUserRole();
 
         if (!authed || !allowedRoles.includes(role)) {
-            // If not authorized, redirect to home or login
             const target = authed ? "/home" : "/login";
             history.pushState({}, "", target);
             loadPage(target);
 
             if (!authed) {
-                // Optionally open auth modal if not logged in
                 window.dispatchEvent(new CustomEvent('open-auth-modal'));
             }
             return;
@@ -63,24 +74,23 @@ function navigate(path) {
     history.pushState({}, "", path);
     loadPage(path);
 }
-
-// expose navigate globally for inline onclick handlers in fetched HTML
 window.navigate = navigate;
 
 async function loadPage(path) {
     console.log("Navigating to path:", path);
 
-    // Centralized Route Security (Frontend)
+    // Initial session check before loading protected page
+    await refreshSession();
+
     const allowedRoles = protectedPaths[path];
     if (allowedRoles) {
-        const authed = isAuthenticated();
+        const authed = !!currentUser;
         const role = getUserRole();
 
         if (!authed || !allowedRoles.includes(role)) {
             console.warn("Access denied for path:", path);
             const target = authed ? "/home" : "/login";
 
-            // Redirect if trying to access unauthorized path
             if (path !== target) {
                 history.replaceState({}, "", target);
                 return loadPage(target);
@@ -132,20 +142,16 @@ async function loadPage(path) {
         return;
     }
 
-    // Try to load page-specific CSS (same folder, same name .css)
     const cssPath = page.replace('.html', '.css');
     await loadPageCss(cssPath);
 
-    // Try to import page-specific JS as module
     const jsPath = page.replace('.html', '.js');
     try {
         const module = await import(jsPath);
         if (module && typeof module.init === 'function') {
             module.init();
         }
-    } catch (e) {
-        // ignore missing page script
-    }
+    } catch (e) { }
 }
 
 async function loadPageCss(href) {
@@ -162,12 +168,9 @@ async function loadPageCss(href) {
         link.href = href;
         document.head.appendChild(link);
         currentPageCss = link;
-    } catch (e) {
-        // no css for page
-    }
+    } catch (e) { }
 }
 
-// Handle back/forward
 window.onpopstate = () => loadPage(location.pathname || '/');
 
 // Initial load

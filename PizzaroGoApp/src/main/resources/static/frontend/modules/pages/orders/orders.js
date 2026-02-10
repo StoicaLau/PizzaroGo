@@ -1,4 +1,5 @@
 import { orderService } from '../../../domains/order/OrderService.js';
+import { userService } from '../../../domains/user/UserService.js';
 
 export async function init() {
     console.log("Initializing Orders Page (Compact View)");
@@ -7,7 +8,7 @@ export async function init() {
 
 async function loadOrders() {
     const list = document.getElementById('orders-list');
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = await userService.me();
 
     if (!user) {
         list.innerHTML = `<div class="text-center"><p class="no-orders-msg">Please login to manage orders.</p></div>`;

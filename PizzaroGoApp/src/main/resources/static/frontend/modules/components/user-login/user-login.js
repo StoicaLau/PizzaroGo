@@ -48,11 +48,7 @@
 
             try {
                 console.log("Logging in...", email);
-                const user = await userService.login(email, password);
-
-                // Store user and token
-                localStorage.setItem('user', JSON.stringify(user));
-                localStorage.setItem('token', 'valid-token-' + Date.now());
+                await userService.login(email, password);
 
                 window.dispatchEvent(new CustomEvent('auth-change'));
 

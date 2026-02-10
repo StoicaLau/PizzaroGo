@@ -97,6 +97,44 @@ export class UserService {
 
         return await response.json();
     }
+
+    /**
+     * Gets the current logged in user from session.
+     * Caches the result in memory to avoid redundant calls during the same page load.
+     * @returns {Promise<User|null>}
+     */
+    async me() {
+        if (this._currentUser) return this._currentUser;
+        if (this._mePromise) return this._mePromise;
+
+        this._mePromise = (async () => {
+            try {
+                const response = await fetch(`${this.baseUrl}/me`);
+                if (response.status === 401) {
+                    this._currentUser = null;
+                    return null;
+                }
+                if (!response.ok) throw new Error('Failed to fetch session');
+                const data = await response.json();
+                this._currentUser = User.fromJson(data);
+                return this._currentUser;
+            } finally {
+                this._mePromise = null;
+            }
+        })();
+
+        return this._mePromise;
+    }
+
+    /**
+     * Logs out the user and clears session.
+     */
+    async logout() {
+        this._currentUser = null;
+        const response = await fetch(`${this.baseUrl}/logout`, { method: 'POST' });
+        if (!response.ok) throw new Error('Logout failed');
+        return await response.json();
+    }
 }
 
 export const userService = new UserService();

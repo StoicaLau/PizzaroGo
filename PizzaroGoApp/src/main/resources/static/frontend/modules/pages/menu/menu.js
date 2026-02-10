@@ -1,6 +1,9 @@
 import { menuProductService } from '../../../domains/menu_product/MenuProductService.js';
 import { orderService } from '../../../domains/order/OrderService.js';
+import { userService } from '../../../domains/user/UserService.js';
 import { Cart } from '../../../shared/utils/Cart.js';
+
+window.removeCartItem = (id) => Cart.removeItem(id);
 
 let allProducts = [];
 let activeCategory = 'ALL';
@@ -253,8 +256,6 @@ window.updateItemQty = (id, qty) => {
     }
 };
 
-window.removeCartItem = (id) => Cart.removeItem(id);
-
 async function handleFinishOrder() {
     const items = Cart.getItems();
     if (items.length === 0) {
@@ -262,7 +263,7 @@ async function handleFinishOrder() {
         return;
     }
 
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = await userService.me();
     if (!user) {
         window.dispatchEvent(new CustomEvent('open-auth-modal'));
         return;
