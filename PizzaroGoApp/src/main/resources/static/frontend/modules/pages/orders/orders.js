@@ -170,7 +170,10 @@ window.reorder = async (orderId) => {
         "Do you want to add these items to a new order and place it now?",
         async () => {
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
+                const user = await userService.me();
+                if (!user) {
+                    throw new Error("You must be logged in to reorder.");
+                }
                 const originalOrder = await orderService.getById(orderId);
 
                 if (!originalOrder || !originalOrder.orderItems) {

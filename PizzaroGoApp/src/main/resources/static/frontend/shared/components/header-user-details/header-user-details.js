@@ -160,17 +160,15 @@
         async logout() {
             try {
                 if (this.userService) {
-                    await this.userService.logout();
+                    this.userService.logout();
                 }
-            } catch (e) {
-                console.warn("Logout on server failed, clearing local stats anyway", e);
-            }
+            } catch (e) { }
 
             // Remove only NON-SENSITIVE local cache like cart (optional)
             localStorage.removeItem('pizzarogo_cart');
             window.dispatchEvent(new CustomEvent('cart-change', { detail: [] }));
             window.dispatchEvent(new CustomEvent('auth-change'));
-            if (window.navigate) window.navigate('/');
+            window.location.href = '/';
         }
     }
 

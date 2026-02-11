@@ -63,7 +63,10 @@
                     if (emailInput) emailInput.value = '';
                     if (passwordInput) passwordInput.value = '';
                     hideMessage();
-                }, 1000);
+
+                    // Refresh the page to show the role-specific interface
+                    window.location.reload();
+                }, 300);
 
             } catch (error) {
                 console.error("Login failed:", error);

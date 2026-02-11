@@ -179,22 +179,58 @@ export class UserManager {
     async handleRoleUpdate(userId, newRole) {
         try {
             await userService.updateStatus(userId, newRole);
-            this.showToast('success', 'User role updated successfully.');
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: 'User role updated successfully.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                background: '#1a1a1a',
+                color: '#fff'
+            });
             await this.loadUsers();
         } catch (error) {
             console.error(error);
-            this.showToast('error', 'Failed to update role: ' + error.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: error.message,
+                background: '#1a1a1a',
+                color: '#fff'
+            });
             await this.loadUsers(); // Revert on failure
         }
     }
 
     async handleDelete(userId) {
-        if (confirm('Are you sure you want to delete this user?')) {
+        const result = await Swal.fire({
+            title: 'Delete User?',
+            text: "Are you sure you want to delete this user? This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff5e00',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'Yes, Delete',
+            background: '#1a1a1a',
+            color: '#fff',
+            customClass: {
+                popup: 'premium-modal-swal'
+            }
+        });
+
+        if (result.isConfirmed) {
             try {
-                // Since user requested not to modify backend, we just show a message
-                // but we could call userService.delete(userId) if it existed.
-                // For now, let's keep it frontend only logic as requested.
-                this.showToast('info', 'Delete functionality is not yet implemented on the backend.');
+                // Mock delete as backend doesn't support it yet
+                Swal.fire({
+                    title: 'Not Implemented',
+                    text: 'Delete functionality is not yet implemented on the backend.',
+                    icon: 'info',
+                    background: '#1a1a1a',
+                    color: '#fff',
+                    confirmButtonColor: '#ff5e00'
+                });
             } catch (error) {
                 this.showToast('error', 'Failed to delete user.');
             }
@@ -204,35 +240,16 @@ export class UserManager {
 
 
     showToast(type, message) {
-        let container = document.getElementById('toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toast-container';
-            container.style.position = 'fixed';
-            container.style.bottom = '20px';
-            container.style.right = '20px';
-            container.style.zIndex = '2000';
-            document.body.appendChild(container);
-        }
-
-        const toast = document.createElement('div');
-        toast.textContent = message;
-        toast.style.padding = '1rem 1.5rem';
-        toast.style.marginBottom = '10px';
-        toast.style.borderRadius = '8px';
-        toast.style.color = '#fff';
-        toast.style.fontWeight = 'bold';
-        toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-        toast.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2.5s';
-
-        if (type === 'success') {
-            toast.style.backgroundColor = '#4caf50';
-        } else {
-            toast.style.backgroundColor = '#f44336';
-        }
-
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        Swal.fire({
+            icon: type === 'success' ? 'success' : 'error',
+            title: message,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            background: '#1a1a1a',
+            color: '#fff'
+        });
     }
 }
 

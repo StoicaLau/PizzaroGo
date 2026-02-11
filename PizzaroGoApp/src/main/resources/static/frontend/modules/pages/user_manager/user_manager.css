@@ -421,3 +421,18 @@
     background: #222;
     color: #eee;
 }
+
+/* Custom SweetAlert styles */
+.premium-modal-swal {
+    border: 1px solid rgba(255, 170, 0, 0.3) !important;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.premium-modal-swal .swal2-title {
+    color: #ffaa00 !important;
+    font-weight: 800 !important;
+}
+
+.premium-modal-swal .swal2-html-container {
+    color: #ccc !important;
+}

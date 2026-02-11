@@ -146,9 +146,6 @@ public class MenuProductService {
 
             double required = usage.getQuantityPerUnit() != null ? usage.getQuantityPerUnit() : 0.0;
             double available = stockItem.getQuantity() != null ? stockItem.getQuantity() : 0.0;
-            this.log.info("Item '{}' needs {}, but only {} is in stock.",
-                    stockItem.getName(), required, available);
-
             // If an ingredient is required (qty > 0) but stock is insufficient, hide the
             // product.
             if (required > 0 && available < required) {
